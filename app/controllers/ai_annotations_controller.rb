@@ -18,7 +18,6 @@ class AiAnnotationsController < ApplicationController
 
   def edit
     @ai_annotation = AiAnnotation.find_by!(uuid: params[:uuid])
-    @new_ai_annotation = AiAnnotation.new
   end
 
   def update
