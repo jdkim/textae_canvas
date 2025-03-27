@@ -50,7 +50,10 @@ class AiAnnotation < ApplicationRecord
     )
 
     result = response.dig("choices", 0, "message", "content")
-    AiAnnotation.create!(content: result)
+    token_used = response.dig("usage", "total_tokens").to_i
+    annotation = AiAnnotation.create!(content: result)
+
+    [ annotation, token_used ]
   end
 
   private
