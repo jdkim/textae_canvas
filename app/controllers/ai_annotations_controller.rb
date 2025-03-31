@@ -1,8 +1,5 @@
 class AiAnnotationsController < ApplicationController
-  DAILY_TOKEN_LIMIT_PER_CLIENT = 10000
-
-  before_action :check_daily_token_limit, only: %i[create update]
-  rescue_from Exceptions::DailyTokenLimitExceededError, with: :handle_daily_token_limit_exceeded
+  include TokenLimitable
 
   def new
     @new_ai_annotation = AiAnnotation.new
@@ -46,32 +43,5 @@ class AiAnnotationsController < ApplicationController
 
   def ai_annotation_params
     params.require(:ai_annotation).permit(:text, :prompt, :content)
-  end
-
-  def token_used_cache_key
-    "tokens_used:#{request.remote_ip}:#{Date.current}"
-  end
-
-  def check_daily_token_limit
-    within_token_limit = Rails.cache.read(token_used_cache_key).to_i <= DAILY_TOKEN_LIMIT_PER_CLIENT
-    raise Exceptions::DailyTokenLimitExceededError unless within_token_limit
-  end
-
-  def handle_daily_token_limit_exceeded(e)
-    flash.now[:alert] = "#{e.message}"
-
-    case action_name
-    when "create"
-      @new_ai_annotation = AiAnnotation.prepare_with(ai_annotation_params[:text], ai_annotation_params[:prompt])
-      render :new, status: :too_many_requests
-    when "update"
-      @ai_annotation = AiAnnotation.find_by(uuid: params[:id])
-      render :edit, status: :too_many_requests
-    end
-  end
-
-  def increment_daily_token_usage(token_used)
-    current_token_used = Rails.cache.read(token_used_cache_key).to_i
-    Rails.cache.write(token_used_cache_key, current_token_used + token_used, expires_in: 24.hours)
   end
 end
