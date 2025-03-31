@@ -9,6 +9,8 @@ module TokenLimitable
 
   private
 
+  # Currently, token limits are reset on a date basis.
+  # This is implemented by including the date in the cache key.
   def token_used_cache_key
     "tokens_used:#{request.remote_ip}:#{Date.current}"
   end
