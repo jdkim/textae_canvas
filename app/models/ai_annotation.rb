@@ -1,5 +1,5 @@
 class AiAnnotation < ApplicationRecord
-  attr_accessor :text, :prompt
+  attr_accessor :text, :prompt, :token_used
 
   FORMAT_SPECIFICATION = <<~EOS
     Annotate the text according to the prompt with using the following syntax:
@@ -49,6 +49,7 @@ class AiAnnotation < ApplicationRecord
       }
     )
 
+    self.token_used = response.dig("usage", "total_tokens").to_i
     result = response.dig("choices", 0, "message", "content")
     AiAnnotation.create!(content: result)
   end
