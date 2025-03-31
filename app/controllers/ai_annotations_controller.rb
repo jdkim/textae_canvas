@@ -30,7 +30,7 @@ class AiAnnotationsController < ApplicationController
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
     ai_annotation = @ai_annotation.annotate!
-    increment_token_usage(ai_annotation.token_used)
+    increment_token_usage(@ai_annotation.token_used)
 
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"
   rescue => e
