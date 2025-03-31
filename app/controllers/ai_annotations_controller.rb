@@ -10,8 +10,8 @@ class AiAnnotationsController < ApplicationController
     prompt = ai_annotation_params[:prompt]
     @new_ai_annotation = AiAnnotation.prepare_with(text, prompt)
 
-    ai_annotation, token_used = @new_ai_annotation.annotate!
-    increment_daily_token_usage(token_used)
+    ai_annotation = @new_ai_annotation.annotate!
+    increment_daily_token_usage(@new_ai_annotation.token_used)
 
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"
   rescue => e
@@ -29,8 +29,8 @@ class AiAnnotationsController < ApplicationController
     @ai_annotation.text = AnnotationConverter.new.to_inline(ai_annotation_params[:content])
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
-    ai_annotation, token_used = @ai_annotation.annotate!
-    increment_daily_token_usage(token_used)
+    ai_annotation = @ai_annotation.annotate!
+    increment_daily_token_usage(ai_annotation.token_used)
 
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"
   rescue => e
