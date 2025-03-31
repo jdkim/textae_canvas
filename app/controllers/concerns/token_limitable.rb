@@ -33,6 +33,8 @@ module TokenLimitable
     end
   end
 
+  # After used OpenAI API in the controller, call this method to update the token usage.
+  # Give the token used count returned by the API as the argument when calling this method.
   def increment_token_usage(token_used)
     current_token_used = Rails.cache.read(token_used_cache_key).to_i
     Rails.cache.write(token_used_cache_key, current_token_used + token_used, expires_in: 24.hours)
