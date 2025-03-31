@@ -14,7 +14,6 @@ module TokenLimitable
   end
 
   def check_daily_token_limit
-    binding.break
     within_token_limit = Rails.cache.read(token_used_cache_key).to_i <= DAILY_TOKEN_LIMIT_PER_CLIENT
     raise Exceptions::DailyTokenLimitExceededError unless within_token_limit
   end
