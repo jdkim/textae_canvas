@@ -49,8 +49,8 @@ class AiAnnotation < ApplicationRecord
       }
     )
 
-    result = response.dig("choices", 0, "message", "content")
     self.token_used = response.dig("usage", "total_tokens").to_i
+    result = response.dig("choices", 0, "message", "content")
     AiAnnotation.create!(content: result)
   end
 
