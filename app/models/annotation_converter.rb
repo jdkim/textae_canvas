@@ -1,5 +1,3 @@
-require 'json'
-
 class AnnotationConverter
   JSON2INLINE_API = URI("https://pubannotation.org/conversions/json2inline").freeze
 
