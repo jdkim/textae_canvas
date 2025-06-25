@@ -11,6 +11,7 @@ class AnnotationConverterTest < ActiveSupport::TestCase
       ]
     }.to_json
     expected = "[Elon Musk][Person] is a member of the [PayPal Mafia][Organization]."
-    assert_equal expected, AnnotationConverter.new.to_inline(json)
+    actual = AnnotationConverter.new.to_inline(json)
+    assert_equal expected, actual
   end
 end
