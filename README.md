@@ -1,6 +1,6 @@
 # TextAE Canvas
 ## Environment
-- Ruby 3.4.2
+- Ruby 3.4.4
 - Rails 8.0.2
 - SQLite3 2.6.0
 
