@@ -54,7 +54,7 @@ class AiAnnotation < ApplicationRecord
     AiAnnotation.create!(content: result)
   end
 
-  def set_text_in_json(annotation_json)
+  def set_text_in_json=(annotation_json)
     self.text = SimpleInlineTextAnnotation.generate(annotation_json)
   end
 
