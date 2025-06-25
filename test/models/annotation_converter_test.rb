@@ -1,7 +1,6 @@
 require "test_helper"
 
 class AnnotationConverterTest < ActiveSupport::TestCase
-
   test "should generate string with inline annotation from JSON" do
     json = {
       "text" => "Elon Musk is a member of the PayPal Mafia.",
