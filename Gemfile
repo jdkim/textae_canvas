@@ -16,6 +16,8 @@ gem "importmap-rails"
 gem "stimulus-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
+# Custom gem providing inline text annotation functionality [https://github.com/pubannotation/simple_inline_annotation_format]
+gem "simple_inline_text_annotation"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
