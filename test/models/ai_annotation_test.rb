@@ -18,7 +18,7 @@ class AiAnnotationTest < ActiveSupport::TestCase
         { "span" => { "begin" => 29, "end" => 41 }, "obj" => "Organization" }
       ]
     }.to_json
-    annotation.set_text_in_json = JSON.parse(json)
+    annotation.text_json = JSON.parse(json)
     expected = "[Elon Musk][Person] is a member of the [PayPal Mafia][Organization]."
     actual = annotation.text
     assert_equal expected, actual
