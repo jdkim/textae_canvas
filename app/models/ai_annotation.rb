@@ -51,6 +51,8 @@ class AiAnnotation < ApplicationRecord
 
     self.token_used = response.dig("usage", "total_tokens").to_i
     result = response.dig("choices", 0, "message", "content")
+    result = SimpleInlineTextAnnotation.parse(result)
+    result = JSON.generate(result)
     AiAnnotation.create!(content: result)
   end
 
