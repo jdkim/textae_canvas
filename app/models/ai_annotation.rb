@@ -112,7 +112,7 @@ class AiAnnotation < ApplicationRecord
           y.yield "\n"
         else
           words = line.split(/\s+/)
-          words.each { |word| y.yield word }
+          words.each { y.yield it }
           y.yield "\n" if line.end_with?("\n")
         end
       end
