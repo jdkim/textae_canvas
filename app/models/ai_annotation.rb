@@ -111,8 +111,8 @@ class AiAnnotation < ApplicationRecord
         if line.strip.empty?
           y.yield "\n"
         else
-          line_words = line.split(/\s+/)
-          line_words.each { |word| y.yield word }
+          words = line.split(/\s+/)
+          words.each { |word| y.yield word }
           y.yield "\n" if line.end_with?("\n")
         end
       end
