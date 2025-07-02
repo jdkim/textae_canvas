@@ -84,10 +84,7 @@ class AiAnnotation < ApplicationRecord
   # Extracts chunks of text from the words array, ensuring that each chunk does not exceed the specified window size.
   def extract_chunks(words_with_newlines)
     chunks = []
-    i = 0
-    while i < words_with_newlines.size
-      # Extract appropriately sized chunks from the word array
-      chunk_words = words_with_newlines[i...[ i + WINDOW_SIZE, words_with_newlines.size ].min]
+    words_with_newlines.each_slice(WINDOW_SIZE) do |chunk_words|
       # Concatenate words considering line breaks (determine whether to add spaces)
       chunk_text = ""
       chunk_words.each do |word|
@@ -102,7 +99,6 @@ class AiAnnotation < ApplicationRecord
         end
       end
       chunks << chunk_text
-      i += WINDOW_SIZE
     end
     chunks
   end
