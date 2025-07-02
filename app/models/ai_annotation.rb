@@ -113,11 +113,11 @@ class AiAnnotation < ApplicationRecord
   def extract_words_with_newlines
     words_with_newlines = []
     @text.each_line do |line|
-      line_words = line.split(/\s+/)
-      # Add line break information to the last word of each line (only line break for empty lines)
-      if line_words.empty?
+      # Check if line is empty or contains only whitespace before splitting
+      if line.strip.empty?
         words_with_newlines << "\n"
       else
+        line_words = line.split(/\s+/)
         line_words[-1] = "#{line_words[-1]}\n" unless line.chomp == line
         words_with_newlines.concat(line_words)
       end
