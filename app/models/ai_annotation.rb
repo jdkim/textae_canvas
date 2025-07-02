@@ -87,7 +87,7 @@ class AiAnnotation < ApplicationRecord
     i = 0
     while i < words_with_newlines.size
       # Extract appropriately sized chunks from the word array
-      chunk_words = words_with_newlines[i...[i + WINDOW_SIZE, words_with_newlines.size].min]
+      chunk_words = words_with_newlines[i...[ i + WINDOW_SIZE, words_with_newlines.size ].min]
       # Concatenate words considering line breaks (determine whether to add spaces)
       chunk_text = ""
       chunk_words.each do |word|
