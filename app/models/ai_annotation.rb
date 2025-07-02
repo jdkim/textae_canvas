@@ -59,59 +59,44 @@ class AiAnnotation < ApplicationRecord
 
     total_tokens_used = 0
     combined_result = ""
+    chunks = []
+    i = 0
+    while i < words_with_newlines.size
+      # Extract appropriately sized chunks from the word array
+      chunk_words = words_with_newlines[i...[ i + WINDOW_SIZE, words_with_newlines.size ].min]
+      # Concatenate words considering line breaks (determine whether to add spaces)
+      chunk_text = ""
+      chunk_words.each do |word|
+        if word == "\n"
+          chunk_text += word
+        elsif word.end_with?("\n")
+          chunk_text += " #{word}"
+        elsif chunk_text.empty? || chunk_text.end_with?("\n")
+          chunk_text += word
+        else
+          chunk_text += " #{word}"
+        end
+      end
+      chunks << chunk_text
+      i += WINDOW_SIZE
+    end
 
-    if words_with_newlines.size <= WINDOW_SIZE
-      # If text size is within window size, make API call only once
+    chunks.each_with_index do |chunk, index|
+      user_content = "#{chunk}\n\nPrompt:\n#{@prompt}"
+      user_content += "\n\n(This is part #{index + 1} of #{chunks.size}. Please annotate this part only.)" if chunks.size > 1
       response = client.chat(
         parameters: {
           model: "gpt-4o",
           messages: [
             { role: "system", content: FORMAT_SPECIFICATION },
-            { role: "user", content: "#{@text}\n\nPrompt:\n#{@prompt}" }
+            { role: "user", content: user_content }
           ]
         }
       )
-      total_tokens_used = response.dig("usage", "total_tokens").to_i
-      combined_result = response.dig("choices", 0, "message", "content")
-    else
-      # If text size exceeds window size, split and make API calls
-      chunks = []
-      i = 0
-      while i < words_with_newlines.size
-        # Extract appropriately sized chunks from the word array
-        chunk_words = words_with_newlines[i...[ i + WINDOW_SIZE, words_with_newlines.size ].min]
-        # Concatenate words considering line breaks (determine whether to add spaces)
-        chunk_text = ""
-        chunk_words.each do |word|
-          if word == "\n"
-            chunk_text += word
-          elsif word.end_with?("\n")
-            chunk_text += " #{word}"
-          elsif chunk_text.empty? || chunk_text.end_with?("\n")
-            chunk_text += word
-          else
-            chunk_text += " #{word}"
-          end
-        end
-        chunks << chunk_text
-        i += WINDOW_SIZE
-      end
 
-      chunks.each_with_index do |chunk, index|
-        response = client.chat(
-          parameters: {
-            model: "gpt-4o",
-            messages: [
-              { role: "system", content: FORMAT_SPECIFICATION },
-              { role: "user", content: "#{chunk}\n\nPrompt:\n#{@prompt}\n\n(This is part #{index + 1} of #{chunks.size}. Please annotate this part only.)" }
-            ]
-          }
-        )
-
-        total_tokens_used += response.dig("usage", "total_tokens").to_i
-        result = response.dig("choices", 0, "message", "content")
-        combined_result += result
-      end
+      total_tokens_used += response.dig("usage", "total_tokens").to_i
+      result = response.dig("choices", 0, "message", "content")
+      combined_result += result
     end
 
     self.token_used = total_tokens_used
