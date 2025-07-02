@@ -90,9 +90,7 @@ class AiAnnotation < ApplicationRecord
       chunk_words.each do |word|
         if word == "\n"
           chunk_text += word
-        elsif word.end_with?("\n")
-          chunk_text += " #{word}"
-        elsif chunk_text.empty? || chunk_text.end_with?("\n")
+        elsif chunk_text.empty?
           chunk_text += word
         else
           chunk_text += " #{word}"
