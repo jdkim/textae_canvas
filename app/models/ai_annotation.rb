@@ -23,6 +23,9 @@ class AiAnnotation < ApplicationRecord
     Output the original text with annotations.
   EOS
 
+  # ウィンドウサイズ（単位：単語）
+  WINDOW_SIZE = 50
+
   before_create :clean_old_annotations
   before_create :set_uuid
 
@@ -39,19 +42,81 @@ class AiAnnotation < ApplicationRecord
     # To reduce the risk of API key leakage, API error logging is disabled by default.
     # If you need to check the error details, enable logging by add argument `log_errors: true` like: OpenAI::Client.new(log_errors: true)
     client = OpenAI::Client.new
-    response = client.chat(
-      parameters: {
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: FORMAT_SPECIFICATION },
-          { role: "user", content: "#{@text}\n\nPrompt:\n#{@prompt}" }
-        ]
-      }
-    )
 
-    self.token_used = response.dig("usage", "total_tokens").to_i
-    result = response.dig("choices", 0, "message", "content")
-    result = SimpleInlineTextAnnotation.parse(result)
+    # 改行を保持したまま単語に分割
+    # 行ごとに分割し、それぞれの行をスペースで分割して単語の配列にする
+    words_with_newlines = []
+    @text.each_line do |line|
+      line_words = line.split(/\s+/)
+      # 各行の最後の単語に改行情報を付加（空行の場合は改行のみ）
+      if line_words.empty?
+        words_with_newlines << "\n"
+      else
+        line_words[-1] = "#{line_words[-1]}\n" unless line.chomp == line
+        words_with_newlines.concat(line_words)
+      end
+    end
+
+    total_tokens_used = 0
+    combined_result = ""
+
+    if words_with_newlines.size <= WINDOW_SIZE
+      # テキストサイズがウィンドウサイズ以下なら一度だけAPI呼び出し
+      response = client.chat(
+        parameters: {
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: FORMAT_SPECIFICATION },
+            { role: "user", content: "#{@text}\n\nPrompt:\n#{@prompt}" }
+          ]
+        }
+      )
+      total_tokens_used = response.dig("usage", "total_tokens").to_i
+      combined_result = response.dig("choices", 0, "message", "content")
+    else
+      # テキストサイズがウィンドウサイズを超えたら分割してAPI呼び出し
+      chunks = []
+      i = 0
+      while i < words_with_newlines.size
+        # 単語配列から適切なサイズのチャンクを切り出す
+        chunk_words = words_with_newlines[i...[i + WINDOW_SIZE, words_with_newlines.size].min]
+        # 改行を考慮して単語を連結（スペースを追加するかどうかを判断）
+        chunk_text = ""
+        chunk_words.each do |word|
+          if word == "\n"
+            chunk_text += word
+          elsif word.end_with?("\n")
+            chunk_text += " #{word}"
+          elsif chunk_text.empty? || chunk_text.end_with?("\n")
+            chunk_text += word
+          else
+            chunk_text += " #{word}"
+          end
+        end
+        chunks << chunk_text
+        i += WINDOW_SIZE
+      end
+
+      chunks.each_with_index do |chunk, index|
+        response = client.chat(
+          parameters: {
+            model: "gpt-4o",
+            messages: [
+              { role: "system", content: FORMAT_SPECIFICATION },
+              { role: "user", content: "#{chunk}\n\nPrompt:\n#{@prompt}\n\n(This is part #{index + 1} of #{chunks.size}. Please annotate this part only.)" }
+            ]
+          }
+        )
+
+        total_tokens_used += response.dig("usage", "total_tokens").to_i
+        result = response.dig("choices", 0, "message", "content")
+        combined_result += result
+      end
+    end
+
+    self.token_used = total_tokens_used
+    result = SimpleInlineTextAnnotation.parse(combined_result)
+    puts combined_result
     result = JSON.generate(result)
     AiAnnotation.create!(content: result)
   end
