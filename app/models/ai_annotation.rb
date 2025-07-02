@@ -84,20 +84,25 @@ class AiAnnotation < ApplicationRecord
   def extract_chunks(words_with_newlines)
     chunks = []
     words_with_newlines.each_slice(WINDOW_SIZE) do |chunk_words|
-      # Concatenate words considering line breaks (determine whether to add spaces)
-      chunk_text = ""
-      chunk_words.each do |word|
-        if word == "\n"
-          chunk_text += word
-        elsif chunk_text.empty?
-          chunk_text += word
-        else
-          chunk_text += " #{word}"
-        end
-      end
+      chunk_text = join_words_to_text(chunk_words)
       chunks << chunk_text
     end
     chunks
+  end
+
+  # Joins an array of words into text, handling newlines and spaces appropriately
+  def join_words_to_text(words)
+    text = ""
+    words.each do |word|
+      if word == "\n"
+        text += word
+      elsif text.empty?
+        text += word
+      else
+        text += " #{word}"
+      end
+    end
+    text
   end
 
   # Extracts words from the text while preserving line breaks.
