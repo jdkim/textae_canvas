@@ -45,41 +45,11 @@ class AiAnnotation < ApplicationRecord
 
     # Split into words while preserving line breaks
     # Split by lines, then split each line by spaces to create an array of words
-    words_with_newlines = []
-    @text.each_line do |line|
-      line_words = line.split(/\s+/)
-      # Add line break information to the last word of each line (only line break for empty lines)
-      if line_words.empty?
-        words_with_newlines << "\n"
-      else
-        line_words[-1] = "#{line_words[-1]}\n" unless line.chomp == line
-        words_with_newlines.concat(line_words)
-      end
-    end
+    words_with_newlines = extract_words_with_newlines
+    chunks = extract_chunks(words_with_newlines)
 
     total_tokens_used = 0
     combined_result = ""
-    chunks = []
-    i = 0
-    while i < words_with_newlines.size
-      # Extract appropriately sized chunks from the word array
-      chunk_words = words_with_newlines[i...[ i + WINDOW_SIZE, words_with_newlines.size ].min]
-      # Concatenate words considering line breaks (determine whether to add spaces)
-      chunk_text = ""
-      chunk_words.each do |word|
-        if word == "\n"
-          chunk_text += word
-        elsif word.end_with?("\n")
-          chunk_text += " #{word}"
-        elsif chunk_text.empty? || chunk_text.end_with?("\n")
-          chunk_text += word
-        else
-          chunk_text += " #{word}"
-        end
-      end
-      chunks << chunk_text
-      i += WINDOW_SIZE
-    end
 
     chunks.each_with_index do |chunk, index|
       user_content = "#{chunk}\n\nPrompt:\n#{@prompt}"
@@ -110,6 +80,50 @@ class AiAnnotation < ApplicationRecord
   end
 
   private
+
+  # Extracts chunks of text from the words array, ensuring that each chunk does not exceed the specified window size.
+  def extract_chunks(words_with_newlines)
+    chunks = []
+    i = 0
+    while i < words_with_newlines.size
+      # Extract appropriately sized chunks from the word array
+      chunk_words = words_with_newlines[i...[i + WINDOW_SIZE, words_with_newlines.size].min]
+      # Concatenate words considering line breaks (determine whether to add spaces)
+      chunk_text = ""
+      chunk_words.each do |word|
+        if word == "\n"
+          chunk_text += word
+        elsif word.end_with?("\n")
+          chunk_text += " #{word}"
+        elsif chunk_text.empty? || chunk_text.end_with?("\n")
+          chunk_text += word
+        else
+          chunk_text += " #{word}"
+        end
+      end
+      chunks << chunk_text
+      i += WINDOW_SIZE
+    end
+    chunks
+  end
+
+  # Extracts words from the text while preserving line breaks.
+  # Each line is split into words, and the last word of each line is appended with a newline character if the line ends with a newline.
+  # Empty lines are represented by a single newline character.
+  def extract_words_with_newlines
+    words_with_newlines = []
+    @text.each_line do |line|
+      line_words = line.split(/\s+/)
+      # Add line break information to the last word of each line (only line break for empty lines)
+      if line_words.empty?
+        words_with_newlines << "\n"
+      else
+        line_words[-1] = "#{line_words[-1]}\n" unless line.chomp == line
+        words_with_newlines.concat(line_words)
+      end
+    end
+    words_with_newlines
+  end
 
   def clean_old_annotations
     AiAnnotation.old.destroy_all
