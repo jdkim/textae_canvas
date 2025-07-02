@@ -42,6 +42,6 @@ class AiAnnotationsController < ApplicationController
   private
 
   def ai_annotation_params
-    params.require(:ai_annotation).permit(:text, :prompt, :content)
+    params.expect(ai_annotation: [:text, :prompt, :content])
   end
 end
