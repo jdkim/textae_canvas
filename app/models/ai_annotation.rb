@@ -111,8 +111,11 @@ class AiAnnotation < ApplicationRecord
   # Each line is split into words, and the last word of each line is appended with a newline character if the line ends with a newline.
   # Empty lines are represented by a single newline character.
   def extract_words_with_newlines
+    # Normalize line endings to \n for consistent handling
+    normalized_text = @text.gsub(/\r\n/, "\n")
+
     words_with_newlines = []
-    @text.each_line do |line|
+    normalized_text.each_line do |line|
       # Check if line is empty or contains only whitespace before splitting
       if line.strip.empty?
         words_with_newlines << "\n"
@@ -120,7 +123,7 @@ class AiAnnotation < ApplicationRecord
         line_words = line.split(/\s+/)
         words_with_newlines.concat(line_words)
         # Add newline as a separate element if the original line ended with a newline
-        words_with_newlines << "\n" unless line.chomp == line
+        words_with_newlines << "\n" if line.end_with?("\n")
       end
     end
     words_with_newlines
