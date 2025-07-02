@@ -116,7 +116,6 @@ class AiAnnotation < ApplicationRecord
 
     self.token_used = total_tokens_used
     result = SimpleInlineTextAnnotation.parse(combined_result)
-    puts combined_result
     result = JSON.generate(result)
     AiAnnotation.create!(content: result)
   end
