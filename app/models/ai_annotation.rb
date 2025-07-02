@@ -118,8 +118,9 @@ class AiAnnotation < ApplicationRecord
         words_with_newlines << "\n"
       else
         line_words = line.split(/\s+/)
-        line_words[-1] = "#{line_words[-1]}\n" unless line.chomp == line
         words_with_newlines.concat(line_words)
+        # Add newline as a separate element if the original line ended with a newline
+        words_with_newlines << "\n" unless line.chomp == line
       end
     end
     words_with_newlines
