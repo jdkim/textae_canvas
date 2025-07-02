@@ -45,8 +45,7 @@ class AiAnnotation < ApplicationRecord
 
     # Split into words while preserving line breaks
     # Split by lines, then split each line by spaces to create an array of words
-    words_with_newlines = extract_words_with_newlines
-    chunks = extract_chunks(words_with_newlines)
+    chunks = extract_chunks(words_with_newlines_enum(@text))
 
     total_tokens_used = 0
     combined_result = ""
@@ -105,23 +104,19 @@ class AiAnnotation < ApplicationRecord
   # Normalizes line endings (\r\n to \n) and splits each line into words.
   # Empty lines are represented by a single newline character.
   # Words are collected sequentially, with newline characters added as separate elements when lines end with newlines.
-  def extract_words_with_newlines
-    # Normalize line endings to \n for consistent handling
-    normalized_text = @text.gsub(/\r\n/, "\n")
-
-    words_with_newlines = []
-    normalized_text.each_line do |line|
-      # Check if line is empty or contains only whitespace before splitting
-      if line.strip.empty?
-        words_with_newlines << "\n"
-      else
-        line_words = line.split(/\s+/)
-        words_with_newlines.concat(line_words)
-        # Add newline as a separate element if the original line ended with a newline
-        words_with_newlines << "\n" if line.end_with?("\n")
+  def words_with_newlines_enum(text)
+    Enumerator.new do |y|
+      normalized_text = text.gsub(/\r\n/, "\n")
+      normalized_text.each_line do |line|
+        if line.strip.empty?
+          y.yield "\n"
+        else
+          line_words = line.split(/\s+/)
+          line_words.each { |word| y.yield word }
+          y.yield "\n" if line.end_with?("\n")
+        end
       end
     end
-    words_with_newlines
   end
 
   def clean_old_annotations
