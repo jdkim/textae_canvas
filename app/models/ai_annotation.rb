@@ -45,7 +45,7 @@ class AiAnnotation < ApplicationRecord
 
     # Split into words while preserving line breaks
     # Split by lines, then split each line by spaces to create an array of words
-    chunks = extract_chunks(words_with_newlines_enum(@text))
+    chunks = extract_chunks(words_with_newlines_enum(@text)).to_a
 
     total_tokens_used = 0
     combined_result = ""
