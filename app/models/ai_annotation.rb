@@ -23,7 +23,7 @@ class AiAnnotation < ApplicationRecord
     Output the original text with annotations.
   EOS
 
-  # ウィンドウサイズ（単位：単語）
+  # Window size (unit: words)
   WINDOW_SIZE = 50
 
   before_create :clean_old_annotations
@@ -43,12 +43,12 @@ class AiAnnotation < ApplicationRecord
     # If you need to check the error details, enable logging by add argument `log_errors: true` like: OpenAI::Client.new(log_errors: true)
     client = OpenAI::Client.new
 
-    # 改行を保持したまま単語に分割
-    # 行ごとに分割し、それぞれの行をスペースで分割して単語の配列にする
+    # Split into words while preserving line breaks
+    # Split by lines, then split each line by spaces to create an array of words
     words_with_newlines = []
     @text.each_line do |line|
       line_words = line.split(/\s+/)
-      # 各行の最後の単語に改行情報を付加（空行の場合は改行のみ）
+      # Add line break information to the last word of each line (only line break for empty lines)
       if line_words.empty?
         words_with_newlines << "\n"
       else
@@ -61,7 +61,7 @@ class AiAnnotation < ApplicationRecord
     combined_result = ""
 
     if words_with_newlines.size <= WINDOW_SIZE
-      # テキストサイズがウィンドウサイズ以下なら一度だけAPI呼び出し
+      # If text size is within window size, make API call only once
       response = client.chat(
         parameters: {
           model: "gpt-4o",
@@ -74,13 +74,13 @@ class AiAnnotation < ApplicationRecord
       total_tokens_used = response.dig("usage", "total_tokens").to_i
       combined_result = response.dig("choices", 0, "message", "content")
     else
-      # テキストサイズがウィンドウサイズを超えたら分割してAPI呼び出し
+      # If text size exceeds window size, split and make API calls
       chunks = []
       i = 0
       while i < words_with_newlines.size
-        # 単語配列から適切なサイズのチャンクを切り出す
+        # Extract appropriately sized chunks from the word array
         chunk_words = words_with_newlines[i...[i + WINDOW_SIZE, words_with_newlines.size].min]
-        # 改行を考慮して単語を連結（スペースを追加するかどうかを判断）
+        # Concatenate words considering line breaks (determine whether to add spaces)
         chunk_text = ""
         chunk_words.each do |word|
           if word == "\n"
