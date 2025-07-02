@@ -108,8 +108,9 @@ class AiAnnotation < ApplicationRecord
   end
 
   # Extracts words from the text while preserving line breaks.
-  # Each line is split into words, and the last word of each line is appended with a newline character if the line ends with a newline.
+  # Normalizes line endings (\r\n to \n) and splits each line into words.
   # Empty lines are represented by a single newline character.
+  # Words are collected sequentially, with newline characters added as separate elements when lines end with newlines.
   def extract_words_with_newlines
     # Normalize line endings to \n for consistent handling
     normalized_text = @text.gsub(/\r\n/, "\n")
