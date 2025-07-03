@@ -45,8 +45,7 @@ class AiAnnotation < ApplicationRecord
 
     word_chunk = WordChunk.new(WINDOW_SIZE)
 
-    # Split into words while preserving line breaks
-    # Split by lines, then split each line by spaces to create an array of words
+    # Extract text chunks using WordChunk class
     chunks = word_chunk.extract_chunks(@text)
 
     total_tokens_used, combined_result = chunks.each_with_index.reduce([ 0, "" ]) do |(tokens_sum, result), (chunk, index)|
