@@ -51,19 +51,7 @@ class AiAnnotation < ApplicationRecord
     total_tokens_used, combined_result = chunks.each_with_index.reduce([ 0, "" ]) do |(tokens_sum, result), (chunk, index)|
       user_content = "#{chunk}\n\nPrompt:\n#{@prompt}"
       user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.drop(1).any?
-      response = client.chat(
-        parameters: {
-          model: "gpt-4o",
-          messages: [
-            { role: "system", content: FORMAT_SPECIFICATION },
-            { role: "user", content: user_content }
-          ]
-        }
-      )
-      [
-        tokens_sum.to_i + (response.dig("usage", "total_tokens") || 0).to_i,
-        result.to_s + (response.dig("choices", 0, "message", "content") || "").to_s
-      ]
+      call_openai_chat_api(client, result, tokens_sum, user_content)
     end
 
     self.token_used = total_tokens_used
@@ -77,6 +65,22 @@ class AiAnnotation < ApplicationRecord
   end
 
   private
+
+  def call_openai_chat_api(client, result, tokens_sum, user_content)
+    response = client.chat(
+      parameters: {
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: FORMAT_SPECIFICATION },
+          { role: "user", content: user_content }
+        ]
+      }
+    )
+    [
+      tokens_sum.to_i + (response.dig("usage", "total_tokens") || 0).to_i,
+      result.to_s + (response.dig("choices", 0, "message", "content") || "").to_s
+    ]
+  end
 
   def clean_old_annotations
     AiAnnotation.old.destroy_all
