@@ -49,12 +49,9 @@ class AiAnnotation < ApplicationRecord
     # Split by lines, then split each line by spaces to create an array of words
     chunks = word_chunk.extract_chunks(@text)
 
-    total_tokens_used = 0
-    combined_result = ""
-
-    chunks.each_with_index do |chunk, index|
+    total_tokens_used, combined_result = chunks.each_with_index.reduce([0, ""]) do |(tokens_sum, result), (chunk, index)|
       user_content = "#{chunk}\n\nPrompt:\n#{@prompt}"
-      user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.take(2).size > 1
+      user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.drop(1).any?
       response = client.chat(
         parameters: {
           model: "gpt-4o",
@@ -64,10 +61,10 @@ class AiAnnotation < ApplicationRecord
           ]
         }
       )
-
-      total_tokens_used += response.dig("usage", "total_tokens").to_i
-      result = response.dig("choices", 0, "message", "content")
-      combined_result += result
+      [
+        tokens_sum.to_i + (response.dig("usage", "total_tokens") || 0).to_i,
+        result.to_s + (response.dig("choices", 0, "message", "content") || "").to_s
+      ]
     end
 
     self.token_used = total_tokens_used
