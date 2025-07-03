@@ -45,14 +45,14 @@ class AiAnnotation < ApplicationRecord
 
     # Split into words while preserving line breaks
     # Split by lines, then split each line by spaces to create an array of words
-    chunks = extract_chunks(words_with_newlines_enum(@text)).to_a
+    chunks = extract_chunks(words_with_newlines_enum(@text))
 
     total_tokens_used = 0
     combined_result = ""
 
     chunks.each_with_index do |chunk, index|
       user_content = "#{chunk}\n\nPrompt:\n#{@prompt}"
-      user_content += "\n\n(This is part #{index + 1} of #{chunks.size}. Please annotate this part only.)" if chunks.size > 1
+      user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.take(2).size > 1
       response = client.chat(
         parameters: {
           model: "gpt-4o",
