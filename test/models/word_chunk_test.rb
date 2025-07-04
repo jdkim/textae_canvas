@@ -23,10 +23,11 @@ class WordChunkTest < ActiveSupport::TestCase
 
   test "should preserve newlines in chunks" do
     text = "First line\nSecond line\nThird line"
-    chunks = WordChunk.from(text, 50).to_a
+    chunks = WordChunk.from(text, 1).to_a
 
-    assert_equal 1, chunks.size
-    assert_includes chunks.first, "\n"
+    assert_equal 8, chunks.size
+    assert_equal "\n", chunks[2]
+    assert_equal "\n", chunks[5]
   end
 
   test "should handle empty text" do
