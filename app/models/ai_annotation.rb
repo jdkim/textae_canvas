@@ -23,9 +23,6 @@ class AiAnnotation < ApplicationRecord
     Output the original text with annotations.
   EOS
 
-  # Window size (unit: words)
-  WINDOW_SIZE = 50
-
   before_create :clean_old_annotations
   before_create :set_uuid
 
@@ -43,7 +40,7 @@ class AiAnnotation < ApplicationRecord
     # If you need to check the error details, enable logging by add argument `log_errors: true` like: OpenAI::Client.new(log_errors: true)
     client = OpenAI::Client.new
 
-    word_chunk = WordChunk.new(WINDOW_SIZE)
+    word_chunk = WordChunk.new
 
     # Extract text chunks using WordChunk class
     chunks = word_chunk.extract_chunks(@text)

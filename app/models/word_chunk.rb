@@ -1,13 +1,13 @@
 class WordChunk
-  def initialize(window_size = 50)
-    @window_size = window_size
-  end
+
+  # Window size (unit: words)
+  WINDOW_SIZE = 50
 
   # Extracts chunks of text from the words array, ensuring that each chunk does not exceed the specified window size.
   def extract_chunks(text)
     words_with_newlines = words_with_newlines_enum(text)
     Enumerator.new do |y|
-      words_with_newlines.each_slice(@window_size) do |chunk_words|
+      words_with_newlines.each_slice(WINDOW_SIZE) do |chunk_words|
         y.yield join_words_to_text(chunk_words)
       end
     end
