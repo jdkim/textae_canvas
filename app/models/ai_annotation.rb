@@ -23,7 +23,7 @@ class AiAnnotation < ApplicationRecord
       user_content = "#{chunk}\n\nPrompt:\n#{@prompt}"
       user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.take(2).size > 1
       adding_tokens_sum, adding_result = openai_annotator.call(result, tokens_sum, user_content)
-      [ tokens_sum.to_i + adding_tokens_sum,  result.to_s + adding_result ]
+      [ tokens_sum + adding_tokens_sum,  result + adding_result ]
     end
 
     self.token_used = total_tokens_used
