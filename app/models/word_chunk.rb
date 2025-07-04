@@ -1,5 +1,4 @@
 class WordChunk
-
   # Window size (unit: words)
   WINDOW_SIZE = 50
 
