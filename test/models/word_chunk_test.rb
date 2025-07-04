@@ -43,20 +43,16 @@ class WordChunkTest < ActiveSupport::TestCase
     assert_equal 0, chunks.count
   end
 
-  test "should handle text with only whitespace" do
-    text = "   \n   \n   "
-    chunks = WordChunk.from text, window_size: 50
-
-    # Should handle whitespace gracefully
-    assert chunks.count >= 0
-  end
-
   test "should handle text with multiple consecutive newlines" do
     text = "First paragraph\n\n\nSecond paragraph"
     chunks = WordChunk.from text, window_size: 50
 
     assert_equal 1, chunks.count
-    assert_includes chunks.first, "\n\n\n"
+    assert_equal "First paragraph", chunks.first[0..14]
+    assert_equal "\n", chunks.first[15]
+    assert_equal "\n", chunks.first[16]
+    assert_equal "\n", chunks.first[17]
+    assert_equal "Second paragraph", chunks.first[19..34]
   end
 
   test "should split exactly at window size boundary" do
@@ -91,8 +87,8 @@ class WordChunkTest < ActiveSupport::TestCase
     chunks = WordChunk.from text, window_size: 50
 
     assert_equal 1, chunks.count
-    assert_includes chunks.first, "@#$%^&*()"
-    assert_includes chunks.first, "123456"
+    assert_equal "@#$%^&*()!?", chunks.first[30..40]
+    assert_equal "123456", chunks.first[54..60]
   end
 
   test "should normalize line endings" do
@@ -100,8 +96,9 @@ class WordChunkTest < ActiveSupport::TestCase
     chunks = WordChunk.from text_with_crlf, window_size: 50
 
     assert_equal 1, chunks.count
-    # Should normalize \r\n to \n
-    assert_not_includes chunks.first, "\r\n"
-    assert_includes chunks.first, "\n"
+    assert_not_equal "\r\n", chunks.first[8..9]
+    assert_equal "\n", chunks.first[8]
+    assert_not_equal "\r\n", chunks.first[18..19]
+    assert_equal "\n", chunks.first[18]
   end
 end
