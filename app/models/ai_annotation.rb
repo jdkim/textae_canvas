@@ -17,7 +17,7 @@ class AiAnnotation < ApplicationRecord
     openai_chat_template = OpenAiAnnotator.new
 
     # Extract text chunks using WordChunk class
-    chunks = WordChunk.from @text, chunk_size: 50
+    chunks = WordChunk.from @text, window_size: 50
 
     total_tokens_used, combined_result = chunks.each_with_index.reduce([ 0, "" ]) do |(tokens_sum, result), (chunk, index)|
       user_content = "#{chunk}\n\nPrompt:\n#{@prompt}"
