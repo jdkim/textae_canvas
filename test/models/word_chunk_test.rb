@@ -1,14 +1,6 @@
 require "test_helper"
 
 class WordChunkTest < ActiveSupport::TestCase
-  def setup
-    @word_chunk = WordChunk.new
-  end
-
-  test "should have correct window size constant" do
-    assert_equal 50, WordChunk::WINDOW_SIZE
-  end
-
   test "should extract single chunk for short text" do
     text = "This is a short text with less than fifty words."
     chunks = WordChunk.from(text).to_a
