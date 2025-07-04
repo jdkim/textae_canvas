@@ -14,7 +14,7 @@ class AiAnnotation < ApplicationRecord
   end
 
   def annotate!
-    openai_chat_template = OpenAiChatTemplate.new
+    openai_chat_template = OpenAiAnnotator.new
     word_chunk = WordChunk.new
 
     # Extract text chunks using WordChunk class
