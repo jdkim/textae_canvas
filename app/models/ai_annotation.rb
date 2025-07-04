@@ -14,7 +14,7 @@ class AiAnnotation < ApplicationRecord
   end
 
   def annotate!
-    openai_chat_template = OpenAiAnnotator.new
+    openai_annotator = OpenAiAnnotator.new
 
     # Extract text chunks using WordChunk class
     chunks = WordChunk.from @text, window_size: 50
@@ -22,7 +22,7 @@ class AiAnnotation < ApplicationRecord
     total_tokens_used, combined_result = chunks.each_with_index.reduce([ 0, "" ]) do |(tokens_sum, result), (chunk, index)|
       user_content = "#{chunk}\n\nPrompt:\n#{@prompt}"
       user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.take(2).size > 1
-      adding_tokens_sum, adding_result = openai_chat_template.call(result, tokens_sum, user_content)
+      adding_tokens_sum, adding_result = openai_annotator.call(result, tokens_sum, user_content)
       [ tokens_sum.to_i + adding_tokens_sum,  result.to_s + adding_result ]
     end
 
