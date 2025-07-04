@@ -36,8 +36,8 @@ class OpenAiAnnotator
       }
     )
     [
-      tokens_sum.to_i + (response.dig("usage", "total_tokens") || 0).to_i,
-      result.to_s + (response.dig("choices", 0, "message", "content") || "").to_s
+      (response.dig("usage", "total_tokens") || 0).to_i,
+      (response.dig("choices", 0, "message", "content") || "").to_s
     ]
   end
 end
