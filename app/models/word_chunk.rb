@@ -1,4 +1,4 @@
-class WordChunk
+module WordChunk
   # Extracts chunks of text from the words array, ensuring that each chunk does not exceed the specified window size.
   def self.from(text, window_size: 20)
     words_with_newlines = words_with_newlines_enum(text)
