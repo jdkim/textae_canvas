@@ -1,28 +1,6 @@
 class AiAnnotation < ApplicationRecord
   attr_accessor :text, :prompt, :token_used
 
-  FORMAT_SPECIFICATION = <<~EOS
-    Annotate the text according to the prompt with using the following syntax:
-
-    ## Annotation Format
-    - An annotation consists of two consecutive square bracket pairs:
-      - First: annotated text
-      - Second: label
-    - Example: [Annotated Text][Label]
-
-    ## Label Definition (Optional)
-    - Labels can be defined as `[Label]: URL`.
-
-    ## Escaping Metacharacters
-    - To prevent misinterpretation, escape the first `[` if it naturally occurs.
-    - Example: \[Part of][Original Text]
-
-    ## Handling Unknown Prompts
-    - If could not understand prompt, return the input text unchanged.
-
-    Output the original text with annotations.
-  EOS
-
   before_create :clean_old_annotations
   before_create :set_uuid
 
@@ -36,22 +14,20 @@ class AiAnnotation < ApplicationRecord
   end
 
   def annotate!
-    # To reduce the risk of API key leakage, API error logging is disabled by default.
-    # If you need to check the error details, enable logging by add argument `log_errors: true` like: OpenAI::Client.new(log_errors: true)
-    client = OpenAI::Client.new
-    response = client.chat(
-      parameters: {
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: FORMAT_SPECIFICATION },
-          { role: "user", content: "#{@text}\n\nPrompt:\n#{@prompt}" }
-        ]
-      }
-    )
+    openai_annotator = OpenAiAnnotator.new
 
-    self.token_used = response.dig("usage", "total_tokens").to_i
-    result = response.dig("choices", 0, "message", "content")
-    result = SimpleInlineTextAnnotation.parse(result)
+    # Extract text chunks using WordChunk class
+    chunks = WordChunk.from @text, window_size: 50
+
+    total_tokens_used, combined_result = chunks.each_with_index.reduce([ 0, "" ]) do |(tokens_sum, result), (chunk, index)|
+      user_content = "#{chunk}\n\nPrompt:\n#{@prompt}"
+      user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.take(2).size > 1
+      adding_tokens_sum, adding_result = openai_annotator.call(user_content)
+      [ tokens_sum + adding_tokens_sum, result + adding_result ]
+    end
+
+    self.token_used = total_tokens_used
+    result = SimpleInlineTextAnnotation.parse(combined_result)
     result = JSON.generate(result)
     AiAnnotation.create!(content: result)
   end
