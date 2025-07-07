@@ -9,7 +9,17 @@ class WordChunkTest < ActiveSupport::TestCase
     assert_equal text, chunks.first
   end
 
-  test "should extract multiple chunks for long text" do
+  test "should not split when word count is less than window size" do
+    # Create text with more than 50 words
+    text = "word1 word2 word3 word4 word5"
+
+    chunks = WordChunk.from text, window_size: 5
+
+    assert_equal 1, chunks.count
+    assert_equal 5, chunks.first.split.size
+  end
+
+  test "should split into two chunks when word count is just over window size" do
     # Create text with more than 50 words
     text = "word1 word2 word3 word4 word5 word6"
 
@@ -54,7 +64,7 @@ class WordChunkTest < ActiveSupport::TestCase
     assert_equal "Second paragraph", chunks.first[19..34]
   end
 
-  test "should split exactly at window size boundary" do
+  test "should split into two equal chunks when word count is exactly double window size" do
     # Create text with exactly 100 words (should create 2 chunks of 50 each)
     words = Array.new(100) { |i| "word#{i}" }
     text = words.join(" ")
@@ -64,6 +74,19 @@ class WordChunkTest < ActiveSupport::TestCase
     assert_equal 2, chunks.count
     assert_equal 50, chunks.first.split.size
     assert_equal 50, chunks.drop(1).first.split.size
+  end
+
+  test "should split into three chunks when word count is just over double window size" do
+    # Create text with exactly 100 words (should create 2 chunks of 50 each)
+    words = Array.new(101) { |i| "word#{i}" }
+    text = words.join(" ")
+
+    chunks = WordChunk.from text, window_size: 50
+
+    assert_equal 3, chunks.count
+    assert_equal 50, chunks.first.split.size
+    assert_equal 50, chunks.drop(1).first.split.size
+    assert_equal 1, chunks.drop(2).first.split.size
   end
 
   test "should handle text with mixed word lengths" do
