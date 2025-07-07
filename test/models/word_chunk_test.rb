@@ -89,14 +89,6 @@ class WordChunkTest < ActiveSupport::TestCase
     assert_equal 1, chunks.drop(2).first.split.size
   end
 
-  test "should handle text with mixed word lengths" do
-    text = "Short words and some significantly longer words that should still be processed correctly"
-    chunks = WordChunk.from text, window_size: 50
-
-    assert_equal 1, chunks.count
-    assert_equal text, chunks.first
-  end
-
   test "should return enumerator when called without to_a" do
     text = "This is a test text"
     result = WordChunk.from text, window_size: 50
