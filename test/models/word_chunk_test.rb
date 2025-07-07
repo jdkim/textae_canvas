@@ -11,13 +11,12 @@ class WordChunkTest < ActiveSupport::TestCase
 
   test "should extract multiple chunks for long text" do
     # Create text with more than 50 words
-    words = Array.new(51) { |i| "word#{i}" }
-    text = words.join(" ")
+    text = "word1 word2 word3 word4 word5 word6"
 
-    chunks = WordChunk.from text, window_size: 50
+    chunks = WordChunk.from text, window_size: 5
 
     assert_equal 2, chunks.count
-    assert_equal 50, chunks.first.split.size
+    assert_equal 5, chunks.first.split.size
     assert_equal 1, chunks.drop(1).first.split.size
   end
 
