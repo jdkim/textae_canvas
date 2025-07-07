@@ -21,7 +21,7 @@ class OpenAiAnnotator
     Output the original text with annotations.
   EOS
 
-  def call(result, tokens_sum, user_content)
+  def call(user_content)
     # To reduce the risk of API key leakage, API error logging is disabled by default.
     # If you need to check the error details, enable logging by add argument `log_errors: true` like: OpenAI::Client.new(log_errors: true)
     client = OpenAI::Client.new
