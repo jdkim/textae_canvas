@@ -78,7 +78,7 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      assert_raises(::RelationCrossesChunkError) do
+      assert_raises(Exceptions::RelationCrossesChunkError) do
         TokenChunk.new.from(json_data, window_size: 3).to_a
       end
     end
@@ -98,7 +98,7 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      assert_raises(::RelationCrossesChunkError) do
+      assert_raises(Exceptions::RelationCrossesChunkError) do
         TokenChunk.new.from(json_data, window_size: [ "Steve Jobs founded Apple Inc. in 1976.".split(" ").length - 1,
                                                      "Tim Cook is the current CEO of Apple.".split(" ").length - 1 ].max).to_a
       end
@@ -152,7 +152,7 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      assert_raises(::RelationCrossesChunkError) do
+      assert_raises(Exceptions::RelationCrossesChunkError) do
         TokenChunk.new.from(json_data, window_size: 4).to_a
       end
     end
@@ -622,7 +622,7 @@ if ENV["LOCAL_ONLY"]
         ]
       }
       # 故意に小さいwindowでrelationがまたがるように
-      assert_raises(::RelationCrossesChunkError) do
+      assert_raises(Exceptions::RelationCrossesChunkError) do
         TokenChunk.new.from(json_data, window_size: "김연아는 피겨스케이팅 선수이다. 그".length).to_a
       end
     end

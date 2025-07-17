@@ -163,7 +163,7 @@ class TokenChunk
       if chunk_ids.include?(subj) && chunk_ids.include?(obj)
         arr << r
       elsif chunk_ids.include?(subj) || chunk_ids.include?(obj)
-        raise RelationCrossesChunkError, "Relation #{r.inspect} crosses chunk boundary"
+        raise Exceptions::RelationCrossesChunkError, "Relation #{r.inspect} crosses chunk boundary"
       end
     end
   end
