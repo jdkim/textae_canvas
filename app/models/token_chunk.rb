@@ -16,13 +16,13 @@ class TokenChunk
     return if window_size <= 0
 
     response = @tokenizer.analyze_multilingual_text(original_text)
-    language = response[:language]
+    language = response.language
 
     generate_chunks(
       original_text,
       original_denotations,
       original_relations,
-      response[:tokens],
+      response.tokens,
       window_size,
       language
     ) do |chunk|
