@@ -1,8 +1,7 @@
 class TokenChunk
   # Initialize Elasticsearch client and tokenizer
   def initialize
-    @client = Elasticsearch::Client.new(hosts: [ "localhost:9200" ])
-    @tokenizer = SmartMultilingualTokenizer.new(@client)
+    @tokenizer = SmartMultilingualTokenizer.new
   end
 
   # Generate token chunks from JSON data with a specified window size

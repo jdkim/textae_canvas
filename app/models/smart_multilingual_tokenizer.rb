@@ -1,8 +1,8 @@
 class SmartMultilingualTokenizer
   Response = Data.define(:token, :start_offset, :end_offset, :type)
   Analyzed = Data.define(:language, :tokens)
-  def initialize(client)
-    @client = client
+  def initialize
+    @client = Elasticsearch::Client.new(hosts: [ "localhost:9200" ])
     @index_name = "smart_multilingual"
   end
 
