@@ -68,17 +68,17 @@ class TokenChunk
 
   # Decide chunk start/end and which tokens to include
   def resolve_chunk_range_and_tokens(original_text, tokens, window_tokens, original_denotations, window_size, language)
-    chunk_start = window_tokens.first[:start_offset]
+    chunk_start = window_tokens.first.start_offset
 
     extended_chunk_end = find_chunk_end_boundary(
       original_text, chunk_start, tokens, window_size, window_tokens, language
     )
 
-    actual_tokens = tokens.select { |token| token[:start_offset] >= chunk_start && token[:end_offset] <= extended_chunk_end }
+    actual_tokens = tokens.select { |token| token.start_offset >= chunk_start && token.end_offset <= extended_chunk_end }
 
     if (shrink_index = find_denotation_crossing_index(extended_chunk_end, chunk_start, original_denotations, actual_tokens))&.positive?
       actual_tokens = actual_tokens.first(shrink_index)
-      extended_chunk_end = actual_tokens.last[:end_offset] if actual_tokens.any?
+      extended_chunk_end = actual_tokens.last.end_offset if actual_tokens.any?
     end
 
     [ chunk_start, extended_chunk_end, actual_tokens ]
@@ -86,7 +86,7 @@ class TokenChunk
 
   # Calculate the next index to start chunking from
   def next_chunk_start_index(tokens, i, chunk_end)
-    tokens_consumed = tokens[i..].take_while { _1[:end_offset] <= chunk_end }.size
+    tokens_consumed = tokens[i..].take_while { _1.end_offset <= chunk_end }.size
     i + [ tokens_consumed, 1 ].max
   end
 

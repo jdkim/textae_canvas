@@ -1,4 +1,5 @@
 class SmartMultilingualTokenizer
+  Response = Data.define(:token, :start_offset, :end_offset, :type)
   def initialize(client)
     @client = client
     @index_name = "smart_multilingual"
@@ -39,12 +40,10 @@ class SmartMultilingualTokenizer
       index: @index_name,
       body: { analyzer: "standard", text: text }
     )["tokens"].map do |token|
-      {
-        token: token["token"].downcase,
-        start_offset: token["start_offset"],
-        end_offset: token["end_offset"],
-        type: token["type"]
-      }
+      Response.new(token["token"].downcase,
+                  token["start_offset"],
+                  token["end_offset"],
+                  token["type"])
     end
   end
 end
