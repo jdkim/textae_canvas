@@ -12,19 +12,6 @@ class SmartMultilingualTokenizer
                  tokenize_with_standard_analyzer(text))
   end
 
-  # Analyze an array of texts with language detection and tokenization
-  def analyze_mixed_content(texts)
-    texts.map do |text|
-      result = analyze_multilingual_text(text)
-      {
-        original: text,
-        detected_language: result[:language],
-        tokens: result[:tokens],
-        token_count: result[:tokens].size
-      }
-    end
-  end
-
   private
 
   # Detect language using CLD3 (refactored to be more idiomatic Ruby)
