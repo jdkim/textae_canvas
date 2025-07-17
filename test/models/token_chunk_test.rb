@@ -322,7 +322,7 @@ if ENV["LOCAL_ONLY"]
         "denotations" => [],
         "relations" => []
       }
-      chunks = TokenChunk.new.from(json_data, window_size: 8).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: 8)
 
       assert chunks.size >= 1
       chunks.each do |chunk|
@@ -343,7 +343,7 @@ if ENV["LOCAL_ONLY"]
           { "pred" => "part_of", "subj" => "T3", "obj" => "T1" }
         ]
       }
-      chunks = TokenChunk.new.from(json_data, window_size: 13).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: 13)
 
       assert chunks.size >= 1
       # 重複するdenotationが正しく処理されるか
@@ -359,7 +359,7 @@ if ENV["LOCAL_ONLY"]
       }
 
       # ゼロウィンドウサイズでもエラーにならないか
-      chunks = TokenChunk.new.from(json_data, window_size: 0).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: 0)
       assert_equal 0, chunks.size
     end
 
@@ -373,7 +373,7 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []  # relationを削除
       }
-      chunks = TokenChunk.new.from(json_data, window_size: 20).to_a  # ウィンドウサイズを大きく
+      chunks = TokenChunk.new.from(json_data, window_size: 20)  # ウィンドウサイズを大きく
 
       assert chunks.size >= 1
       # 長いdenotationが正しく処理されるか
@@ -395,7 +395,7 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []  # relationを削除
       }
-      chunks = TokenChunk.new.from(json_data, window_size: "2024年4月1日にOpenAI社のGPT-4が発表されました。".length).to_a  # ウィンドウサイズを大きく
+      chunks = TokenChunk.new.from(json_data, window_size: "2024年4月1日にOpenAI社のGPT-4が発表されました。".length)  # ウィンドウサイズを大きく
 
       assert chunks.size >= 1
       # 数字や記号を含むテキストでも正しく処理されるか
@@ -412,7 +412,7 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []
       }
-      chunks = TokenChunk.new.from(json_data, window_size: 5).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: 5)
 
       assert chunks.size >= 1
       # 連続する句点が正しく処理されるか
@@ -429,7 +429,7 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []
       }
-      chunks = TokenChunk.new.from(json_data, window_size: 5).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: 5)
 
       assert chunks.size > 0
       # 日本語テキストの場合、デバッグ情報が含まれているか
@@ -457,7 +457,7 @@ if ENV["LOCAL_ONLY"]
           { "pred" => "has_attribute", "subj" => "T1", "obj" => "T4" }
         ]
       }
-      chunks = TokenChunk.new.from(json_data, window_size: "太郎は学生で東京に住んでいる優秀な人です。".length).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: "太郎は学生で東京に住んでいる優秀な人です。".length)
 
       assert_equal 1, chunks.size  # 1文なので1チャンク
       # 同じエンティティを参照する複数のrelationが正しく処理されるか
@@ -476,7 +476,7 @@ if ENV["LOCAL_ONLY"]
           { "pred" => "greets", "subj" => "T1", "obj" => "T2" }
         ]
       }
-      chunks = TokenChunk.new.from(json_data, window_size: 3).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: 3)
 
       assert chunks.size >= 1
       # 英語でも句読点が適切に含まれているか
@@ -494,7 +494,7 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []
       }
-      chunks = TokenChunk.new.from(json_data, window_size: 10).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: 10)
 
       assert_equal 1, chunks.size
       assert_equal "短。", chunks[0]["text"]
@@ -517,7 +517,7 @@ if ENV["LOCAL_ONLY"]
       }
 
       chunks = TokenChunk.new.from(json_data, window_size: [ "太郎は東京に住んでいる。".length,
-                                                            "花子は大阪に住んでいる。".length ].max).to_a
+                                                            "花子は大阪に住んでいる。".length ].max)
 
       assert_equal 2, chunks.size
       assert_equal 1, chunks[0]["relations"].size
@@ -539,7 +539,7 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      chunks = TokenChunk.new.from(json_data, window_size: [ "이순신은 조선의 장군이다.".length, "세종대왕은 한글을 창제했다.".length ].max).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: [ "이순신은 조선의 장군이다.".length, "세종대왕은 한글을 창제했다.".length ].max)
 
       assert_equal 2, chunks.size
       assert_equal "이순신은 조선의 장군이다.", chunks[0]["text"]
@@ -571,7 +571,7 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []
       }
-      chunks = TokenChunk.new.from(json_data, window_size: [ "서울은 대한민국의 수도이다.".length, "부산은 두 번째로 큰 도시이다.".length ].max).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: [ "서울은 대한민국의 수도이다.".length, "부산은 두 번째로 큰 도시이다.".length ].max)
 
       assert_equal 2, chunks.size
       assert_equal "서울은 대한민국의 수도이다.", chunks[0]["text"]
@@ -599,7 +599,7 @@ if ENV["LOCAL_ONLY"]
           { "pred" => "located_in", "subj" => "T1", "obj" => "T4" }
         ]
       }
-      chunks = TokenChunk.new.from(json_data, window_size: json_data["text"].length).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: json_data["text"].length)
 
       assert_equal 1, chunks.size
       assert_equal 4, chunks[0]["denotations"].size
@@ -623,7 +623,7 @@ if ENV["LOCAL_ONLY"]
       }
       # 故意に小さいwindowでrelationがまたがるように
       assert_raises(Exceptions::RelationCrossesChunkError) do
-        TokenChunk.new.from(json_data, window_size: "김연아는 피겨스케이팅 선수이다. 그".length).to_a
+        TokenChunk.new.from(json_data, window_size: "김연아는 피겨스케이팅 선수이다. 그".length)
       end
     end
   end

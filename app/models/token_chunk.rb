@@ -10,9 +10,7 @@ class TokenChunk
     original_denotations = json_data["denotations"] || []
     original_relations = json_data["relations"] || []
 
-    # Return Enumerator if no block is given
-    return enum_for(:from, json_data, window_size: window_size) unless block_given?
-    return if window_size <= 0
+    return [] if window_size <= 0
 
     response = @tokenizer.analyze_multilingual_text(original_text)
     language = response.language
@@ -24,17 +22,15 @@ class TokenChunk
       response.tokens,
       window_size,
       language
-    ) do |chunk|
-      yield chunk
-    end
+    )
   end
 
   private
 
   # Main chunk generation loop
   def generate_chunks(original_text, original_denotations, original_relations, tokens, window_size, language)
-    return if tokens.empty?
-
+    return [] if tokens.empty?
+    chunks = []
     i = 0
     while i < tokens.size
       # Get tokens for the current window
@@ -59,10 +55,10 @@ class TokenChunk
         original_text, chunk_start, chunk_end,
         original_denotations, original_relations
       )
-
-      yield(chunk_data)
+      chunks << chunk_data
       i = next_i
     end
+    chunks
   end
 
   # Decide chunk start/end and which tokens to include
