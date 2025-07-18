@@ -18,12 +18,12 @@ class TokenChunk
     language = response.language
 
     # Generate chunks using the TokenChunkGenerator
-    TokenChunkGenerator.new(language,
-                            original_text,
+    TokenChunkGenerator.new(original_text,
                             original_denotations,
                             original_relations,
-                            window_size,
-                            response.tokens)
+                            language,
+                            response.tokens,
+                            window_size)
                        .generate_chunks
   end
 end

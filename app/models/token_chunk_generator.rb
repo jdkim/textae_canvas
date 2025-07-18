@@ -1,5 +1,5 @@
 class TokenChunkGenerator
-  def initialize(language, original_text, original_denotations, original_relations, window_size, tokens)
+  def initialize(original_text, original_denotations, original_relations, language, tokens, window_size)
     @language = language
     @original_text = original_text
     @original_denotations = original_denotations || []
