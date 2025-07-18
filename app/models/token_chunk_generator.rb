@@ -62,13 +62,6 @@ class TokenChunkGenerator
     i + [ tokens_consumed, 1 ].max
   end
 
-  # Build the chunk hash (text, denotations, relations)
-  # def build_chunk_data(chunk_start, chunk_end)
-  #   denotations = denotations_in_chunk chunk_start, chunk_end
-  #   relations = relations_in_chunk(denotations)
-  #   ChunkExtractor.new(@original_text).build_chunk_data(chunk_start, chunk_end, denotations, relations)
-  # end
-
   # Find the end of the chunk by sentence boundary or punctuation
   def find_chunk_end_boundary(text, current_end)
     last_found_end = current_end
