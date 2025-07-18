@@ -12,15 +12,15 @@ class TokenChunk
 
     return [] if window_size <= 0
 
-    response = @tokenizer.analyze_multilingual_text(original_text)
+    response = @tokenizer.analyze_multilingual_text original_text
     language = response.language
 
-    TokenChunkGenerator.new(language).generate_chunks(
-      original_text,
-      original_denotations,
-      original_relations,
-      response.tokens,
-      window_size
-    )
+    TokenChunkGenerator.new(language,
+                            original_text,
+                            original_denotations,
+                            original_relations,
+                            window_size,
+                            response.tokens)
+                       .generate_chunks
   end
 end
