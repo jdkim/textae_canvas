@@ -5,10 +5,10 @@ class AnnotationSlicer
     @relations = original_relations || []
   end
 
-  def build_chunk_data(chunk_start, chunk_end)
-    denotations = denotations_in_chunk chunk_start, chunk_end
+  def annotation_in(range)
+    denotations = denotations_in_chunk range
     relations = relations_in_chunk denotations
-    chunk_text = @text[chunk_start...chunk_end]
+    chunk_text = @text[range.begin...range.end]
     {
       "text" => chunk_text,
       "denotations" => denotations,
@@ -16,14 +16,14 @@ class AnnotationSlicer
     }
   end
 
-  def denotations_in_chunk(chunk_start, chunk_end)
+  def denotations_in_chunk(range)
     @denotations.map do |d|
       d_start = d["span"]["begin"]
       d_end = d["span"]["end"]
-      if d_start >= chunk_start && d_end <= chunk_end
+      if d_start >= range.begin && d_end <= range.end
         {
           "id" => d["id"],
-          "span" => { "begin" => d_start - chunk_start, "end" => d_end - chunk_start },
+          "span" => { "begin" => d_start - range.begin, "end" => d_end - range.begin },
           "obj" => d["obj"]
         }
       else
