@@ -15,12 +15,12 @@ class AnnotationSlicer
 
   def denotations_in(range)
     @denotations.map do |d|
-      d_start = d["span"]["begin"]
+      d_begin = d["span"]["begin"]
       d_end = d["span"]["end"]
-      if range.begin <= d_start && d_end <= range.end
+      if range.begin <= d_begin && d_end <= range.end
         {
           "id" => d["id"],
-          "span" => { "begin" => d_start - range.begin, "end" => d_end - range.begin },
+          "span" => { "begin" => d_begin - range.begin, "end" => d_end - range.begin },
           "obj" => d["obj"]
         }
       else
