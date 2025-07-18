@@ -1,11 +1,11 @@
 class TokenChunkGenerator
   def initialize(original_text, original_denotations, original_relations, language, tokens, window_size)
-    @language = language
     @original_text = original_text
     @original_denotations = original_denotations || []
     @original_relations = original_relations || []
-    @window_size = window_size
+    @language = language
     @tokens = tokens || []
+    @window_size = window_size
   end
 
   # Main loop for generating token chunks
