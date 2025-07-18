@@ -1,4 +1,3 @@
-
 class TokenChunkGenerator
   def initialize(language, original_text, original_denotations, original_relations, window_size, tokens)
     @language = language
@@ -9,13 +8,13 @@ class TokenChunkGenerator
     @tokens = tokens || []
   end
 
-  # Main chunk generation loop
+  # Main loop for generating token chunks
   def generate_chunks
     return [] if @tokens.empty?
     chunks = []
     i = 0
     while i < @tokens.size
-      # Get tokens for the current window
+      # Select tokens for the current window
       window_tokens = @tokens[i, @window_size]
       break if window_tokens.nil? || window_tokens.empty?
 

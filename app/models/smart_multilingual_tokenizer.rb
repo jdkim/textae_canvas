@@ -7,7 +7,7 @@ class SmartMultilingualTokenizer
     @client = Elasticsearch::Client.new(hosts: [ "localhost:9200" ])
   end
 
-  # Analyze text: detect language and tokenize using Elasticsearch analyzer
+  # Detect language and tokenize text using Elasticsearch analyzer
   def analyze_multilingual_text(text)
     Analyzed.new(detect_language(text),
                  tokenize_with_standard_analyzer(text))
