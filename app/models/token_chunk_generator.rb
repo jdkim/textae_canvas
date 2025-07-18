@@ -136,6 +136,9 @@ class TokenChunkGenerator
         arr << r
       elsif chunk_ids.include?(subj) || chunk_ids.include?(obj)
         raise Exceptions::RelationCrossesChunkError, "Relation #{r.inspect} crosses chunk boundary"
+      else
+        # If neither subject nor object is in the chunk, skip this relation
+        next
       end
     end
   end
