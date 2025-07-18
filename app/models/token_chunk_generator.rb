@@ -20,7 +20,7 @@ class TokenChunkGenerator
       break if window_tokens.nil? || window_tokens.empty?
 
       # Determine chunk range and actual tokens
-      chunk_start, chunk_end, resolved_window_tokens = resolve_chunk_range_and_tokens window_tokens
+      chunk_begin, chunk_end, resolved_window_tokens = resolve_chunk_range_and_tokens window_tokens
 
       # Decide next start index for chunking
       next_i = resolved_window_tokens.any? ? next_chunk_start_index(i, chunk_end) : i + 1
@@ -31,7 +31,7 @@ class TokenChunkGenerator
       end
 
       # Build chunk data (text, denotations, relations)
-      chunk_data = slicer.annotation_in chunk_start..chunk_end
+      chunk_data = slicer.annotation_in chunk_begin..chunk_end
       chunks << chunk_data
       i = next_i
     end
@@ -42,18 +42,18 @@ class TokenChunkGenerator
 
   # Decide chunk start/end and which tokens to include
   def resolve_chunk_range_and_tokens(window_tokens)
-    chunk_start = window_tokens.first.start_offset
+    chunk_begin = window_tokens.first.start_offset
 
-    extended_chunk_end = find_chunk_end_boundary @original_text, chunk_start
+    extended_chunk_end = find_chunk_end_boundary @original_text, chunk_begin
 
-    actual_tokens = @tokens.select { |token| token.start_offset >= chunk_start && token.end_offset <= extended_chunk_end }
+    actual_tokens = @tokens.select { |token| token.start_offset >= chunk_begin && token.end_offset <= extended_chunk_end }
 
-    if (shrink_index = find_denotation_crossing_index(extended_chunk_end, chunk_start, actual_tokens))&.positive?
+    if (shrink_index = find_denotation_crossing_index(extended_chunk_end, chunk_begin, actual_tokens))&.positive?
       actual_tokens = actual_tokens.first(shrink_index)
       extended_chunk_end = actual_tokens.last.end_offset if actual_tokens.any?
     end
 
-    [ chunk_start, extended_chunk_end, actual_tokens ]
+    [ chunk_begin, extended_chunk_end, actual_tokens ]
   end
 
   # Calculate the next index to start chunking from
@@ -88,15 +88,15 @@ class TokenChunkGenerator
 
 
   # Find if any denotation crosses the chunk boundary
-  def find_denotation_crossing_index(chunk_end, chunk_start, window_tokens)
+  def find_denotation_crossing_index(chunk_end, chunk_begin, window_tokens)
     return nil if window_tokens.empty?
 
     @original_denotations.each do |d|
-      d_start = d["span"]["begin"]
+      d_begin = d["span"]["begin"]
       d_end = d["span"]["end"]
       # If denotation starts in chunk but ends outside, find where to shrink
-      if d_start >= chunk_start && d_start < chunk_end && d_end > chunk_end
-        found_index = window_tokens.find_index { |t| t[:start_offset] >= d_start }
+      if d_begin >= chunk_begin && d_begin < chunk_end && d_end > chunk_end
+        found_index = window_tokens.find_index { |t| t[:start_offset] >= d_begin }
         return found_index if found_index && found_index > 0
       end
     end
