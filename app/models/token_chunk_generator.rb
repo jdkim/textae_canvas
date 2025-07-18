@@ -64,7 +64,7 @@ class TokenChunkGenerator
   # Build the chunk hash (text, denotations, relations)
   def build_chunk_data(chunk_start, chunk_end)
     chunk_text = @original_text[chunk_start...chunk_end]
-    denotations = denotations_in_chunk chunk_end, chunk_start
+    denotations = denotations_in_chunk chunk_start, chunk_end
     {
       "text" => chunk_text,
       "denotations" => denotations,
@@ -114,7 +114,7 @@ class TokenChunkGenerator
   end
 
   # Extract denotations that are fully inside the chunk
-  def denotations_in_chunk(chunk_end, chunk_start)
+  def denotations_in_chunk(chunk_start, chunk_end)
     @original_denotations.map do |d|
       d_start = d["span"]["begin"]
       d_end = d["span"]["end"]
