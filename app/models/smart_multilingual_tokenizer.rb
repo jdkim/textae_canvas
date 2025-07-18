@@ -1,9 +1,10 @@
 class SmartMultilingualTokenizer
   Token = Data.define(:token, :start_offset, :end_offset, :type)
   Analyzed = Data.define(:language, :tokens)
+  INDEX_NAME = "smart_multilingual"
+
   def initialize
     @client = Elasticsearch::Client.new(hosts: [ "localhost:9200" ])
-    @index_name = "smart_multilingual"
   end
 
   # Analyze text: detect language and tokenize using Elasticsearch analyzer
@@ -23,7 +24,7 @@ class SmartMultilingualTokenizer
   # Tokenize text using Elasticsearch's analyze API
   def tokenize_with_standard_analyzer(text)
     @client.indices.analyze(
-      index: @index_name,
+      index: INDEX_NAME,
       body: { analyzer: "standard", text: text }
     )["tokens"].map do |token|
       Token.new(token["token"].downcase,
