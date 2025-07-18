@@ -14,14 +14,14 @@ class AnnotationSlicer
   end
 
   def denotations_in(range)
-    @denotations.map do |d|
-      d_begin = d["span"]["begin"]
-      d_end = d["span"]["end"]
-      if range.cover?(d_begin..d_end)
+    @denotations.map do |denotation|
+      begin_index = denotation["span"]["begin"]
+      end_index = denotation["span"]["end"]
+      if range.cover?(begin_index..end_index)
         {
-          "id" => d["id"],
-          "span" => { "begin" => d_begin - range.begin, "end" => d_end - range.begin },
-          "obj" => d["obj"]
+          "id" => denotation["id"],
+          "span" => { "begin" => begin_index - range.begin, "end" => end_index - range.begin },
+          "obj" => denotation["obj"]
         }
       else
         nil
