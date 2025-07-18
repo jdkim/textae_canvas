@@ -18,7 +18,12 @@ class SmartMultilingualTokenizer
   # Detect language using CLD3 (refactored to be more idiomatic Ruby)
   def detect_language(text)
     lang = CLD3::NNetLanguageIdentifier.new(0, 400).find_language(text)&.language
-    { ja: "ja", ko: "ko", en: "en" }[lang] || "unknown"
+  case lang
+  when "ja", "ko", "en"
+    lang
+  else
+    "unknown"
+  end
   end
 
   # Tokenize text using Elasticsearch's analyze API
