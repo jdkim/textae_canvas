@@ -41,7 +41,7 @@ class AnnotationSlicer
       elsif ids.include?(subj) || ids.include?(obj)
         raise Exceptions::RelationCrossesChunkError, "Relation #{r.inspect} crosses chunk boundary"
       else
-        # If neither subject nor object is in the chunk, skip this relation
+        # If neither subject nor object is in the range, skip this relation
         next
       end
     end
