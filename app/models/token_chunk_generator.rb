@@ -30,7 +30,7 @@ class TokenChunkGenerator
       end
 
       # Build chunk data (text, denotations, relations)
-      chunk_data = build_chunk_data chunk_start, chunk_end
+      chunk_data = ChunkExtractor.new(@original_text, @original_denotations, @original_relations).build_chunk_data chunk_start, chunk_end
       chunks << chunk_data
       i = next_i
     end
@@ -62,15 +62,11 @@ class TokenChunkGenerator
   end
 
   # Build the chunk hash (text, denotations, relations)
-  def build_chunk_data(chunk_start, chunk_end)
-    chunk_text = @original_text[chunk_start...chunk_end]
-    denotations = denotations_in_chunk chunk_start, chunk_end
-    {
-      "text" => chunk_text,
-      "denotations" => denotations,
-      "relations" => relations_in_chunk(denotations)
-    }
-  end
+  # def build_chunk_data(chunk_start, chunk_end)
+  #   denotations = denotations_in_chunk chunk_start, chunk_end
+  #   relations = relations_in_chunk(denotations)
+  #   ChunkExtractor.new(@original_text).build_chunk_data(chunk_start, chunk_end, denotations, relations)
+  # end
 
   # Find the end of the chunk by sentence boundary or punctuation
   def find_chunk_end_boundary(text, current_end)
@@ -111,39 +107,6 @@ class TokenChunkGenerator
       end
     end
     nil
-  end
-
-  # Extract denotations that are fully inside the chunk
-  def denotations_in_chunk(chunk_start, chunk_end)
-    @original_denotations.map do |d|
-      d_start = d["span"]["begin"]
-      d_end = d["span"]["end"]
-      if d_start >= chunk_start && d_end <= chunk_end
-        {
-          "id" => d["id"],
-          "span" => { "begin" => d_start - chunk_start, "end" => d_end - chunk_start },
-          "obj" => d["obj"]
-        }
-      else
-        nil
-      end
-    end.compact
-  end
-
-  # Extract relations where both subject and object are in the chunk
-  def relations_in_chunk(chunk_denotations)
-    chunk_ids = chunk_denotations.map { it["id"] }
-    @original_relations.each_with_object([]) do |r, arr|
-      subj, obj = r["subj"], r["obj"]
-      if chunk_ids.include?(subj) && chunk_ids.include?(obj)
-        arr << r
-      elsif chunk_ids.include?(subj) || chunk_ids.include?(obj)
-        raise Exceptions::RelationCrossesChunkError, "Relation #{r.inspect} crosses chunk boundary"
-      else
-        # If neither subject nor object is in the chunk, skip this relation
-        next
-      end
-    end
   end
 
   # Decide window unit: char count for CJK, token count otherwise
