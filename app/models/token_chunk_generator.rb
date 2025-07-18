@@ -11,6 +11,7 @@ class TokenChunkGenerator
   # Main loop for generating token chunks
   def generate_chunks
     return [] if @tokens.empty?
+    chunk_extractor = ChunkExtractor.new(@original_text, @original_denotations, @original_relations)
     chunks = []
     i = 0
     while i < @tokens.size
@@ -30,7 +31,7 @@ class TokenChunkGenerator
       end
 
       # Build chunk data (text, denotations, relations)
-      chunk_data = ChunkExtractor.new(@original_text, @original_denotations, @original_relations).build_chunk_data chunk_start, chunk_end
+      chunk_data = chunk_extractor.build_chunk_data chunk_start, chunk_end
       chunks << chunk_data
       i = next_i
     end
