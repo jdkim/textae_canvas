@@ -23,7 +23,7 @@ class TokenChunkGenerator
       chunk_begin, chunk_end, resolved_window_tokens = resolve_chunk_range_and_tokens window_tokens
 
       # Decide next start index for chunking
-      next_i = resolved_window_tokens.any? ? next_chunk_start_index(i, chunk_end) : i + 1
+      next_i = resolved_window_tokens.any? ? next_chunk_begin_index(i, chunk_end) : i + 1
 
       if resolved_window_tokens.empty?
         i = next_i
@@ -57,7 +57,7 @@ class TokenChunkGenerator
   end
 
   # Calculate the next index to start chunking from
-  def next_chunk_start_index(i, chunk_end)
+  def next_chunk_begin_index(i, chunk_end)
     tokens_consumed = @tokens[i..].take_while { _1.end_offset <= chunk_end }.size
     i + [ tokens_consumed, 1 ].max
   end
