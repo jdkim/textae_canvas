@@ -20,12 +20,12 @@ class TokenChunkGenerator
       break if window_tokens.nil? || window_tokens.empty?
 
       # Determine chunk range and actual tokens
-      chunk_start, chunk_end, window_tokens = resolve_chunk_range_and_tokens window_tokens
+      chunk_start, chunk_end, resolved_window_tokens = resolve_chunk_range_and_tokens window_tokens
 
       # Decide next start index for chunking
-      next_i = window_tokens.any? ? next_chunk_start_index(i, chunk_end) : i + 1
+      next_i = resolved_window_tokens.any? ? next_chunk_start_index(i, chunk_end) : i + 1
 
-      if window_tokens.empty?
+      if resolved_window_tokens.empty?
         i = next_i
         next
       end
