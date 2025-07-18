@@ -6,7 +6,7 @@ class AnnotationSlicer
   end
 
   def annotation_in(range)
-    denotations = denotations_in_chunk range
+    denotations = denotations_in range
     relations = relations_in_chunk denotations
     chunk_text = @text[range.begin...range.end]
     {
@@ -16,7 +16,7 @@ class AnnotationSlicer
     }
   end
 
-  def denotations_in_chunk(range)
+  def denotations_in(range)
     @denotations.map do |d|
       d_start = d["span"]["begin"]
       d_end = d["span"]["end"]
