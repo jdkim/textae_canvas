@@ -6,13 +6,10 @@ class AnnotationSlicer
   end
 
   def annotation_in(range)
-    denotations = denotations_in range
-    relations = relations_of denotations
-    chunk_text = @text[range.begin...range.end]
     {
-      "text" => chunk_text,
-      "denotations" => denotations,
-      "relations" => relations
+      "text" => denotations_in range,
+      "denotations" => relations_of denotations,
+      "relations" => @text[range.begin...range.end]
     }
   end
 
