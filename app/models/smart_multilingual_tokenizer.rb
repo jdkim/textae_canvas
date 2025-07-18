@@ -8,7 +8,7 @@ class SmartMultilingualTokenizer
   end
 
   # Detect language and tokenize text using Elasticsearch analyzer
-  def analyze_multilingual_text(text)
+  def analyze(text)
     Analyzed.new(detect_language(text),
                  tokenize_with_standard_analyzer(text))
   end

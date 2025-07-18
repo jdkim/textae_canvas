@@ -14,7 +14,7 @@ class TokenChunk
     return [] if window_size <= 0
 
     # Analyze the text and detect language
-    response = @tokenizer.analyze_multilingual_text original_text
+    response = @tokenizer.analyze original_text
     language = response.language
 
     # Generate chunks using the TokenChunkGenerator
