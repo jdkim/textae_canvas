@@ -17,7 +17,7 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      chunks = TokenChunk.new.from(json_data, window_size: 50).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: 50)
 
       assert_equal 1, chunks.size
       assert_equal json_data["text"], chunks.first["text"]
@@ -41,7 +41,7 @@ if ENV["LOCAL_ONLY"]
       }
 
       # ウィンドウサイズを小さくしても、文ごとに分割されリレーションがまたがらない
-      chunks = TokenChunk.new.from(json_data, window_size: 3).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: 3)
 
       assert_equal 2, chunks.size
 
@@ -79,7 +79,7 @@ if ENV["LOCAL_ONLY"]
       }
 
       assert_raises(Exceptions::RelationCrossesChunkError) do
-        TokenChunk.new.from(json_data, window_size: 3).to_a
+        TokenChunk.new.from(json_data, window_size: 3)
       end
     end
 
@@ -100,7 +100,7 @@ if ENV["LOCAL_ONLY"]
 
       assert_raises(Exceptions::RelationCrossesChunkError) do
         TokenChunk.new.from(json_data, window_size: [ "Steve Jobs founded Apple Inc. in 1976.".split(" ").length - 1,
-                                                     "Tim Cook is the current CEO of Apple.".split(" ").length - 1 ].max).to_a
+                                                     "Tim Cook is the current CEO of Apple.".split(" ").length - 1 ].max)
       end
     end
 
@@ -119,7 +119,7 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      chunks = TokenChunk.new.from(json_data, window_size: 9).to_a
+      chunks = TokenChunk.new.from(json_data, window_size: 9)
 
       assert_equal 2, chunks.size
 
@@ -153,7 +153,7 @@ if ENV["LOCAL_ONLY"]
       }
 
       assert_raises(Exceptions::RelationCrossesChunkError) do
-        TokenChunk.new.from(json_data, window_size: 4).to_a
+        TokenChunk.new.from(json_data, window_size: 4)
       end
     end
 
@@ -177,7 +177,7 @@ if ENV["LOCAL_ONLY"]
 
       chunks = TokenChunk.new.from(json_data, window_size: [ "すべての鳥は卵を産む。".length,
                                                              "ニワトリは鳥である。".length,
-                                                             "ゆえに、ニワトリは卵を産む。".length ].max).to_a
+                                                             "ゆえに、ニワトリは卵を産む。".length ].max)
 
       assert_equal 3, chunks.size
       assert_equal "すべての鳥は卵を産む。", chunks[0]["text"]
@@ -218,7 +218,7 @@ if ENV["LOCAL_ONLY"]
 
       chunks = TokenChunk.new.from(json_data, window_size: [ "すべての鳥は卵を産む。".length + 1,
                                                              "ニワトリは鳥である。".length + 1,
-                                                             "ゆえに、ニワトリは卵を産む。".length + 1 ].max).to_a
+                                                             "ゆえに、ニワトリは卵を産む。".length + 1 ].max)
 
       assert_equal 3, chunks.size
       assert_equal "すべての鳥は卵を産む。", chunks[0]["text"]
@@ -258,7 +258,7 @@ if ENV["LOCAL_ONLY"]
       }
 
       chunks = TokenChunk.new.from(json_data, window_size: [ "すべての鳥は卵を産む。ニワトリは鳥である。".length,
-                                                             "ゆえに、ニワトリは卵を産む。".length ].max).to_a
+                                                             "ゆえに、ニワトリは卵を産む。".length ].max)
 
       assert_equal 2, chunks.size
       assert_equal "すべての鳥は卵を産む。ニワトリは鳥である。", chunks[0]["text"]
@@ -288,7 +288,7 @@ if ENV["LOCAL_ONLY"]
         ]
       }
       chunks = TokenChunk.new.from(json_data, window_size: [ "私はAI engineerです。".length,
-                                                            "Machine learningを勉強しています。".length ].max).to_a
+                                                            "Machine learningを勉強しています。".length ].max)
 
       assert chunks.size >= 1
       # 混在テキストでもdenotationが正しく処理されるか
@@ -307,7 +307,7 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []
       }
-      chunks = TokenChunk.new.from(json_data, window_size: 15).to_a  # ウィンドウサイズを大きく
+      chunks = TokenChunk.new.from(json_data, window_size: 15)  # ウィンドウサイズを大きく
 
       assert chunks.size >= 1
       # 各チャンクが適切な文末記号で終わっているか
