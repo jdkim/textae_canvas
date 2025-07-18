@@ -130,7 +130,7 @@ class TokenChunkGenerator
 
   # Extract relations where both subject and object are in the chunk
   def relations_in_chunk(chunk_denotations)
-    chunk_ids = chunk_denotations.map { _1["id"] }
+    chunk_ids = chunk_denotations.map { it["id"] }
     @original_relations.each_with_object([]) do |r, arr|
       subj, obj = r["subj"], r["obj"]
       if chunk_ids.include?(subj) && chunk_ids.include?(obj)
