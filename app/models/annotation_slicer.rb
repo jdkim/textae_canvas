@@ -30,7 +30,7 @@ class AnnotationSlicer
   end
 
   def relations_of(denotations)
-    ids = denotations.map { |it| it["id"] }
+    ids = denotations.map { it["id"] }
     @relations.each_with_object([]) do |r, arr|
       subj, obj = r["subj"], r["obj"]
       if ids.include?(subj) && ids.include?(obj)
