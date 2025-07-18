@@ -35,6 +35,7 @@ class TokenChunkGenerator
       chunks << chunk_data
       i = next_i
     end
+
     chunks
   end
 
