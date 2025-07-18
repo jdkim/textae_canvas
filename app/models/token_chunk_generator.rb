@@ -22,18 +22,15 @@ class TokenChunkGenerator
       # Determine chunk range and actual tokens
       chunk_begin, chunk_end, resolved_window_tokens = resolve_chunk_range_and_tokens window_tokens
 
-      # Decide next start index for chunking
-      next_i = resolved_window_tokens.any? ? next_chunk_begin_index(i, chunk_end) : i + 1
+      if resolved_window_tokens.any?
+        # Build chunk data (text, denotations, relations)
+        chunk_data = @slicer.annotation_in chunk_begin..chunk_end
+        chunks << chunk_data
 
-      if resolved_window_tokens.empty?
-        i = next_i
-        next
+        i = next_chunk_begin_index(i, chunk_end)
+      else
+        i = i + 1
       end
-
-      # Build chunk data (text, denotations, relations)
-      chunk_data = @slicer.annotation_in chunk_begin..chunk_end
-      chunks << chunk_data
-      i = next_i
     end
 
     chunks
