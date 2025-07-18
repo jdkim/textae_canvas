@@ -118,12 +118,15 @@ class TokenChunkGenerator
     @original_denotations.map do |d|
       d_start = d["span"]["begin"]
       d_end = d["span"]["end"]
-      next unless d_start >= chunk_start && d_end <= chunk_end
-      {
-        "id" => d["id"],
-        "span" => { "begin" => d_start - chunk_start, "end" => d_end - chunk_start },
-        "obj" => d["obj"]
-      }
+      if d_start >= chunk_start && d_end <= chunk_end
+        {
+          "id" => d["id"],
+          "span" => { "begin" => d_start - chunk_start, "end" => d_end - chunk_start },
+          "obj" => d["obj"]
+        }
+      else
+        nil
+      end
     end.compact
   end
 
