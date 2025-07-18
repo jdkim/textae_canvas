@@ -95,8 +95,8 @@ class TokenChunkGenerator
       d_begin = d["span"]["begin"]
       d_end = d["span"]["end"]
       # If denotation starts in chunk but ends outside, find where to shrink
-      if d_begin >= chunk_begin && d_begin < chunk_end && d_end > chunk_end
-        found_index = window_tokens.find_index { |t| t[:start_offset] >= d_begin }
+      if chunk_begin <= d_begin && d_begin < chunk_end && chunk_end < d_end
+        found_index = window_tokens.find_index { |t| d_begin <= t[:start_offset] }
         return found_index if found_index && found_index > 0
       end
     end
