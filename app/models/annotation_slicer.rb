@@ -33,12 +33,12 @@ class AnnotationSlicer
   end
 
   def relations_of(denotations)
-    chunk_ids = denotations.map { |it| it["id"] }
+    ids = denotations.map { |it| it["id"] }
     @relations.each_with_object([]) do |r, arr|
       subj, obj = r["subj"], r["obj"]
-      if chunk_ids.include?(subj) && chunk_ids.include?(obj)
+      if ids.include?(subj) && ids.include?(obj)
         arr << r
-      elsif chunk_ids.include?(subj) || chunk_ids.include?(obj)
+      elsif ids.include?(subj) || ids.include?(obj)
         raise Exceptions::RelationCrossesChunkError, "Relation #{r.inspect} crosses chunk boundary"
       else
         # If neither subject nor object is in the chunk, skip this relation
