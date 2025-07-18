@@ -1,5 +1,5 @@
 class SmartMultilingualTokenizer
-  Response = Data.define(:token, :start_offset, :end_offset, :type)
+  Token = Data.define(:token, :start_offset, :end_offset, :type)
   Analyzed = Data.define(:language, :tokens)
   def initialize
     @client = Elasticsearch::Client.new(hosts: [ "localhost:9200" ])
@@ -26,10 +26,10 @@ class SmartMultilingualTokenizer
       index: @index_name,
       body: { analyzer: "standard", text: text }
     )["tokens"].map do |token|
-      Response.new(token["token"].downcase,
-                  token["start_offset"],
-                  token["end_offset"],
-                  token["type"])
+      Token.new(token["token"].downcase,
+                token["start_offset"],
+                token["end_offset"],
+                token["type"])
     end
   end
 end
