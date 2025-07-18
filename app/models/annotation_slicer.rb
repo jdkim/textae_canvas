@@ -1,4 +1,4 @@
-class ChunkExtractor
+class AnnotationSlicer
   def initialize(original_text, original_denotations, original_relations)
     @original_text = original_text
     @original_denotations = original_denotations || []

@@ -11,7 +11,7 @@ class TokenChunkGenerator
   # Main loop for generating token chunks
   def generate_chunks
     return [] if @tokens.empty?
-    chunk_extractor = ChunkExtractor.new(@original_text, @original_denotations, @original_relations)
+    chunk_extractor = AnnotationSlicer.new(@original_text, @original_denotations, @original_relations)
     chunks = []
     i = 0
     while i < @tokens.size
