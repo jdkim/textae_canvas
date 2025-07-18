@@ -32,10 +32,10 @@ class SmartMultilingualTokenizer
       index: INDEX_NAME,
       body: { analyzer: "standard", text: text }
     )["tokens"].map do |token|
-      Token.new(token["token"].downcase,
+      Token.new token["token"].downcase,
                 token["start_offset"],
                 token["end_offset"],
-                token["type"])
+                token["type"]
     end
   end
 end
