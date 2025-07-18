@@ -17,7 +17,7 @@ class AnnotationSlicer
     @denotations.map do |d|
       d_begin = d["span"]["begin"]
       d_end = d["span"]["end"]
-      if range.begin <= d_begin && d_end <= range.end
+      if range.cover?(d_begin..d_end)
         {
           "id" => d["id"],
           "span" => { "begin" => d_begin - range.begin, "end" => d_end - range.begin },
