@@ -46,7 +46,7 @@ class TokenChunkGenerator
 
     extended_chunk_end = find_chunk_end_boundary @original_text, chunk_begin
 
-    actual_tokens = @tokens.select { |token| token.start_offset >= chunk_begin && token.end_offset <= extended_chunk_end }
+    actual_tokens = @tokens.select { |token| chunk_begin <= token.start_offset && token.end_offset <= extended_chunk_end }
 
     if (shrink_index = find_denotation_crossing_index(extended_chunk_end, chunk_begin, actual_tokens))&.positive?
       actual_tokens = actual_tokens.first(shrink_index)
