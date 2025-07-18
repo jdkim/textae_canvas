@@ -351,16 +351,17 @@ if ENV["LOCAL_ONLY"]
       assert_equal 3, total_denotations
     end
 
-    test "should handle zero window size gracefully" do
+    test "should raise error when window size is zero" do
       json_data = {
         "text" => "テストです。",
         "denotations" => [],
         "relations" => []
       }
 
-      # ゼロウィンドウサイズでもエラーにならないか
-      chunks = TokenChunk.new.from(json_data, window_size: 0)
-      assert_equal 0, chunks.size
+      # ゼロウィンドウサイズだと例外が発生することを確認
+      assert_raises(ArgumentError) do
+        TokenChunk.new.from(json_data, window_size: 0)
+      end
     end
 
     test "should handle very long denotations" do

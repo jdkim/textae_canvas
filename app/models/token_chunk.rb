@@ -10,8 +10,8 @@ class TokenChunk
     original_denotations = json_data["denotations"] || []
     original_relations = json_data["relations"] || []
 
-    # Return empty array if window size is invalid
-    return [] if window_size <= 0
+    # window_sizeが不正ならArgumentErrorを投げる
+    raise ArgumentError, "window_size must be greater than 0" if window_size <= 0
 
     # Analyze the text and detect language
     response = @tokenizer.analyze original_text
