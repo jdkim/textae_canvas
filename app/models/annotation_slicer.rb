@@ -7,7 +7,7 @@ class AnnotationSlicer
 
   def annotation_in(range)
     denotations = denotations_in range
-    relations = relations_in denotations
+    relations = relations_of denotations
     chunk_text = @text[range.begin...range.end]
     {
       "text" => chunk_text,
@@ -32,7 +32,7 @@ class AnnotationSlicer
     end.compact
   end
 
-  def relations_in(denotations)
+  def relations_of(denotations)
     chunk_ids = denotations.map { |it| it["id"] }
     @relations.each_with_object([]) do |r, arr|
       subj, obj = r["subj"], r["obj"]
