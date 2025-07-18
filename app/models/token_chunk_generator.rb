@@ -48,7 +48,7 @@ class TokenChunkGenerator
 
     actual_tokens = @tokens.select { |token| chunk_begin <= token.start_offset && token.end_offset <= extended_chunk_end }
 
-    if (shrink_index = find_denotation_crossing_index(extended_chunk_end, chunk_begin, actual_tokens))&.positive?
+    if (shrink_index = find_denotation_crossing_index(chunk_begin, extended_chunk_end, actual_tokens))&.positive?
       actual_tokens = actual_tokens.first(shrink_index)
       extended_chunk_end = actual_tokens.last.end_offset if actual_tokens.any?
     end
@@ -88,7 +88,7 @@ class TokenChunkGenerator
 
 
   # Find if any denotation crosses the chunk boundary
-  def find_denotation_crossing_index(chunk_end, chunk_begin, window_tokens)
+  def find_denotation_crossing_index(chunk_begin, chunk_end, window_tokens)
     return nil if window_tokens.empty?
 
     @original_denotations.each do |d|
