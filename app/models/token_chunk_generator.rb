@@ -58,7 +58,7 @@ class TokenChunkGenerator
 
   # Calculate the next index to start chunking from
   def next_chunk_begin_index(i, chunk_end)
-    tokens_consumed = @tokens[i..].take_while { _1.end_offset <= chunk_end }.size
+    tokens_consumed = @tokens[i..].take_while { it.end_offset <= chunk_end }.size
     i + [ tokens_consumed, 1 ].max
   end
 
