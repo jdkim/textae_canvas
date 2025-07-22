@@ -6,4 +6,6 @@ module Exceptions
   end
 
   class RelationCrossesChunkError < StandardError; end
+
+  class DenotationFragmentedError < StandardError; end
 end
