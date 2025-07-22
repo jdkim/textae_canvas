@@ -1,8 +1,8 @@
 class AnnotationSlicer
-  def initialize(json_data)
-    @text = json_data["text"]
-    @denotations = json_data["denotations"] || []
-    @relations = json_data["relations"] || []
+  def initialize(annotation)
+    @text = annotation["text"]
+    @denotations = annotation["denotations"] || []
+    @relations = annotation["relations"] || []
   end
 
   def annotation_in(range)
