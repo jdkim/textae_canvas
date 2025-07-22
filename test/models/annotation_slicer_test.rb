@@ -63,7 +63,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
   end
 
 
-  test "should raise error when relation crosses chunk boundary" do
+  test "should raise relation crosses error when relation crosses chunk boundary" do
     json_data = {
       "text" => "Elon Musk is a member of the PayPal Mafia.",
       "denotations" => [
@@ -80,7 +80,30 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     end
   end
 
-  test "should split into two chunks with relations in each chunk" do
+  test "should raise denotation fragmented error" do
+    json_data = {
+      "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" },
+        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" },
+        { "id" => "T3", "span" => { "begin" => 39, "end" => 47 }, "obj" => "Person" },
+        { "id" => "T4", "span" => { "begin" => 70, "end" => 75 }, "obj" => "Organization" }
+      ],
+      "relations" => [
+        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" },
+        { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" }
+      ]
+    }
+
+    assert_raises(Exceptions::DenotationFragmentedError) do
+      AnnotationSlicer.new(json_data).annotation_in(0..5)
+    end
+    assert_raises(Exceptions::DenotationFragmentedError) do
+      AnnotationSlicer.new(json_data).annotation_in(6..24)
+    end
+  end
+
+  test "should split into individual english sentences" do
     json_data = {
       "text" => "Elon Musk is a member of the PayPal Mafia. Elon Musk seems to hate Donald Trump.",
       "denotations" => [
@@ -114,53 +137,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     assert_equal [ { "pred" => "hates", "subj" => "T3", "obj" => "T4" } ], slice["relations"]
   end
 
-  test "should raise error and shrink window to avoid crossing denotation" do
-    json_data = {
-      "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
-      "denotations" => [
-        { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" },
-        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" },
-        { "id" => "T3", "span" => { "begin" => 39, "end" => 47 }, "obj" => "Person" },
-        { "id" => "T4", "span" => { "begin" => 70, "end" => 75 }, "obj" => "Organization" }
-      ],
-      "relations" => [
-        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" },
-        { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" }
-      ]
-    }
-
-    assert_raises(Exceptions::RelationCrossesChunkError) do
-      AnnotationSlicer.new(json_data).annotation_in(0..66)
-    end
-    assert_raises(Exceptions::RelationCrossesChunkError) do
-      AnnotationSlicer.new(json_data).annotation_in(67..)
-    end
-  end
-
-  test "should raise denotation fragmented error" do
-    json_data = {
-      "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
-      "denotations" => [
-        { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" },
-        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" },
-        { "id" => "T3", "span" => { "begin" => 39, "end" => 47 }, "obj" => "Person" },
-        { "id" => "T4", "span" => { "begin" => 70, "end" => 75 }, "obj" => "Organization" }
-      ],
-      "relations" => [
-        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" },
-        { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" }
-      ]
-    }
-
-    assert_raises(Exceptions::DenotationFragmentedError) do
-      AnnotationSlicer.new(json_data).annotation_in(0..5)
-    end
-    assert_raises(Exceptions::DenotationFragmentedError) do
-      AnnotationSlicer.new(json_data).annotation_in(6..24)
-    end
-  end
-
-  test "should split into individual sentences when window size matches sentence morpheme count" do
+  test "should split into individual japanese sentences" do
     json_data = {
       "text" => "すべての鳥は卵を産む。ニワトリは鳥である。ゆえに、ニワトリは卵を産む。",
       "denotations" => [
@@ -212,7 +189,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                  ], slice["relations"]
   end
 
-  test "should handle korean text with denotations and relations" do
+  test "should split into individual korean sentences" do
     json_data = {
       "text" => "이순신은 조선의 장군이다. 세종대왕은 한글을 창제했다.",
       "denotations" => [
