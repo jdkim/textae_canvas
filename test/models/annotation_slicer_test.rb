@@ -1,0 +1,340 @@
+require "test_helper"
+
+class AnnotationSlicerTest < ActiveSupport::TestCase
+  test "should split into single chunk when all relations fit in window" do
+    json_data = {
+      "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" },
+        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" },
+        { "id" => "T3", "span" => { "begin" => 39, "end" => 47 }, "obj" => "Person" },
+        { "id" => "T4", "span" => { "begin" => 70, "end" => 75 }, "obj" => "Organization" }
+      ],
+      "relations" => [
+        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" },
+        { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" }
+      ]
+    }
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(0..78)
+
+    assert_equal json_data["text"], slice["text"]
+    assert_equal json_data["denotations"], slice["denotations"]
+    assert_equal json_data["relations"], slice["relations"]
+  end
+
+  test "should split into multiple chunks with small window and no crossing relations" do
+    json_data = {
+      "text" => "Alice met Bob. Carol likes Dave.",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 5 }, "obj" => "Person" },
+        { "id" => "T2", "span" => { "begin" => 10, "end" => 13 }, "obj" => "Person" },
+        { "id" => "T3", "span" => { "begin" => 15, "end" => 20 }, "obj" => "Person" },
+        { "id" => "T4", "span" => { "begin" => 27, "end" => 31 }, "obj" => "Person" }
+      ],
+      "relations" => [
+        { "pred" => "met", "subj" => "T1", "obj" => "T2" },
+        { "pred" => "likes", "subj" => "T3", "obj" => "T4" }
+      ]
+    }
+
+    # Even with a small window size, it should be divided by sentence and relations should not cross
+    slice = AnnotationSlicer.new(json_data).annotation_in(0..14)
+
+    assert_equal "Alice met Bob.", slice["text"]
+    assert_equal [
+                   { "id" => "T1", "span" => { "begin" => 0, "end" => 5 }, "obj" => "Person" },
+                   { "id" => "T2", "span" => { "begin" => 10, "end" => 13 }, "obj" => "Person" }
+                 ], slice["denotations"]
+    assert_equal [
+                   { "pred" => "met", "subj" => "T1", "obj" => "T2" }
+                 ], slice["relations"]
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(15..)
+
+    assert_equal "Carol likes Dave.", slice["text"]
+    assert_equal [
+                   { "id" => "T3", "span" => { "begin" => 0, "end" => 5 }, "obj" => "Person" },
+                   { "id" => "T4", "span" => { "begin" => 12, "end" => 16 }, "obj" => "Person" }
+                 ], slice["denotations"]
+    assert_equal [
+                   { "pred" => "likes", "subj" => "T3", "obj" => "T4" }
+                 ], slice["relations"]
+  end
+
+
+  test "should raise error when relation crosses chunk boundary" do
+    json_data = {
+      "text" => "Elon Musk is a member of the PayPal Mafia.",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 9 }, "obj" => "Person" },
+        { "id" => "T2", "span" => { "begin" => 29, "end" => 41 }, "obj" => "Organization" }
+      ],
+      "relations" => [
+        { "pred" => "member_of", "subj" => "T1", "obj" => "T2" }
+      ]
+    }
+
+    assert_raises(Exceptions::RelationCrossesChunkError) do
+      AnnotationSlicer.new(json_data).annotation_in(0..21)
+    end
+  end
+
+  test "should split into two chunks with relations in each chunk" do
+    json_data = {
+      "text" => "Elon Musk is a member of the PayPal Mafia. Elon Musk seems to hate Donald Trump.",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 9 }, "obj" => "Person" },
+        { "id" => "T2", "span" => { "begin" => 29, "end" => 41 }, "obj" => "Organization" },
+        { "id" => "T3", "span" => { "begin" => 43, "end" => 52 }, "obj" => "Person" },
+        { "id" => "T4", "span" => { "begin" => 67, "end" => 79 }, "obj" => "Person" }
+      ],
+      "relations" => [
+        { "pred" => "member_of", "subj" => "T1", "obj" => "T2" },
+        { "pred" => "hates", "subj" => "T3", "obj" => "T4" }
+      ]
+    }
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(0..42)
+
+    assert_equal "Elon Musk is a member of the PayPal Mafia.", slice["text"]
+    assert_equal [
+                   { "id" => "T1", "span" => { "begin" => 0, "end" => 9 }, "obj" => "Person" },
+                   { "id" => "T2", "span" => { "begin" => 29, "end" => 41 }, "obj" => "Organization" }
+                 ], slice["denotations"]
+    assert_equal [ { "pred" => "member_of", "subj" => "T1", "obj" => "T2" } ], slice["relations"]
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(43..)
+
+    assert_equal "Elon Musk seems to hate Donald Trump.", slice["text"]
+    assert_equal [
+                   { "id" => "T3", "span" => { "begin" => 0, "end" => 9 }, "obj" => "Person" },
+                   { "id" => "T4", "span" => { "begin" => 24, "end" => 36 }, "obj" => "Person" }
+                 ], slice["denotations"]
+    assert_equal [ { "pred" => "hates", "subj" => "T3", "obj" => "T4" } ], slice["relations"]
+  end
+
+  test "should raise error and shrink window to avoid crossing denotation" do
+    json_data = {
+      "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" },
+        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" },
+        { "id" => "T3", "span" => { "begin" => 39, "end" => 47 }, "obj" => "Person" },
+        { "id" => "T4", "span" => { "begin" => 70, "end" => 75 }, "obj" => "Organization" }
+      ],
+      "relations" => [
+        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" },
+        { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" }
+      ]
+    }
+
+    assert_raises(Exceptions::RelationCrossesChunkError) do
+      AnnotationSlicer.new(json_data).annotation_in(0..66)
+    end
+    assert_raises(Exceptions::RelationCrossesChunkError) do
+      AnnotationSlicer.new(json_data).annotation_in(67..)
+    end
+  end
+
+  test "should split into individual sentences when window size matches sentence morpheme count" do
+    json_data = {
+      "text" => "すべての鳥は卵を産む。ニワトリは鳥である。ゆえに、ニワトリは卵を産む。",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 4, "end" => 5 }, "obj" => "bird" },
+        { "id" => "T2", "span" => { "begin" => 6, "end" => 7 }, "obj" => "egg" },
+        { "id" => "T3", "span" => { "begin" => 11, "end" => 15 }, "obj" => "chicken" },
+        { "id" => "T4", "span" => { "begin" => 16, "end" => 17 }, "obj" => "bird" },
+        { "id" => "T5", "span" => { "begin" => 25, "end" => 29 }, "obj" => "chicken" },
+        { "id" => "T6", "span" => { "begin" => 30, "end" => 31 }, "obj" => "egg" }
+      ],
+      "relations" => [
+        { "pred" => "lay", "subj" => "T1", "obj" => "T2" },
+        { "pred" => "lay", "subj" => "T3", "obj" => "T4" },
+        { "pred" => "lay", "subj" => "T5", "obj" => "T6" }
+      ]
+    }
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(0..11)
+
+    assert_equal "すべての鳥は卵を産む。", slice["text"]
+    assert_equal [
+                   { "id" => "T1", "span" => { "begin" => 4, "end" => 5 }, "obj" => "bird" },
+                   { "id" => "T2", "span" => { "begin" => 6, "end" => 7 }, "obj" => "egg" }
+                 ], slice["denotations"]
+    assert_equal [
+                   { "pred" => "lay", "subj" => "T1", "obj" => "T2" }
+                 ], slice["relations"]
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(11..21)
+
+    assert_equal "ニワトリは鳥である。", slice["text"]
+    assert_equal [
+                   { "id" => "T3", "span" => { "begin" => 0, "end" => 4 }, "obj" => "chicken" },
+                   { "id" => "T4", "span" => { "begin" => 5, "end" => 6 }, "obj" => "bird" }
+                 ], slice["denotations"]
+    assert_equal [
+                   { "pred" => "lay", "subj" => "T3", "obj" => "T4" }
+                 ], slice["relations"]
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(21..)
+
+    assert_equal "ゆえに、ニワトリは卵を産む。", slice["text"]
+    assert_equal [
+                   { "id" => "T5", "span" => { "begin" => 4, "end" => 8 }, "obj" => "chicken" },
+                   { "id" => "T6", "span" => { "begin" => 9, "end" => 10 }, "obj" => "egg" }
+                 ], slice["denotations"]
+    assert_equal [
+                   { "pred" => "lay", "subj" => "T5", "obj" => "T6" }
+                 ], slice["relations"]
+  end
+
+  test "should combine multiple sentences when window size exceeds individual sentence length" do
+    json_data = {
+      "text" => "すべての鳥は卵を産む。ニワトリは鳥である。ゆえに、ニワトリは卵を産む。",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 4, "end" => 5 }, "obj" => "bird" },
+        { "id" => "T2", "span" => { "begin" => 6, "end" => 7 }, "obj" => "egg" },
+        { "id" => "T3", "span" => { "begin" => 11, "end" => 15 }, "obj" => "chicken" },
+        { "id" => "T4", "span" => { "begin" => 16, "end" => 17 }, "obj" => "bird" },
+        { "id" => "T5", "span" => { "begin" => 25, "end" => 29 }, "obj" => "chicken" },
+        { "id" => "T6", "span" => { "begin" => 30, "end" => 31 }, "obj" => "egg" }
+      ],
+      "relations" => [
+        { "pred" => "lay", "subj" => "T1", "obj" => "T2" },
+        { "pred" => "lay", "subj" => "T3", "obj" => "T4" },
+        { "pred" => "lay", "subj" => "T5", "obj" => "T6" }
+      ]
+    }
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(0..21)
+
+    assert_equal "すべての鳥は卵を産む。ニワトリは鳥である。", slice["text"]
+    assert_equal [
+                   { "id" => "T1", "span" => { "begin" => 4, "end" => 5 }, "obj" => "bird" },
+                   { "id" => "T2", "span" => { "begin" => 6, "end" => 7 }, "obj" => "egg" },
+                   { "id" => "T3", "span" => { "begin" => 11, "end" => 15 }, "obj" => "chicken" },
+                   { "id" => "T4", "span" => { "begin" => 16, "end" => 17 }, "obj" => "bird" }
+                 ], slice["denotations"]
+    assert_equal [
+                   { "pred" => "lay", "subj" => "T1", "obj" => "T2" },
+                   { "pred" => "lay", "subj" => "T3", "obj" => "T4" }
+                 ], slice["relations"]
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(21..)
+
+    assert_equal "ゆえに、ニワトリは卵を産む。", slice["text"]
+    assert_equal [
+                   { "id" => "T5", "span" => { "begin" => 4, "end" => 8 }, "obj" => "chicken" },
+                   { "id" => "T6", "span" => { "begin" => 9, "end" => 10 }, "obj" => "egg" }
+                 ], slice["denotations"]
+    assert_equal [
+                   { "pred" => "lay", "subj" => "T5", "obj" => "T6" }
+                 ], slice["relations"]
+  end
+
+  test "should handle korean text with denotations and relations" do
+    json_data = {
+      "text" => "이순신은 조선의 장군이다. 세종대왕은 한글을 창제했다.",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 3 }, "obj" => "person" },
+        { "id" => "T2", "span" => { "begin" => 5, "end" => 7 }, "obj" => "country" },
+        { "id" => "T3", "span" => { "begin" => 15, "end" => 19 }, "obj" => "person" },
+        { "id" => "T4", "span" => { "begin" => 21, "end" => 23 }, "obj" => "alphabet" }
+      ],
+      "relations" => [
+        { "pred" => "is_general_of", "subj" => "T1", "obj" => "T2" },
+        { "pred" => "created", "subj" => "T3", "obj" => "T4" }
+      ]
+    }
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(0..14)
+
+    assert_equal "이순신은 조선의 장군이다.", slice["text"]
+    assert_equal [
+                   { "id" => "T1", "span" => { "begin" => 0, "end" => 3 }, "obj" => "person" },
+                   { "id" => "T2", "span" => { "begin" => 5, "end" => 7 }, "obj" => "country" }
+                 ], slice["denotations"]
+    assert_equal [
+                   { "pred" => "is_general_of", "subj" => "T1", "obj" => "T2" }
+                 ], slice["relations"]
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(15..)
+
+    assert_equal "세종대왕은 한글을 창제했다.", slice["text"]
+    assert_equal [
+                   { "id" => "T3", "span" => { "begin" => 0, "end" => 4 }, "obj" => "person" },
+                   { "id" => "T4", "span" => { "begin" => 6, "end" => 8 }, "obj" => "alphabet" }
+                 ], slice["denotations"]
+    assert_equal [
+                   { "pred" => "created", "subj" => "T3", "obj" => "T4" }
+                 ], slice["relations"]
+  end
+
+  test "should split korean text with multiple sentences and no relations" do
+    json_data = {
+      "text" => "서울은 대한민국의 수도이다. 부산은 두 번째로 큰 도시이다.",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 2 }, "obj" => "city" },
+        { "id" => "T2", "span" => { "begin" => 4, "end" => 8 }, "obj" => "country" },
+        { "id" => "T3", "span" => { "begin" => 16, "end" => 18 }, "obj" => "city" }
+      ],
+      "relations" => []
+    }
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(0..15)
+
+    assert_equal "서울은 대한민국의 수도이다.", slice["text"]
+    assert_equal [
+                   { "id" => "T1", "span" => { "begin" => 0, "end" => 2 }, "obj" => "city" },
+                   { "id" => "T2", "span" => { "begin" => 4, "end" => 8 }, "obj" => "country" }
+                 ], slice["denotations"]
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(16..)
+
+    assert_equal "부산은 두 번째로 큰 도시이다.", slice["text"]
+    assert_equal [
+                   { "id" => "T3", "span" => { "begin" => 0, "end" => 2 }, "obj" => "city" }
+                 ], slice["denotations"]
+  end
+
+  test "should handle korean text with overlapping denotations" do
+    json_data = {
+      "text" => "대한민국정부청사는 서울에 있다.",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 6 }, "obj" => "government" },
+        { "id" => "T2", "span" => { "begin" => 0, "end" => 4 }, "obj" => "country" },
+        { "id" => "T3", "span" => { "begin" => 6, "end" => 8 }, "obj" => "building" },
+        { "id" => "T4", "span" => { "begin" => 10, "end" => 12 }, "obj" => "city" }
+      ],
+      "relations" => [
+        { "pred" => "located_in", "subj" => "T1", "obj" => "T4" }
+      ]
+    }
+    slice = AnnotationSlicer.new(json_data).annotation_in(0..)
+
+    assert_equal 4, slice["denotations"].size
+    assert_equal 1, slice["relations"].size
+  end
+
+  test "should handle korean text with relation crossing chunk boundary" do
+    json_data = {
+      "text" => "김연아는 피겨스케이팅 선수이다. 그녀는 올림픽 금메달리스트이다.",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 3 }, "obj" => "person" },
+        { "id" => "T2", "span" => { "begin" => 5, "end" => 11 }, "obj" => "sport" },
+        { "id" => "T3", "span" => { "begin" => 18, "end" => 20 }, "obj" => "person" },
+        { "id" => "T4", "span" => { "begin" => 22, "end" => 32 }, "obj" => "title" }
+      ],
+      "relations" => [
+        { "pred" => "is", "subj" => "T1", "obj" => "T2" },
+        { "pred" => "equals", "subj" => "T1", "obj" => "T3" },
+        { "pred" => "is", "subj" => "T3", "obj" => "T4" }
+      ]
+    }
+    # Intentionally use a small window so that the relation crosses the chunk boundary
+    assert_raises(Exceptions::RelationCrossesChunkError) do
+      AnnotationSlicer.new(json_data).annotation_in(0.."김연아는 피겨스케이팅 선수이다. 그".length)
+    end
+  end
+end
