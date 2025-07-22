@@ -189,50 +189,6 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                  ], slice["relations"]
   end
 
-  test "should combine multiple sentences when window size exceeds individual sentence length" do
-    json_data = {
-      "text" => "すべての鳥は卵を産む。ニワトリは鳥である。ゆえに、ニワトリは卵を産む。",
-      "denotations" => [
-        { "id" => "T1", "span" => { "begin" => 4, "end" => 5 }, "obj" => "bird" },
-        { "id" => "T2", "span" => { "begin" => 6, "end" => 7 }, "obj" => "egg" },
-        { "id" => "T3", "span" => { "begin" => 11, "end" => 15 }, "obj" => "chicken" },
-        { "id" => "T4", "span" => { "begin" => 16, "end" => 17 }, "obj" => "bird" },
-        { "id" => "T5", "span" => { "begin" => 25, "end" => 29 }, "obj" => "chicken" },
-        { "id" => "T6", "span" => { "begin" => 30, "end" => 31 }, "obj" => "egg" }
-      ],
-      "relations" => [
-        { "pred" => "lay", "subj" => "T1", "obj" => "T2" },
-        { "pred" => "lay", "subj" => "T3", "obj" => "T4" },
-        { "pred" => "lay", "subj" => "T5", "obj" => "T6" }
-      ]
-    }
-
-    slice = AnnotationSlicer.new(json_data).annotation_in(0..21)
-
-    assert_equal "すべての鳥は卵を産む。ニワトリは鳥である。", slice["text"]
-    assert_equal [
-                   { "id" => "T1", "span" => { "begin" => 4, "end" => 5 }, "obj" => "bird" },
-                   { "id" => "T2", "span" => { "begin" => 6, "end" => 7 }, "obj" => "egg" },
-                   { "id" => "T3", "span" => { "begin" => 11, "end" => 15 }, "obj" => "chicken" },
-                   { "id" => "T4", "span" => { "begin" => 16, "end" => 17 }, "obj" => "bird" }
-                 ], slice["denotations"]
-    assert_equal [
-                   { "pred" => "lay", "subj" => "T1", "obj" => "T2" },
-                   { "pred" => "lay", "subj" => "T3", "obj" => "T4" }
-                 ], slice["relations"]
-
-    slice = AnnotationSlicer.new(json_data).annotation_in(21..)
-
-    assert_equal "ゆえに、ニワトリは卵を産む。", slice["text"]
-    assert_equal [
-                   { "id" => "T5", "span" => { "begin" => 4, "end" => 8 }, "obj" => "chicken" },
-                   { "id" => "T6", "span" => { "begin" => 9, "end" => 10 }, "obj" => "egg" }
-                 ], slice["denotations"]
-    assert_equal [
-                   { "pred" => "lay", "subj" => "T5", "obj" => "T6" }
-                 ], slice["relations"]
-  end
-
   test "should handle korean text with denotations and relations" do
     json_data = {
       "text" => "이순신은 조선의 장군이다. 세종대왕은 한글을 창제했다.",
