@@ -4,4 +4,6 @@ module Exceptions
       super(msg)
     end
   end
+  
+  class RelationCrossesChunkError < StandardError; end
 end
