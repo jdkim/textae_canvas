@@ -13,6 +13,8 @@ class AnnotationSlicer
     }
   end
 
+  private
+
   def denotations_in(range)
     @denotations.map do |denotation|
       begin_index = denotation["span"]["begin"]
