@@ -6,12 +6,12 @@ class TokenChunkGenerator
     @language = language
     @tokens = tokens || []
     @window_size = window_size
+    @slicer = AnnotationSlicer.new(@original_text, @original_denotations, @original_relations)
   end
 
   # Main loop for generating token chunks
   def generate_chunks
     return [] if @tokens.empty?
-    @slicer = AnnotationSlicer.new(@original_text, @original_denotations, @original_relations)
     chunks = []
     i = 0
     while i < @tokens.size
