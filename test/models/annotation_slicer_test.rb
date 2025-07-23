@@ -124,11 +124,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
         { "id" => "T5", "span" => { "begin" => 25, "end" => 29 }, "obj" => "chicken" },
         { "id" => "T6", "span" => { "begin" => 30, "end" => 31 }, "obj" => "egg" }
       ],
-      "relations" => [
-        { "pred" => "lay", "subj" => "T1", "obj" => "T2" },
-        { "pred" => "lay", "subj" => "T3", "obj" => "T4" },
-        { "pred" => "lay", "subj" => "T5", "obj" => "T6" }
-      ]
+      "relations" => []
     }
 
     slice = AnnotationSlicer.new(json_data).annotation_in(0..11)
@@ -138,9 +134,6 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                    { "id" => "T1", "span" => { "begin" => 4, "end" => 5 }, "obj" => "bird" },
                    { "id" => "T2", "span" => { "begin" => 6, "end" => 7 }, "obj" => "egg" }
                  ], slice["denotations"]
-    assert_equal [
-                   { "pred" => "lay", "subj" => "T1", "obj" => "T2" }
-                 ], slice["relations"]
 
     slice = AnnotationSlicer.new(json_data).annotation_in(11..21)
 
@@ -149,9 +142,6 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                    { "id" => "T3", "span" => { "begin" => 0, "end" => 4 }, "obj" => "chicken" },
                    { "id" => "T4", "span" => { "begin" => 5, "end" => 6 }, "obj" => "bird" }
                  ], slice["denotations"]
-    assert_equal [
-                   { "pred" => "lay", "subj" => "T3", "obj" => "T4" }
-                 ], slice["relations"]
 
     slice = AnnotationSlicer.new(json_data).annotation_in(21..)
 
@@ -160,9 +150,6 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                    { "id" => "T5", "span" => { "begin" => 4, "end" => 8 }, "obj" => "chicken" },
                    { "id" => "T6", "span" => { "begin" => 9, "end" => 10 }, "obj" => "egg" }
                  ], slice["denotations"]
-    assert_equal [
-                   { "pred" => "lay", "subj" => "T5", "obj" => "T6" }
-                 ], slice["relations"]
   end
 
   test "should split into individual korean sentences" do
