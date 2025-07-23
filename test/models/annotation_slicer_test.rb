@@ -1,7 +1,7 @@
 require "test_helper"
 
 class AnnotationSlicerTest < ActiveSupport::TestCase
-  test "should split into single slice when all relations fit in window" do
+  test "should split into single slice when all annotations fit in window" do
     json_data = {
       "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
       "denotations" => [
