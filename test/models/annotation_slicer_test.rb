@@ -75,7 +75,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
       ]
     }
 
-    assert_raises(Exceptions::RelationCrossesChunkError) do
+    assert_raises(Exceptions::RelationOutOfRangeError) do
       AnnotationSlicer.new(json_data).annotation_in(0..21)
     end
   end

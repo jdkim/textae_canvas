@@ -40,7 +40,7 @@ class AnnotationSlicer
       if ids.include?(subj) && ids.include?(obj)
         arr << r
       elsif ids.include?(subj) || ids.include?(obj)
-        raise Exceptions::RelationCrossesChunkError, "Relation #{r.inspect} crosses chunk boundary"
+        raise Exceptions::RelationOutOfRangeError, "Relation #{r.inspect} crosses chunk boundary"
       else
         # If neither subject nor object is in the range, skip this relation
         next

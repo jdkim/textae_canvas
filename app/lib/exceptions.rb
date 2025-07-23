@@ -5,7 +5,7 @@ module Exceptions
     end
   end
 
-  class RelationCrossesChunkError < StandardError; end
+  class RelationOutOfRangeError < StandardError; end
 
   class DenotationFragmentedError < StandardError; end
 end
