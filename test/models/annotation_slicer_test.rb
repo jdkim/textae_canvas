@@ -113,7 +113,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     end
   end
 
-  test "should split into individual japanese sentences" do
+  test "should count multibyte characters as characters not bytes" do
     json_data = {
       "text" => "すべての鳥は卵を産む。ニワトリは鳥である。ゆえに、ニワトリは卵を産む。",
       "denotations" => [
