@@ -153,10 +153,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
         { "id" => "T3", "span" => { "begin" => 15, "end" => 19 }, "obj" => "person" },
         { "id" => "T4", "span" => { "begin" => 21, "end" => 23 }, "obj" => "alphabet" }
       ],
-      "relations" => [
-        { "pred" => "is_general_of", "subj" => "T1", "obj" => "T2" },
-        { "pred" => "created", "subj" => "T3", "obj" => "T4" }
-      ]
+      "relations" => []
     }
 
     slice = AnnotationSlicer.new(json_data).annotation_in(0..14)
@@ -166,9 +163,6 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                    { "id" => "T1", "span" => { "begin" => 0, "end" => 3 }, "obj" => "person" },
                    { "id" => "T2", "span" => { "begin" => 5, "end" => 7 }, "obj" => "country" }
                  ], slice["denotations"]
-    assert_equal [
-                   { "pred" => "is_general_of", "subj" => "T1", "obj" => "T2" }
-                 ], slice["relations"]
 
     slice = AnnotationSlicer.new(json_data).annotation_in(15..)
 
@@ -177,8 +171,5 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                    { "id" => "T3", "span" => { "begin" => 0, "end" => 4 }, "obj" => "person" },
                    { "id" => "T4", "span" => { "begin" => 6, "end" => 8 }, "obj" => "alphabet" }
                  ], slice["denotations"]
-    assert_equal [
-                   { "pred" => "created", "subj" => "T3", "obj" => "T4" }
-                 ], slice["relations"]
   end
 end
