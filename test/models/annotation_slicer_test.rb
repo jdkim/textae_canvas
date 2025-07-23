@@ -71,10 +71,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
         { "id" => "T3", "span" => { "begin" => 39, "end" => 47 }, "obj" => "Person" },
         { "id" => "T4", "span" => { "begin" => 70, "end" => 75 }, "obj" => "Organization" }
       ],
-      "relations" => [
-        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" },
-        { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" }
-      ]
+      "relations" => []
     }
 
     assert_raises(Exceptions::DenotationFragmentedError) do
