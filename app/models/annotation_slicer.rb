@@ -27,6 +27,8 @@ class AnnotationSlicer
                }
       elsif (!range.begin.nil? && begin_index < range.begin && range.begin < end_index) || (!range.end.nil? && begin_index < range.end && range.end < end_index)
         raise Exceptions::DenotationFragmentedError, "Denotation #{denotation.inspect} fragmented"
+      elsif !range.begin.nil? && !range.end.nil? && ((begin_index <= range.begin && range.end < end_index) || (begin_index < range.begin && range.end <= end_index))
+        raise Exceptions::DenotationFragmentedError, "Denotation #{denotation.inspect} fragmented"
       else
         nil
       end

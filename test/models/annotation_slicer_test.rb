@@ -103,6 +103,20 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     end
   end
 
+  test "should raise denotation fragmented error for extremely long denotation" do
+    json_data = {
+      "text" => "a" * 100,
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 99 }, "obj" => "LongEntity" }
+      ],
+      "relations" => []
+    }
+
+    assert_raises(Exceptions::DenotationFragmentedError) do
+      AnnotationSlicer.new(json_data).annotation_in(10..20)
+    end
+  end
+
   test "should split into individual english sentences" do
     json_data = {
       "text" => "Elon Musk is a member of the PayPal Mafia. Elon Musk seems to hate Donald Trump.",
