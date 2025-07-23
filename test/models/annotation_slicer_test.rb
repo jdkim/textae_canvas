@@ -1,7 +1,7 @@
 require "test_helper"
 
 class AnnotationSlicerTest < ActiveSupport::TestCase
-  test "should split into single chunk when all relations fit in window" do
+  test "should split into single slice when all relations fit in window" do
     json_data = {
       "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
       "denotations" => [
@@ -23,7 +23,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     assert_equal json_data["relations"], slice["relations"]
   end
 
-  test "should split into multiple chunks with small window and no crossing relations" do
+  test "should split into multiple slices with small window and no crossing relations" do
     json_data = {
       "text" => "Alice met Bob. Carol likes Dave.",
       "denotations" => [
