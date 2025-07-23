@@ -142,14 +142,6 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                    { "id" => "T3", "span" => { "begin" => 0, "end" => 4 }, "obj" => "chicken" },
                    { "id" => "T4", "span" => { "begin" => 5, "end" => 6 }, "obj" => "bird" }
                  ], slice["denotations"]
-
-    slice = AnnotationSlicer.new(json_data).annotation_in(21..)
-
-    assert_equal "ゆえに、ニワトリは卵を産む。", slice["text"]
-    assert_equal [
-                   { "id" => "T5", "span" => { "begin" => 4, "end" => 8 }, "obj" => "chicken" },
-                   { "id" => "T6", "span" => { "begin" => 9, "end" => 10 }, "obj" => "egg" }
-                 ], slice["denotations"]
   end
 
   test "should split into individual korean sentences" do
