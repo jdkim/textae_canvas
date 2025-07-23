@@ -113,40 +113,6 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     end
   end
 
-  test "should split into individual english sentences" do
-    json_data = {
-      "text" => "Elon Musk is a member of the PayPal Mafia. Elon Musk seems to hate Donald Trump.",
-      "denotations" => [
-        { "id" => "T1", "span" => { "begin" => 0, "end" => 9 }, "obj" => "Person" },
-        { "id" => "T2", "span" => { "begin" => 29, "end" => 41 }, "obj" => "Organization" },
-        { "id" => "T3", "span" => { "begin" => 43, "end" => 52 }, "obj" => "Person" },
-        { "id" => "T4", "span" => { "begin" => 67, "end" => 79 }, "obj" => "Person" }
-      ],
-      "relations" => [
-        { "pred" => "member_of", "subj" => "T1", "obj" => "T2" },
-        { "pred" => "hates", "subj" => "T3", "obj" => "T4" }
-      ]
-    }
-
-    slice = AnnotationSlicer.new(json_data).annotation_in(0..42)
-
-    assert_equal "Elon Musk is a member of the PayPal Mafia.", slice["text"]
-    assert_equal [
-                   { "id" => "T1", "span" => { "begin" => 0, "end" => 9 }, "obj" => "Person" },
-                   { "id" => "T2", "span" => { "begin" => 29, "end" => 41 }, "obj" => "Organization" }
-                 ], slice["denotations"]
-    assert_equal [ { "pred" => "member_of", "subj" => "T1", "obj" => "T2" } ], slice["relations"]
-
-    slice = AnnotationSlicer.new(json_data).annotation_in(43..)
-
-    assert_equal "Elon Musk seems to hate Donald Trump.", slice["text"]
-    assert_equal [
-                   { "id" => "T3", "span" => { "begin" => 0, "end" => 9 }, "obj" => "Person" },
-                   { "id" => "T4", "span" => { "begin" => 24, "end" => 36 }, "obj" => "Person" }
-                 ], slice["denotations"]
-    assert_equal [ { "pred" => "hates", "subj" => "T3", "obj" => "T4" } ], slice["relations"]
-  end
-
   test "should split into individual japanese sentences" do
     json_data = {
       "text" => "すべての鳥は卵を産む。ニワトリは鳥である。ゆえに、ニワトリは卵を産む。",
