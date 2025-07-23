@@ -144,7 +144,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                  ], slice["denotations"]
   end
 
-  test "should split into individual korean sentences" do
+  test "should correctly slice korean sentences as well" do
     json_data = {
       "text" => "이순신은 조선의 장군이다. 세종대왕은 한글을 창제했다.",
       "denotations" => [
