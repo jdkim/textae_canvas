@@ -1,29 +1,7 @@
 require "test_helper"
 
 class AnnotationSlicerTest < ActiveSupport::TestCase
-  test "should split into single slice when all annotations fit in window" do
-    json_data = {
-      "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
-      "denotations" => [
-        { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" },
-        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" },
-        { "id" => "T3", "span" => { "begin" => 39, "end" => 47 }, "obj" => "Person" },
-        { "id" => "T4", "span" => { "begin" => 70, "end" => 75 }, "obj" => "Organization" }
-      ],
-      "relations" => [
-        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" },
-        { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" }
-      ]
-    }
-
-    slice = AnnotationSlicer.new(json_data).annotation_in(0..78)
-
-    assert_equal json_data["text"], slice["text"]
-    assert_equal json_data["denotations"], slice["denotations"]
-    assert_equal json_data["relations"], slice["relations"]
-  end
-
-  test "should split into multiple slices with small window and no crossing relations" do
+  test "should split into multiple slices with small window" do
     json_data = {
       "text" => "Alice met Bob. Carol likes Dave.",
       "denotations" => [
@@ -62,6 +40,27 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                  ], slice["relations"]
   end
 
+  test "should split into single slice when all annotations fit in window" do
+    json_data = {
+      "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" },
+        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" },
+        { "id" => "T3", "span" => { "begin" => 39, "end" => 47 }, "obj" => "Person" },
+        { "id" => "T4", "span" => { "begin" => 70, "end" => 75 }, "obj" => "Organization" }
+      ],
+      "relations" => [
+        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" },
+        { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" }
+      ]
+    }
+
+    slice = AnnotationSlicer.new(json_data).annotation_in(0..78)
+
+    assert_equal json_data["text"], slice["text"]
+    assert_equal json_data["denotations"], slice["denotations"]
+    assert_equal json_data["relations"], slice["relations"]
+  end
 
   test "should raise relation crosses error when relation crosses chunk boundary" do
     json_data = {
