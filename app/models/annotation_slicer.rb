@@ -16,15 +16,15 @@ class AnnotationSlicer
   private
 
   def denotations_in(range)
-    @denotations.map do |denotation|
+    @denotations.each_with_object([]) do |denotation, arr|
       begin_index = denotation["span"]["begin"]
       end_index = denotation["span"]["end"]
       if range.cover?(begin_index..end_index)
-        {
-          "id" => denotation["id"],
-          "span" => { "begin" => begin_index - range.begin, "end" => end_index - range.begin },
-          "obj" => denotation["obj"]
-        }
+        arr << {
+                  "id" => denotation["id"],
+                  "span" => { "begin" => begin_index - range.begin, "end" => end_index - range.begin },
+                  "obj" => denotation["obj"]
+               }
       elsif (!range.begin.nil? && begin_index < range.begin && range.begin < end_index) || (!range.end.nil? && begin_index < range.end && range.end < end_index)
         raise Exceptions::DenotationFragmentedError, "Denotation #{denotation.inspect} fragmented"
       else
