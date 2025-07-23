@@ -25,7 +25,7 @@ class AnnotationSlicer
           "span" => { "begin" => begin_index - range.begin, "end" => end_index - range.begin },
           "obj" => denotation["obj"]
         }
-      elsif (begin_index < range.begin && range.begin < end_index) || (begin_index < range.end && range.end < end_index)
+      elsif (!range.begin.nil? && begin_index < range.begin && range.begin < end_index) || (!range.end.nil? && begin_index < range.end && range.end < end_index)
         raise Exceptions::DenotationFragmentedError, "Denotation #{denotation.inspect} fragmented"
       else
         nil
