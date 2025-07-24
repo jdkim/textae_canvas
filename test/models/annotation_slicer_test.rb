@@ -67,8 +67,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
       "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
       "denotations" => [
         { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" }
-      ],
-      "relations" => []
+      ]
     }
 
     # Crossing the start of a denotation
