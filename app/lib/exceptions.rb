@@ -4,4 +4,8 @@ module Exceptions
       super(msg)
     end
   end
+
+  class RelationOutOfRangeError < StandardError; end
+
+  class DenotationFragmentedError < StandardError; end
 end
