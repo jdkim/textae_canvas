@@ -1,7 +1,7 @@
 require "test_helper"
 
 class AnnotationSlicerTest < ActiveSupport::TestCase
-  test "should split into multiple slices with small window" do
+  test "should split in the specified window" do
     json_data = {
       "text" => "Alice met Bob. Carol likes Dave.",
       "denotations" => [
