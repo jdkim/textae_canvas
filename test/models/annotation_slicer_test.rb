@@ -113,8 +113,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
         { "id" => "T4", "span" => { "begin" => 16, "end" => 17 }, "obj" => "bird" },
         { "id" => "T5", "span" => { "begin" => 25, "end" => 29 }, "obj" => "chicken" },
         { "id" => "T6", "span" => { "begin" => 30, "end" => 31 }, "obj" => "egg" }
-      ],
-      "relations" => []
+      ]
     }
 
     slice = AnnotationSlicer.new(json_data).annotation_in(0..11)
@@ -142,8 +141,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
         { "id" => "T2", "span" => { "begin" => 5, "end" => 7 }, "obj" => "country" },
         { "id" => "T3", "span" => { "begin" => 15, "end" => 19 }, "obj" => "person" },
         { "id" => "T4", "span" => { "begin" => 21, "end" => 23 }, "obj" => "alphabet" }
-      ],
-      "relations" => []
+      ]
     }
 
     slice = AnnotationSlicer.new(json_data).annotation_in(0..14)
