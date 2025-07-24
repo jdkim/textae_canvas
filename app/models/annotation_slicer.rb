@@ -17,6 +17,7 @@ class AnnotationSlicer
 
   def denotations_in(range)
     raise ArgumentError, "range includes nil" if range.begin.nil? || range.end.nil?
+
     @denotations.each_with_object([]) do |denotation, arr|
       begin_index = denotation["span"]["begin"]
       end_index = denotation["span"]["end"]
@@ -39,6 +40,7 @@ class AnnotationSlicer
 
   def relations_of(denotations)
     raise ArgumentError, "denotations cannot be nil" if denotations.nil?
+
     ids = denotations.map { it["id"] }
     @relations.each_with_object([]) do |r, arr|
       subj, obj = r["subj"], r["obj"]
