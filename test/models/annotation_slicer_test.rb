@@ -66,19 +66,24 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     json_data = {
       "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
       "denotations" => [
-        { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" },
-        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" },
-        { "id" => "T3", "span" => { "begin" => 39, "end" => 47 }, "obj" => "Person" },
-        { "id" => "T4", "span" => { "begin" => 70, "end" => 75 }, "obj" => "Organization" }
+        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" }
       ],
       "relations" => []
     }
 
+    # Crossing the start of a denotation
     assert_raises(Exceptions::DenotationFragmentedError) do
-      AnnotationSlicer.new(json_data).annotation_in(0..5)
+      AnnotationSlicer.new(json_data).annotation_in(0..20)
     end
+
+    # Trying to cut through the middle of a denotation
     assert_raises(Exceptions::DenotationFragmentedError) do
-      AnnotationSlicer.new(json_data).annotation_in(6..24)
+      AnnotationSlicer.new(json_data).annotation_in(23..26)
+    end
+
+    # Crossing the end of a denotation
+    assert_raises(Exceptions::DenotationFragmentedError) do
+      AnnotationSlicer.new(json_data).annotation_in(27..30)
     end
   end
 
