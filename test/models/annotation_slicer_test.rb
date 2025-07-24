@@ -28,7 +28,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                    { "pred" => "met", "subj" => "T1", "obj" => "T2" }
                  ], slice["relations"]
 
-    slice = AnnotationSlicer.new(json_data).annotation_in(15..)
+    slice = AnnotationSlicer.new(json_data).annotation_in(15..32)
 
     assert_equal "Carol likes Dave.", slice["text"]
     assert_equal [
@@ -154,7 +154,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                    { "id" => "T2", "span" => { "begin" => 5, "end" => 7 }, "obj" => "country" }
                  ], slice["denotations"]
 
-    slice = AnnotationSlicer.new(json_data).annotation_in(15..)
+    slice = AnnotationSlicer.new(json_data).annotation_in(15..30)
 
     assert_equal "세종대왕은 한글을 창제했다.", slice["text"]
     assert_equal [

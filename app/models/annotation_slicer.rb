@@ -16,6 +16,7 @@ class AnnotationSlicer
   private
 
   def denotations_in(range)
+    raise ArgumentError, "range includes nil" if range.begin.nil? || range.end.nil?
     @denotations.each_with_object([]) do |denotation, arr|
       begin_index = denotation["span"]["begin"]
       end_index = denotation["span"]["end"]
@@ -25,9 +26,9 @@ class AnnotationSlicer
                   "span" => { "begin" => begin_index - range.begin, "end" => end_index - range.begin },
                   "obj" => denotation["obj"]
                }
-      elsif (!range.begin.nil? && begin_index < range.begin && range.begin < end_index) || (!range.end.nil? && begin_index < range.end && range.end < end_index)
+      elsif (begin_index < range.begin && range.begin < end_index) || (begin_index < range.end && range.end < end_index)
         raise Exceptions::DenotationFragmentedError, "Denotation #{denotation.inspect} fragmented"
-      elsif !range.begin.nil? && !range.end.nil? && ((begin_index <= range.begin && range.end < end_index) || (begin_index < range.begin && range.end <= end_index))
+      elsif (begin_index <= range.begin && range.end < end_index) || (begin_index < range.begin && range.end <= end_index)
         raise Exceptions::DenotationFragmentedError, "Denotation #{denotation.inspect} fragmented"
       else
         # If neither begin_index nor end_index is in the range, skip this denotation
@@ -37,6 +38,7 @@ class AnnotationSlicer
   end
 
   def relations_of(denotations)
+    raise ArgumentError, "denotations cannot be nil" if denotations.nil?
     ids = denotations.map { it["id"] }
     @relations.each_with_object([]) do |r, arr|
       subj, obj = r["subj"], r["obj"]
