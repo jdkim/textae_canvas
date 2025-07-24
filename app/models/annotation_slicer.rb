@@ -30,7 +30,8 @@ class AnnotationSlicer
       elsif !range.begin.nil? && !range.end.nil? && ((begin_index <= range.begin && range.end < end_index) || (begin_index < range.begin && range.end <= end_index))
         raise Exceptions::DenotationFragmentedError, "Denotation #{denotation.inspect} fragmented"
       else
-        nil
+        # If neither begin_index nor end_index is in the range, skip this denotation
+        next
       end
     end
   end
