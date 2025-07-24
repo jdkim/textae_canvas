@@ -32,7 +32,7 @@ class AnnotationSlicer
       else
         nil
       end
-    end.compact
+    end
   end
 
   def relations_of(denotations)
