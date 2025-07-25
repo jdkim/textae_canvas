@@ -1,38 +1,11 @@
 class AnnotationMerger
   def initialize(annotations)
     @annotations = annotations
+    @chunks_info = build_chunks_info
+    @id_mappings = build_id_mappings
   end
 
   def merged
-    id_seq = 1
-    id_map = {}
-    offset = 0
-    merged_text = ""
-    merged_denotations = []
-    merged_relations = []
-
-    @annotations.each do |annotation|
-      text = annotation["text"]
-      denotations = annotation["denotations"] || []
-      relations = annotation["relations"] || []
-
-      if merged_text.end_with?(".")
-        merged_text += " "
-        offset += 1
-      end
-      merged_text += text
-
-      # Merge denotations (also returns id_map and id_seq)
-      denotations_result = merge_denotations denotations, offset, id_seq, id_map
-      merged_denotations.concat denotations_result[:denotations]
-      id_map = denotations_result[:id_map]
-      id_seq = denotations_result[:id_seq]
-
-      # Merge relations
-      merged_relations.concat merge_relations(relations, id_map)
-      offset += text.length
-    end
-
     result = { "text" => merged_text }
     result["denotations"] = merged_denotations if merged_denotations.any?
     result["relations"] = merged_relations if merged_relations.any?
@@ -41,38 +14,109 @@ class AnnotationMerger
 
   private
 
-  def merge_denotations(denotations, offset, id_seq, id_map)
-    merged = []
-    denotations.each do |denotation|
-      new_id = "T#{id_seq}"
-      id_map = id_map.merge({ denotation["id"] => new_id })
-      merged << {
-        "id" => new_id,
-        "span" => {
-          "begin" => denotation["span"]["begin"] + offset,
-          "end" => denotation["span"]["end"] + offset
-        },
-        "obj" => denotation["obj"]
+  # 各チャンクの情報（長さとパディングの有無）を事前計算
+  def build_chunks_info
+    chunks_info = []
+
+    @annotations.each_with_index do |annotation, index|
+      text = annotation["text"] || ""
+      has_padding = index > 0 && chunks_info.last&.dig(:cumulative_text)&.end_with?(".")
+      padding_length = has_padding ? 1 : 0
+
+      # オフセット計算：前のチャンクの終了位置 + 現在のチャンクのパディング
+      offset = if chunks_info.empty?
+                 0
+      else
+                 chunks_info.last[:offset] + chunks_info.last[:length] + padding_length
+      end
+
+      cumulative_text = if chunks_info.empty?
+                          text
+      else
+                          previous_text = chunks_info.last[:cumulative_text]
+                          padding = has_padding ? " " : ""
+                          previous_text + padding + text
+      end
+
+      chunks_info << {
+        text: text,
+        length: text.length,
+        has_padding: has_padding,
+        padding_length: padding_length,
+        cumulative_text: cumulative_text,
+        offset: offset
       }
-      id_seq += 1
     end
 
-    {
-      denotations: merged,
-      id_map: id_map,
-      id_seq: id_seq
-    }
+    chunks_info
   end
 
-  def merge_relations(relations, id_map)
+  # 各チャンクのIDマッピング情報を事前計算
+  def build_id_mappings
+    id_mappings = []
+    id_seq = 1
+
+    @annotations.each_with_index do |annotation, index|
+      denotations = annotation["denotations"] || []
+      chunk_mapping = {}
+
+      denotations.each do |denotation|
+        new_id = "T#{id_seq}"
+        chunk_mapping[denotation["id"]] = new_id
+        id_seq += 1
+      end
+
+      id_mappings << chunk_mapping
+    end
+
+    id_mappings
+  end
+
+  def merged_text
+    @chunks_info.last&.dig(:cumulative_text) || ""
+  end
+
+  def merged_denotations
     merged = []
-    relations.each do |relation|
-      subj = id_map[relation["subj"]]
-      obj = id_map[relation["obj"]]
-      if subj && obj
-        merged << relation.merge("subj" => subj, "obj" => obj)
+
+    @annotations.each_with_index do |annotation, index|
+      denotations = annotation["denotations"] || []
+      offset = @chunks_info[index][:offset]
+      id_mapping = @id_mappings[index]
+
+      denotations.each do |denotation|
+        new_id = id_mapping[denotation["id"]]
+        merged << {
+          "id" => new_id,
+          "span" => {
+            "begin" => denotation["span"]["begin"] + offset,
+            "end" => denotation["span"]["end"] + offset
+          },
+          "obj" => denotation["obj"]
+        }
       end
     end
+
+    merged
+  end
+
+  def merged_relations
+    merged = []
+
+    @annotations.each_with_index do |annotation, index|
+      relations = annotation["relations"] || []
+      id_mapping = @id_mappings[index]
+
+      relations.each do |relation|
+        subj = id_mapping[relation["subj"]]
+        obj = id_mapping[relation["obj"]]
+
+        if subj && obj
+          merged << relation.merge("subj" => subj, "obj" => obj)
+        end
+      end
+    end
+
     merged
   end
 end
