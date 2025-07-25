@@ -3,7 +3,7 @@ class AnnotationMerger
     @annotations = annotations
   end
 
-  def merge
+  def merged
     id_seq = 1
     id_map = {}
     offset = 0

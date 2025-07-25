@@ -23,7 +23,7 @@ class AnnotationMergerTest < ActiveSupport::TestCase
       ]
     }
 
-    merged = AnnotationMerger.new([ ann1, ann2 ]).merge
+    merged = AnnotationMerger.new([ ann1, ann2 ]).merged
 
     assert_equal "Alice met Bob. Carol likes Dave.", merged["text"]
     assert_equal [
@@ -41,7 +41,7 @@ class AnnotationMergerTest < ActiveSupport::TestCase
   test "should merge with empty relations and denotations" do
     ann1 = { "text" => "Hello.", "denotations" => [], "relations" => [] }
     ann2 = { "text" => "World!", "denotations" => [], "relations" => [] }
-    merged = AnnotationMerger.new([ ann1, ann2 ]).merge
+    merged = AnnotationMerger.new([ ann1, ann2 ]).merged
     assert_equal "Hello. World!", merged["text"]
     assert_equal [], merged["denotations"]
     assert_equal [], merged["relations"]
@@ -50,7 +50,7 @@ class AnnotationMergerTest < ActiveSupport::TestCase
   test "should merge with no relations and denotations" do
     ann1 = { "text" => "Hello." }
     ann2 = { "text" => "World!" }
-    merged = AnnotationMerger.new([ ann1, ann2 ]).merge
+    merged = AnnotationMerger.new([ ann1, ann2 ]).merged
     assert_equal "Hello. World!", merged["text"]
     assert_equal [], merged["denotations"]
     assert_equal [], merged["relations"]
@@ -59,7 +59,7 @@ class AnnotationMergerTest < ActiveSupport::TestCase
   test "should merge multibyte text correctly" do
     ann1 = { "text" => "すべての鳥は卵を産む。", "denotations" => [ { "id" => "T1", "span" => { "begin" => 4, "end" => 5 }, "obj" => "bird" } ], "relations" => [] }
     ann2 = { "text" => "ニワトリは鳥である。", "denotations" => [ { "id" => "T1", "span" => { "begin" => 0, "end" => 4 }, "obj" => "chicken" } ], "relations" => [] }
-    merged = AnnotationMerger.new([ ann1, ann2 ]).merge
+    merged = AnnotationMerger.new([ ann1, ann2 ]).merged
     assert_equal "すべての鳥は卵を産む。ニワトリは鳥である。", merged["text"]
     assert_equal [
       { "id" => "T1", "span" => { "begin" => 4, "end" => 5 }, "obj" => "bird" },
