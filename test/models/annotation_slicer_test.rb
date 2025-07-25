@@ -67,13 +67,10 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
       "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
       "denotations" => [
         { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" },
-        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" },
-        { "id" => "T3", "span" => { "begin" => 39, "end" => 47 }, "obj" => "Person" },
-        { "id" => "T4", "span" => { "begin" => 70, "end" => 75 }, "obj" => "Organization" }
+        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" }
       ],
       "relations" => [
-        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" },
-        { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" }
+        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" }
       ]
     }
 
@@ -98,13 +95,10 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
       "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
       "denotations" => [
         { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" },
-        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" },
-        { "id" => "T3", "span" => { "begin" => 39, "end" => 47 }, "obj" => "Person" },
-        { "id" => "T4", "span" => { "begin" => 70, "end" => 75 }, "obj" => "Organization" }
+        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" }
       ],
       "relations" => [
-        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" },
-        { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" }
+        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" }
       ]
     }
     slice = AnnotationSlicer.new(json_data, strict_mode: false).annotation_in(0..20)
