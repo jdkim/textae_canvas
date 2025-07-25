@@ -93,7 +93,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not raise denotation fragmented error in non-strict mode" do
+  test "in non-strict mode should disappear some denotations and not raise denotation fragmented error" do
     json_data = {
       "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
       "denotations" => [
@@ -145,7 +145,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not raise relation crosses error in non-strict mode" do
+  test "in non-strict mode should disappear some relations and not raise relation crosses error" do
     json_data = {
       "text" => "Elon Musk is a member of the PayPal Mafia.",
       "denotations" => [
