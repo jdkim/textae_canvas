@@ -16,9 +16,7 @@ class AnnotationMerger
 
   # 各チャンクの情報（長さとパディングの有無）を事前計算
   def build_chunks_info
-    chunks_info = []
-
-    @annotations.each_with_index do |annotation, index|
+    @annotations.each_with_index.each_with_object([]) do |(annotation, index), chunks_info|
       text = annotation["text"] || ""
       has_padding = index > 0 && chunks_info.last&.dig(:cumulative_text)&.end_with?(".")
       padding_length = has_padding ? 1 : 0
@@ -47,29 +45,23 @@ class AnnotationMerger
         offset: offset
       }
     end
-
-    chunks_info
   end
 
   # 各チャンクのIDマッピング情報を事前計算
   def build_id_mappings
-    id_mappings = []
     id_seq = 1
 
-    @annotations.each_with_index do |annotation, index|
+    @annotations.each_with_object([]) do |annotation, id_mappings|
       denotations = annotation["denotations"] || []
-      chunk_mapping = {}
 
-      denotations.each do |denotation|
+      chunk_mapping = denotations.each_with_object({}) do |denotation, mapping|
         new_id = "T#{id_seq}"
-        chunk_mapping[denotation["id"]] = new_id
+        mapping[denotation["id"]] = new_id
         id_seq += 1
       end
 
       id_mappings << chunk_mapping
     end
-
-    id_mappings
   end
 
   def merged_text
@@ -77,9 +69,7 @@ class AnnotationMerger
   end
 
   def merged_denotations
-    merged = []
-
-    @annotations.each_with_index do |annotation, index|
+    @annotations.each_with_index.each_with_object([]) do |(annotation, index), merged|
       denotations = annotation["denotations"] || []
       offset = @chunks_info[index][:offset]
       id_mapping = @id_mappings[index]
@@ -96,14 +86,10 @@ class AnnotationMerger
         }
       end
     end
-
-    merged
   end
 
   def merged_relations
-    merged = []
-
-    @annotations.each_with_index do |annotation, index|
+    @annotations.each_with_index.each_with_object([]) do |(annotation, index), merged|
       relations = annotation["relations"] || []
       id_mapping = @id_mappings[index]
 
@@ -116,7 +102,5 @@ class AnnotationMerger
         end
       end
     end
-
-    merged
   end
 end
