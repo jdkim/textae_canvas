@@ -66,7 +66,11 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     json_data = {
       "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
       "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" },
         { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" }
+      ],
+      "relations" => [
+        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" }
       ]
     }
 
@@ -86,6 +90,38 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     end
   end
 
+  test "in non-strict mode should disappear some denotations and not raise denotation fragmented error" do
+    json_data = {
+      "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" },
+        { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" }
+      ],
+      "relations" => [
+        { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" }
+      ]
+    }
+    slice = AnnotationSlicer.new(json_data, strict_mode: false).annotation_in(0..20)
+
+    assert_equal slice["text"], "Steve Jobs founded A"
+    assert_equal slice["denotations"], [
+      { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" }
+    ]
+    assert_equal slice["relations"], []
+
+    slice = AnnotationSlicer.new(json_data, strict_mode: false).annotation_in(23..26)
+
+    assert_equal slice["text"], "e I"
+    assert_equal slice["denotations"], []
+    assert_equal slice["relations"], []
+
+    slice = AnnotationSlicer.new(json_data, strict_mode: false).annotation_in(27..30)
+
+    assert_equal slice["text"], "c. "
+    assert_equal slice["denotations"], []
+    assert_equal slice["relations"], []
+  end
+
   test "should raise relation crosses error when relation crosses chunk boundary" do
     json_data = {
       "text" => "Elon Musk is a member of the PayPal Mafia.",
@@ -101,6 +137,26 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     assert_raises(Exceptions::RelationOutOfRangeError) do
       AnnotationSlicer.new(json_data).annotation_in(0..21)
     end
+  end
+
+  test "in non-strict mode should disappear some relations and not raise relation crosses error" do
+    json_data = {
+      "text" => "Elon Musk is a member of the PayPal Mafia.",
+      "denotations" => [
+        { "id" => "T1", "span" => { "begin" => 0, "end" => 9 }, "obj" => "Person" },
+        { "id" => "T2", "span" => { "begin" => 29, "end" => 41 }, "obj" => "Organization" }
+      ],
+      "relations" => [
+        { "pred" => "member_of", "subj" => "T1", "obj" => "T2" }
+      ]
+    }
+    slice = AnnotationSlicer.new(json_data, strict_mode: false).annotation_in(0..21)
+
+    assert_equal slice["text"], "Elon Musk is a member"
+    assert_equal slice["denotations"], [
+      { "id" => "T1", "span" => { "begin" => 0, "end" => 9 }, "obj" => "Person" }
+    ]
+    assert_equal slice["relations"], []
   end
 
   test "should count multibyte characters as characters not bytes" do
