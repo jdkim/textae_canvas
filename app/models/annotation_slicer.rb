@@ -1,5 +1,5 @@
 class AnnotationSlicer
-  def initialize(annotation, strict_mode: false)
+  def initialize(annotation, strict_mode: true)
     @text = annotation["text"]
     @denotations = annotation["denotations"] || []
     @relations = annotation["relations"] || []
@@ -29,9 +29,9 @@ class AnnotationSlicer
                   "obj" => denotation["obj"]
                }
       elsif (begin_index < range.begin && range.begin < end_index) || (begin_index < range.end && range.end < end_index)
-        raise Exceptions::DenotationFragmentedError, "Denotation #{denotation.inspect} fragmented" unless @strict_mode
+        raise Exceptions::DenotationFragmentedError, "Denotation #{denotation.inspect} fragmented" if @strict_mode
       elsif (begin_index <= range.begin && range.end < end_index) || (begin_index < range.begin && range.end <= end_index)
-        raise Exceptions::DenotationFragmentedError, "Denotation #{denotation.inspect} fragmented" unless @strict_mode
+        raise Exceptions::DenotationFragmentedError, "Denotation #{denotation.inspect} fragmented" if @strict_mode
       else
         # If neither begin_index nor end_index is in the range, skip this denotation
         next
@@ -48,7 +48,7 @@ class AnnotationSlicer
       if ids.include?(subj) && ids.include?(obj)
         arr << r
       elsif ids.include?(subj) || ids.include?(obj)
-        raise Exceptions::RelationOutOfRangeError, "Relation #{r.inspect} crosses chunk boundary" unless @strict_mode
+        raise Exceptions::RelationOutOfRangeError, "Relation #{r.inspect} crosses chunk boundary" if @strict_mode
       else
         # If neither subject nor object is in the range, skip this relation
         next

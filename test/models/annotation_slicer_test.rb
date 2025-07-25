@@ -107,7 +107,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
         { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" }
       ]
     }
-    slice = AnnotationSlicer.new(json_data, strict_mode: true).annotation_in(0..20)
+    slice = AnnotationSlicer.new(json_data, strict_mode: false).annotation_in(0..20)
 
     assert_equal slice["text"], "Steve Jobs founded A"
     assert_equal slice["denotations"], [
@@ -115,13 +115,13 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     ]
     assert_equal slice["relations"], []
 
-    slice = AnnotationSlicer.new(json_data, strict_mode: true).annotation_in(23..26)
+    slice = AnnotationSlicer.new(json_data, strict_mode: false).annotation_in(23..26)
 
     assert_equal slice["text"], "e I"
     assert_equal slice["denotations"], []
     assert_equal slice["relations"], []
 
-    slice = AnnotationSlicer.new(json_data, strict_mode: true).annotation_in(27..30)
+    slice = AnnotationSlicer.new(json_data, strict_mode: false).annotation_in(27..30)
 
     assert_equal slice["text"], "c. "
     assert_equal slice["denotations"], []
@@ -156,7 +156,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
         { "pred" => "member_of", "subj" => "T1", "obj" => "T2" }
       ]
     }
-    slice = AnnotationSlicer.new(json_data, strict_mode: true).annotation_in(0..21)
+    slice = AnnotationSlicer.new(json_data, strict_mode: false).annotation_in(0..21)
 
     assert_equal slice["text"], "Elon Musk is a member"
     assert_equal slice["denotations"], [
