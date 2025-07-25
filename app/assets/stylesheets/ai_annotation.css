@@ -41,7 +41,7 @@
 .textae-container {
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 600px;
+  max-height: 600px;
   margin-top: 40px;
   overflow-y: scroll;
 
