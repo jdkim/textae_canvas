@@ -1,7 +1,8 @@
 <div class="textae-container">
-  <div id="ai-textae-editor" mode="view">
+  <div id="ai-textae-editor" mode="view" inspect="current-annotation">
     <%= @ai_annotation.content %>
   </div>
+  <div id="current-annotation"></div>
 </div>
 
 <%= form_with model: @ai_annotation, url: ai_annotation_path(@ai_annotation.uuid), class: "ai-annotation-form" do |f| %>

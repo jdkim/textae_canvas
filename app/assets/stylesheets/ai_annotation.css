@@ -49,6 +49,10 @@
     border-color: #D9D9D9;
     border-width: 1px;
   }
+
+  #current-annotation {
+    display: none;
+  }
 }
 
 .button {
