@@ -33,11 +33,10 @@ class AnnotationMerger
       offset += text.length
     end
 
-    {
-      "text" => merged_text,
-      "denotations" => merged_denotations,
-      "relations" => merged_relations
-    }
+    result = { "text" => merged_text }
+    result["denotations"] = merged_denotations if merged_denotations.any?
+    result["relations"] = merged_relations if merged_relations.any?
+    result
   end
 
   private

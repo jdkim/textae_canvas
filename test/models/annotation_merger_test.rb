@@ -43,8 +43,8 @@ class AnnotationMergerTest < ActiveSupport::TestCase
     ann2 = { "text" => "World!", "denotations" => [], "relations" => [] }
     merged = AnnotationMerger.new([ ann1, ann2 ]).merged
     assert_equal "Hello. World!", merged["text"]
-    assert_equal [], merged["denotations"]
-    assert_equal [], merged["relations"]
+    assert_not merged.key?("denotations")
+    assert_not merged.key?("relations")
   end
 
   test "should merge with no relations and denotations" do
@@ -52,8 +52,8 @@ class AnnotationMergerTest < ActiveSupport::TestCase
     ann2 = { "text" => "World!" }
     merged = AnnotationMerger.new([ ann1, ann2 ]).merged
     assert_equal "Hello. World!", merged["text"]
-    assert_equal [], merged["denotations"]
-    assert_equal [], merged["relations"]
+    assert_not merged.key?("denotations")
+    assert_not merged.key?("relations")
   end
 
   test "should merge multibyte text correctly" do
