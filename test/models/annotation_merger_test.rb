@@ -1,7 +1,7 @@
 require "test_helper"
 
 class AnnotationMergerTest < ActiveSupport::TestCase
-  test "should merge two annotations correctly" do
+  test "should merge two annotations" do
     ann1 = {
       "text" => "Alice met Bob.",
       "denotations" => [
@@ -56,7 +56,7 @@ class AnnotationMergerTest < ActiveSupport::TestCase
     assert_not merged.key?("relations")
   end
 
-  test "should merge multibyte text correctly" do
+  test "should merge multibyte text" do
     ann1 = { "text" => "すべての鳥は卵を産む。", "denotations" => [ { "id" => "T1", "span" => { "begin" => 4, "end" => 5 }, "obj" => "bird" } ], "relations" => [] }
     ann2 = { "text" => "ニワトリは鳥である。", "denotations" => [ { "id" => "T1", "span" => { "begin" => 0, "end" => 4 }, "obj" => "chicken" } ], "relations" => [] }
     merged = AnnotationMerger.new([ ann1, ann2 ]).merged
