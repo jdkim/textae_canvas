@@ -14,14 +14,14 @@ class AnnotationMerger
 
   private
 
-  # 各チャンクの情報（長さとパディングの有無）を事前計算
+  # Pre-calculate information for each chunk (length and whether it has padding)
   def build_chunks_info
     @annotations.each_with_index.each_with_object([]) do |(annotation, index), chunks_info|
       text = annotation["text"] || ""
       has_padding = index > 0 && chunks_info.last&.dig(:text)&.end_with?(".")
       padding_length = has_padding ? 1 : 0
 
-      # オフセット計算：前のチャンクの終了位置 + 現在のチャンクのパディング
+      # Offset calculation: previous chunk's end position + current chunk's padding
       offset = if chunks_info.empty?
                  0
       else
@@ -38,7 +38,7 @@ class AnnotationMerger
     end
   end
 
-  # 各チャンクのIDマッピング情報を事前計算
+  # Pre-calculate ID mapping information for each chunk
   def build_id_mappings
     id_seq = 1
 
