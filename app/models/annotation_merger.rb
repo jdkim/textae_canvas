@@ -18,7 +18,7 @@ class AnnotationMerger
   def build_chunks_info
     @annotations.each_with_index.each_with_object([]) do |(annotation, index), chunks_info|
       text = annotation["text"] || ""
-      has_padding = index > 0 && chunks_info.last&.dig(:cumulative_text)&.end_with?(".")
+      has_padding = index > 0 && chunks_info.last&.dig(:text)&.end_with?(".")
       padding_length = has_padding ? 1 : 0
 
       # オフセット計算：前のチャンクの終了位置 + 現在のチャンクのパディング
@@ -28,20 +28,11 @@ class AnnotationMerger
                  chunks_info.last[:offset] + chunks_info.last[:length] + padding_length
       end
 
-      cumulative_text = if chunks_info.empty?
-                          text
-      else
-                          previous_text = chunks_info.last[:cumulative_text]
-                          padding = has_padding ? " " : ""
-                          previous_text + padding + text
-      end
-
       chunks_info << {
         text: text,
         length: text.length,
         has_padding: has_padding,
         padding_length: padding_length,
-        cumulative_text: cumulative_text,
         offset: offset
       }
     end
@@ -65,7 +56,11 @@ class AnnotationMerger
   end
 
   def merged_text
-    @chunks_info.last&.dig(:cumulative_text) || ""
+    @annotations.map.with_index do |annotation, index|
+      text = annotation["text"] || ""
+      padding = @chunks_info[index][:has_padding] ? " " : ""
+      padding + text
+    end.join
   end
 
   def merged_denotations
