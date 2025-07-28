@@ -152,8 +152,8 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-        TokenChunk.new.from(json_data, window_size: 4)
       assert_raises(Exceptions::RelationOutOfRangeError) do
+        TokenChunk.new.from(json_data, window_size: 3)
       end
     end
 
@@ -374,7 +374,7 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []  # relationを削除
       }
-      chunks = TokenChunk.new.from(json_data, window_size: 20)  # ウィンドウサイズを大きく
+      chunks = TokenChunk.new.from(json_data, window_size: 33)  # ウィンドウサイズを大きく
 
       assert chunks.size >= 1
       # 長いdenotationが正しく処理されるか
