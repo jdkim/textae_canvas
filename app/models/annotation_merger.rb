@@ -8,7 +8,7 @@ class AnnotationMerger
       text += " " if text.end_with?(".")
       annotation.merge("text" => text)
     end
-    @chunks_info = build_chunks_info
+    @chunks_info = chunks_info
     @id_mappings = build_id_mappings
   end
 
@@ -22,7 +22,7 @@ class AnnotationMerger
   private
 
   # Pre-calculate information for each chunk (length and offset)
-  def build_chunks_info
+  def chunks_info
     @annotations.each_with_object([]).with_index do |(annotation, chunks_info), index|
       text = annotation["text"]
       # Padding check is not necessary because preprocessing is already done
