@@ -1,4 +1,4 @@
-# TextAE Canvas
+# Annotation Canvas
 ## Environment
 - Ruby 3.4.4
 - Rails 8.0.2
@@ -34,7 +34,7 @@ To obtain your api key, follow the OpenAI API key creation procedure below.
 rails server
 ```
 
-Now, you can access TextAE Canvas at http://localhost:3000.
+Now, you can access Annotation Canvas at http://localhost:3000.
 
 ## OpenAI API key creation procedure
 ### Step 1
