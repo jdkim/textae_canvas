@@ -21,7 +21,7 @@ class AnnotationMerger
 
   # Pre-calculate information for each chunk (length and offset)
   def build_chunks_info
-    @annotations.each_with_index.each_with_object([]) do |(annotation, index), chunks_info|
+    @annotations.each_with_object([]).with_index do |(annotation, chunk_info), index|
       text = annotation["text"]
       # Padding check is not necessary because preprocessing is already done
       offset = if chunks_info.empty?
