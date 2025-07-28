@@ -1,6 +1,8 @@
 class AnnotationMerger
   def initialize(annotations)
-    # Preprocessing for text: nil → empty string, add space if ends with a period
+    # If annotation["text"] is nil, set it to an empty string. If the text ends with a period, add a space.
+    # This is to clarify sentence boundaries when merging annotations, preventing loss of readability or meaning.
+    # Also, setting nil to an empty string avoids errors in subsequent processing.
     @annotations = annotations.map do |annotation|
       text = annotation["text"] || ""
       text += " " if text.end_with?(".")
