@@ -5,10 +5,10 @@ class TokenChunk
   end
 
   # Generate token chunks from JSON data using the specified window size
-  def from(json_data, window_size: 20)
-    original_text = json_data["text"]
-    original_denotations = json_data["denotations"] || []
-    original_relations = json_data["relations"] || []
+  def from(annotations, window_size: 20)
+    original_text = annotations["text"]
+    original_denotations = annotations["denotations"] || []
+    original_relations = annotations["relations"] || []
 
     # window_sizeが不正ならArgumentErrorを投げる
     raise ArgumentError, "window_size must be greater than 0" if window_size <= 0
@@ -18,9 +18,7 @@ class TokenChunk
     language = response.language
 
     # Generate chunks using the TokenChunkGenerator
-    TokenChunkGenerator.new(original_text,
-                            original_denotations,
-                            original_relations,
+    TokenChunkGenerator.new(annotations,
                             language,
                             response.tokens,
                             window_size)

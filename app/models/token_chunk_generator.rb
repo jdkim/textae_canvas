@@ -1,12 +1,12 @@
 class TokenChunkGenerator
-  def initialize(original_text, original_denotations, original_relations, language, tokens, window_size)
-    @original_text = original_text
-    @original_denotations = original_denotations || []
-    @original_relations = original_relations || []
+  def initialize(annotation, language, tokens, window_size)
+    @original_text = annotation["text"]
+    @original_denotations = annotation["denotations"] || []
+    @original_relations = annotation["relations"] || []
     @language = language
     @tokens = tokens || []
     @window_size = window_size
-    @slicer = AnnotationSlicer.new(@original_text, @original_denotations, @original_relations)
+    @slicer = AnnotationSlicer.new(annotation)
   end
 
   # Main loop for generating token chunks
