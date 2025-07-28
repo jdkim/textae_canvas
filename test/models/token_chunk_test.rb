@@ -78,7 +78,7 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      assert_raises(Exceptions::RelationCrossesChunkError) do
+      assert_raises(Exceptions::RelationOutOfRangeError) do
         TokenChunk.new.from(json_data, window_size: 3)
       end
     end
@@ -152,8 +152,8 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      assert_raises(Exceptions::RelationCrossesChunkError) do
         TokenChunk.new.from(json_data, window_size: 4)
+      assert_raises(Exceptions::RelationOutOfRangeError) do
       end
     end
 
@@ -623,7 +623,7 @@ if ENV["LOCAL_ONLY"]
         ]
       }
       # 故意に小さいwindowでrelationがまたがるように
-      assert_raises(Exceptions::RelationCrossesChunkError) do
+      assert_raises(Exceptions::RelationOutOfRangeError) do
         TokenChunk.new.from(json_data, window_size: "김연아는 피겨스케이팅 선수이다. 그".length)
       end
     end
