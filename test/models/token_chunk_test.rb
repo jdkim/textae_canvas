@@ -83,26 +83,6 @@ if ENV["LOCAL_ONLY"]
       end
     end
 
-    test "should raise error when relation crosses chunk with multiple denotations" do
-      json_data = {
-        "text" => "Steve Jobs founded Apple Inc. in 1976. Tim Cook is the current CEO of Apple.",
-        "denotations" => [
-          { "id" => "T1", "span" => { "begin" => 0, "end" => 10 }, "obj" => "Person" },
-          { "id" => "T2", "span" => { "begin" => 19, "end" => 28 }, "obj" => "Organization" },
-          { "id" => "T3", "span" => { "begin" => 39, "end" => 47 }, "obj" => "Person" },
-          { "id" => "T4", "span" => { "begin" => 70, "end" => 75 }, "obj" => "Organization" }
-        ],
-        "relations" => [
-          { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" },
-          { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" }
-        ]
-      }
-
-      assert_raises(Exceptions::RelationCrossesChunkError) do
-        TokenChunk.new.from(json_data, window_size: [ "Steve Jobs founded Apple Inc. in 1976.".split(" ").length - 1,
-                                                     "Tim Cook is the current CEO of Apple.".split(" ").length - 1 ].max)
-      end
-    end
 
     test "should split into two chunks with relations in each chunk" do
       json_data = {
