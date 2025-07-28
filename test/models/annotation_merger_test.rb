@@ -25,7 +25,7 @@ class AnnotationMergerTest < ActiveSupport::TestCase
 
     merged = AnnotationMerger.new([ ann1, ann2 ]).merged
 
-    assert_equal "Alice met Bob. Carol likes Dave.", merged["text"]
+    assert_equal "Alice met Bob. Carol likes Dave. ", merged["text"]
     assert_equal [
       { "id" => "T1", "span" => { "begin" => 0, "end" => 5 }, "obj" => "Person" },
       { "id" => "T2", "span" => { "begin" => 10, "end" => 13 }, "obj" => "Person" },

@@ -1,6 +1,11 @@
 class AnnotationMerger
   def initialize(annotations)
-    @annotations = annotations
+    # Preprocessing for text: nil → empty string, add space if ends with a period
+    @annotations = annotations.map do |annotation|
+      text = annotation["text"] || ""
+      text += " " if text.end_with?(".")
+      annotation.merge("text" => text)
+    end
     @chunks_info = build_chunks_info
     @id_mappings = build_id_mappings
   end
@@ -14,25 +19,19 @@ class AnnotationMerger
 
   private
 
-  # Pre-calculate information for each chunk (length and whether it has padding)
+  # Pre-calculate information for each chunk (length and offset)
   def build_chunks_info
     @annotations.each_with_index.each_with_object([]) do |(annotation, index), chunks_info|
-      text = annotation["text"] || ""
-      has_padding = index > 0 && chunks_info.last&.dig(:text)&.end_with?(".")
-      padding_length = has_padding ? 1 : 0
-
-      # Offset calculation: previous chunk's end position + current chunk's padding
+      text = annotation["text"]
+      # Padding check is not necessary because preprocessing is already done
       offset = if chunks_info.empty?
-                 0
+        0
       else
-                 chunks_info.last[:offset] + chunks_info.last[:length] + padding_length
+        chunks_info.last[:offset] + chunks_info.last[:length]
       end
-
       chunks_info << {
         text: text,
         length: text.length,
-        has_padding: has_padding,
-        padding_length: padding_length,
         offset: offset
       }
     end
@@ -56,11 +55,7 @@ class AnnotationMerger
   end
 
   def merged_text
-    @annotations.map.with_index do |annotation, index|
-      text = annotation["text"] || ""
-      padding = @chunks_info[index][:has_padding] ? " " : ""
-      padding + text
-    end.join
+    @annotations.map { |annotation| annotation["text"] }.join
   end
 
   def merged_denotations
