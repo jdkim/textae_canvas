@@ -1,12 +1,16 @@
 class AnnotationMerger
   def initialize(annotations)
-    # If annotation["text"] is nil, set it to an empty string. If the text ends with a period, add a space.
-    # This is to clarify sentence boundaries when merging annotations, preventing loss of readability or meaning.
-    # Also, setting nil to an empty string avoids errors in subsequent processing.
+    # If annotation["text"] is nil, set it to an empty string.
+    # If the text ends with a period, add a space to clarify sentence boundaries when merging annotations.
+    # This prevents loss of readability or meaning.
+    # Setting nil to an empty string also avoids errors in subsequent processing.
+    # Ensure consistent denotations and relations format for reliable merging.
     @annotations = annotations.map do |annotation|
       text = annotation["text"] || ""
       text += " " if text.end_with?(".")
-      annotation.merge("text" => text)
+      denotations = annotation["denotations"] || []
+      relations = annotation["relations"] || []
+      annotation.merge("text" => text, "denotations" => denotations, "relations" => relations)
     end
     @chunks_info = chunks_info
     @id_mappings = build_id_mappings
@@ -44,7 +48,7 @@ class AnnotationMerger
     id_seq = 1
 
     @annotations.each_with_object([]) do |annotation, id_mappings|
-      denotations = annotation["denotations"] || []
+      denotations = annotation["denotations"]
 
       chunk_mapping = denotations.each_with_object({}) do |denotation, mapping|
         new_id = "T#{id_seq}"
@@ -62,7 +66,7 @@ class AnnotationMerger
 
   def merged_denotations
     @annotations.each_with_index.each_with_object([]) do |(annotation, index), merged|
-      denotations = annotation["denotations"] || []
+      denotations = annotation["denotations"]
       offset = @chunks_info[index][:offset]
       id_mapping = @id_mappings[index]
 
@@ -82,7 +86,7 @@ class AnnotationMerger
 
   def merged_relations
     @annotations.each_with_index.each_with_object([]) do |(annotation, index), merged|
-      relations = annotation["relations"] || []
+      relations = annotation["relations"]
       id_mapping = @id_mappings[index]
 
       relations.each do |relation|
