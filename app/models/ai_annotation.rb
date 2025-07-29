@@ -25,7 +25,7 @@ class AiAnnotation < ApplicationRecord
 
     total_tokens_used = chunks.each_with_index.reduce(0) do |tokens_sum, (chunk, index)|
       simple_inline_text = SimpleInlineTextAnnotation.generate(chunk)
-      user_content = "#{simple_inline_text}\n\nPrompt:\n#{@prompt}"
+      user_content = "#{simple_inline_text}\n\nPrompt:\n#{prompt}"
       user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.size > 1
 
       adding_tokens_sum, adding_result = openai_annotator.call(user_content)
