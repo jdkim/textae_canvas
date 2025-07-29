@@ -41,35 +41,35 @@ class AiAnnotation < ApplicationRecord
     self.uuid = SecureRandom.uuid
   end
 
-  def sliding_window(annotation_text)
-    chunks = TokenChunk.new.from annotation_text, window_size: 50
+  def sliding_window(annotation_json)
+    chunks = TokenChunk.new.from annotation_json, window_size: 50
+    result = chunks.each_with_object({ token_used: 0, chunk_results: [] })
+                   .with_index do |(chunk, results), index|
 
-    all_chunk_results = []
+      annotation_text = SimpleInlineTextAnnotation.generate(chunk)
 
-    total_tokens_used = chunks.each_with_index.reduce(0) do |tokens_sum, (chunk, index)|
-      simple_inline_text = SimpleInlineTextAnnotation.generate(chunk)
-      user_content = "#{simple_inline_text}\n\nPrompt:\n#{prompt}"
+      user_content = "#{annotation_text}\n\nPrompt:\n#{prompt}"
       user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.size > 1
 
-      adding_tokens_sum, adding_result = OpenAiAnnotator.new.call(user_content)
+      adding_tokens_sum, chunk_result = OpenAiAnnotator.new.call(user_content)
+      results[:token_used] += adding_tokens_sum
+
       # Remove backslashes from OpenAI response
-      adding_result = adding_result.gsub("\\", "")
+      chunk_result = chunk_result.gsub("\\", "")
 
-      # SimpleInlineTextAnnotation returns keys as symbols
       begin
-        adding_result_as_json = SimpleInlineTextAnnotation.parse(adding_result).deep_stringify_keys
+        # SimpleInlineTextAnnotation returns keys as symbols
+        adding_result_as_json = SimpleInlineTextAnnotation.parse(chunk_result).deep_stringify_keys
+        results[:chunk_results] << adding_result_as_json
       rescue => e
-        # If parsing fails, create an empty result
-        adding_result_as_json = { "text" => "", "denotations" => [], "relations" => [] }
+        # Log the error but continue processing other chunks
+        Rails.logger.error "Error parsing chunk result: #{e.message}"
       end
-
-      all_chunk_results << adding_result_as_json if adding_result_as_json.present? && adding_result_as_json["text"].present?
-
-      tokens_sum + adding_tokens_sum
     end
 
-    result = AnnotationMerger.new(all_chunk_results).merged
-
-    [result, total_tokens_used]
+    [
+      AnnotationMerger.new(result[:chunk_results]).merged,
+      result[:token_used]
+    ]
   end
 end
