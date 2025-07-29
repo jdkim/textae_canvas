@@ -59,26 +59,17 @@ class AnnotationMerger
 
   # Pre-calculate ID mapping information for each chunk
   def id_mappings
-    @id_mappings ||= begin
-                       global_id_seq = 1
+    id_seq = 1
 
-                       @annotations.map do |annotation|
-                         denotations = annotation["denotations"]
+    @id_mappings ||= @annotations.map do |annotation|
+                       denotations = annotation["denotations"]
 
-                         chunk_mapping = {}
-                         denotations.each_with_index do |denotation, idx|
-                           original_id = denotation["id"]
-                           # Generate a temporary ID if ID is nil or empty
-                           if original_id.nil? || original_id.empty?
-                             original_id = "TEMP_#{idx}_#{global_id_seq}"
-                             denotation["id"] = original_id
-                           end
-                           new_id = "T#{global_id_seq}"
-                           chunk_mapping[original_id] = new_id
-                           global_id_seq += 1
-                         end
-
-                         chunk_mapping
+                       denotations.filter{ it["id"].present? }
+                                  .each_with_object({}) do |denotation, chunk_mapping|
+                         original_id = denotation["id"]
+                         new_id = "T#{id_seq}"
+                         chunk_mapping[original_id] = new_id
+                         id_seq += 1
                        end
                      end
   end
@@ -94,22 +85,25 @@ class AnnotationMerger
       id_mapping = id_mappings[index]
 
       denotations.each do |denotation|
-        merged << merge_denotation(denotation, id_mapping, offset)
+        merged << merge_denotation(denotation, offset, id_mapping)
       end
     end
   end
 
-  def merge_denotation(denotation, id_mapping, offset)
-    new_id = id_mapping[denotation["id"]]
-
-    {
-      "id" => new_id,
+  def merge_denotation(original_denotation, offset, id_mapping)
+    merged = {
       "span" => {
-        "begin" => denotation["span"]["begin"] + offset,
-        "end" => denotation["span"]["end"] + offset
+        "begin" => original_denotation["span"]["begin"] + offset,
+        "end" => original_denotation["span"]["end"] + offset
       },
-      "obj" => denotation["obj"]
+      "obj" => original_denotation["obj"]
     }
+
+    if original_denotation["id"]
+      merged["id"] = id_mapping[original_denotation["id"]]
+    end
+
+    merged
   end
 
   # Merge relations and remap IDs
