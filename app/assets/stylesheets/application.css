@@ -21,15 +21,13 @@ body {
 
 header {
   background-color: white;
-  padding: 12px 0;
   border-bottom: 1px solid rgb(56, 56, 56);
+  padding: 12px 0;
 
   .inner {
-    width: 80%;
-    margin: auto;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    padding: 16px;
 
     a {
       color: rgb(56, 56, 56);
@@ -52,10 +50,35 @@ header {
   }
 }
 
+.body {
+  display: flex;
+}
+
+.sidebar {
+  width: 20%;
+  background-color: #f8f9fa;
+  padding: 20px;
+  overflow-y: auto;
+
+  h2 {
+    padding: 6px 10px;
+  }
+
+  .history {
+    padding: 6px 10px;
+
+    a {
+      display: inline-block;
+      max-width: 240px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
 .content {
   width: 80%;
-  margin: auto;
-  margin-bottom: 40px;
+    padding: 20px;
 }
 
 .flash.alert {

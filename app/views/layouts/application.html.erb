@@ -27,12 +27,17 @@
   <body>
     <%= render "layouts/header" %>
 
-    <div class="content">
-      <% if alert %>
-        <div class="flash alert"><%= alert %></div>
-      <% end %>
+    <div class="body">
+      <div class="sidebar">
+        <%= render "layouts/sidebar" %>
+      </div>
+      <div class="content">
+        <% if alert %>
+          <div class="flash alert"><%= alert %></div>
+        <% end %>
 
-      <%= yield %>
+        <%= yield %>
+      </div>
     </div>
   </body>
 </html>

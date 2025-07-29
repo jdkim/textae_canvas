@@ -3,6 +3,7 @@ class AiAnnotationsController < ApplicationController
 
   def new
     @new_ai_annotation = AiAnnotation.new
+    @history = AiAnnotation.order(created_at: :desc).limit(10)
   end
 
   def create
@@ -22,6 +23,7 @@ class AiAnnotationsController < ApplicationController
 
   def edit
     @ai_annotation = AiAnnotation.find_by!(uuid: params[:uuid])
+    @history = AiAnnotation.order(created_at: :desc).limit(10)
   end
 
   def update
