@@ -33,6 +33,19 @@ class AiAnnotationsController < ApplicationController
 
     force = params[:button] == "force"
     ai_annotation = @ai_annotation.annotate!(force: force)
+
+    if ai_annotation.nil?
+      @dialog_message = "The relationship was lost when TextAE Campus split the string and queried the LLM. Do you want to proceed?"
+      @dialog_buttons = [
+        { label: "Force", value: :force },
+        { label: "Cancel", value: :cancel }
+      ]
+      @dialog_opened = true
+      # annotate!がnilの場合（ダイアログ表示時）はedit画面を再表示
+      render :edit, status: :unprocessable_entity
+      return
+    end
+
     increment_token_usage(@ai_annotation.token_used)
 
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"

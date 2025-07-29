@@ -6,9 +6,10 @@
 
 <dialog id="dialog" <%= "open" if is_open %>>
   <p><%= dialog_message %></p>
-  <form method="dialog">
+  <form id="dialog-form" method="post">
+    <input type="hidden" name="button" id="dialog-button-value" />
     <% dialog_buttons.each do |btn| %>
-      <button value="<%= btn[:value] %>"><%= btn[:label] %></button>
+      <button type="button" onclick="document.getElementById('dialog-button-value').value='<%= btn[:value] %>'; document.getElementById('dialog-form').submit();"><%= btn[:label] %></button>
     <% end %>
   </form>
 </dialog>
