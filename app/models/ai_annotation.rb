@@ -64,7 +64,7 @@ class AiAnnotation < ApplicationRecord
 
     self.token_used = total_tokens_used
     result = JSON.generate(combined_result)
-    AiAnnotation.create!(content: result)
+    AiAnnotation.create!(prompt: prompt, content: result)
   end
 
   def text_json=(annotation_json)
