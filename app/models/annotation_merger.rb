@@ -13,9 +13,6 @@ class AnnotationMerger
       annotation.merge("text" => text, "denotations" => denotations, "relations" => relations)
     end
 
-    # Pre-build Denotation ID sets
-    denotation_id_sets = @annotations.map { |a| a["denotations"].map { |d| d["id"] }.to_set }
-
     # Check referential integrity of relations
     @annotations.each_with_index do |annotation, idx|
       relations = annotation["relations"]
