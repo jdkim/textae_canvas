@@ -18,7 +18,7 @@ class AnnotationMerger
 
     # Check referential integrity of relations
     @annotations.each_with_index do |annotation, idx|
-      relations = annotation["relations"] || []
+      relations = annotation["relations"]
       denotation_ids = denotation_id_sets[idx]
       relations.each do |relation|
         unless denotation_ids.include?(relation["subj"]) && denotation_ids.include?(relation["obj"])
