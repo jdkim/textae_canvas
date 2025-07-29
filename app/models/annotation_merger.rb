@@ -69,17 +69,21 @@ class AnnotationMerger
       id_mapping = id_mappings[index]
 
       denotations.each do |denotation|
-        new_id = id_mapping[denotation["id"]]
-        merged << {
-          "id" => new_id,
-          "span" => {
-            "begin" => denotation["span"]["begin"] + offset,
-            "end" => denotation["span"]["end"] + offset
-          },
-          "obj" => denotation["obj"]
-        }
+        merged << merge_denotation(denotation, id_mapping, offset)
       end
     end
+  end
+
+  def merge_denotation(denotation, id_mapping, offset)
+    new_id = id_mapping[denotation["id"]]
+    {
+      "id" => new_id,
+      "span" => {
+        "begin" => denotation["span"]["begin"] + offset,
+        "end" => denotation["span"]["end"] + offset
+      },
+      "obj" => denotation["obj"]
+    }
   end
 
   def merged_relations
