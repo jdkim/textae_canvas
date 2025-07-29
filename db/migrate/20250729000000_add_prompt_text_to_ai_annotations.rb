@@ -3,4 +3,3 @@ class AddPromptTextToAiAnnotations < ActiveRecord::Migration[8.0]
     add_column :ai_annotations, :prompt, :text
   end
 end
-
