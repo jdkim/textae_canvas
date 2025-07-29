@@ -13,7 +13,7 @@ class AnnotationMerger
       annotation.merge("text" => text, "denotations" => denotations, "relations" => relations)
     end
     @chunks_info = chunks_info
-    @id_mappings = build_id_mappings
+    @id_mappings = id_mappings
   end
 
   def merged
@@ -44,7 +44,7 @@ class AnnotationMerger
   end
 
   # Pre-calculate ID mapping information for each chunk
-  def build_id_mappings
+  def id_mappings
     id_seq = 1
 
     @annotations.each_with_object([]) do |annotation, id_mappings|
