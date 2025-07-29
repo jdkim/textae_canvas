@@ -29,6 +29,8 @@ class AiAnnotation < ApplicationRecord
       user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.size > 1
 
       adding_tokens_sum, adding_result = openai_annotator.call(user_content)
+      # Remove backslashes from OpenAI response
+      adding_result = adding_result.gsub("\\", "")
 
       # SimpleInlineTextAnnotation returns keys as symbols
       begin
