@@ -35,7 +35,7 @@ class AnnotationMerger
   private
 
   def referable_to?(relation, denotations)
-    denotation_ids = denotations.map { _1["id"] }
+    denotation_ids = denotations.map { it["id"] }
 
     denotation_ids.include?(relation["subj"]) && denotation_ids.include?(relation["obj"])
   end
