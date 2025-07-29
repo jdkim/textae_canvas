@@ -1,5 +1,5 @@
 class AiAnnotation < ApplicationRecord
-  attr_accessor :text, :prompt, :token_used
+  attr_accessor :text, :token_used
 
   before_create :clean_old_annotations
   before_create :set_uuid
@@ -20,7 +20,7 @@ class AiAnnotation < ApplicationRecord
     chunks = WordChunk.from @text, window_size: 50
 
     total_tokens_used, combined_result = chunks.each_with_index.reduce([ 0, "" ]) do |(tokens_sum, result), (chunk, index)|
-      user_content = "#{chunk}\n\nPrompt:\n#{@prompt}"
+      user_content = "#{chunk}\n\nPrompt:\n#{prompt}"
       user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.take(2).size > 1
       adding_tokens_sum, adding_result = openai_annotator.call(user_content)
       [ tokens_sum + adding_tokens_sum, result + adding_result ]
@@ -29,7 +29,7 @@ class AiAnnotation < ApplicationRecord
     self.token_used = total_tokens_used
     result = SimpleInlineTextAnnotation.parse(combined_result)
     result = JSON.generate(result)
-    AiAnnotation.create!(content: result)
+    AiAnnotation.create!(prompt: prompt, content: result)
   end
 
   def text_json=(annotation_json)

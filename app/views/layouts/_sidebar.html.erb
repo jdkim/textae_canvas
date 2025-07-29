@@ -2,7 +2,7 @@
 <% if @history.present? %>
   <% @history.each do |item| %>
   <div class="history">
-    <%= link_to item.uuid, ai_annotation_path(item.uuid) %>
+    <%= link_to item.prompt, ai_annotation_path(item.uuid) %>
   </div>
   <% end %>
 <% end %>
