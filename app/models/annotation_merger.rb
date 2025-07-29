@@ -33,6 +33,7 @@ class AnnotationMerger
       else
         0
       end
+
       chunks_info << {
         text:,
         length: text.length,
@@ -76,6 +77,7 @@ class AnnotationMerger
 
   def merge_denotation(denotation, id_mapping, offset)
     new_id = id_mapping[denotation["id"]]
+
     {
       "id" => new_id,
       "span" => {
