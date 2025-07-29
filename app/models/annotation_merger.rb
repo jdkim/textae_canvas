@@ -28,10 +28,10 @@ class AnnotationMerger
     @chunks_info ||= @annotations.each_with_object([]).with_index do |(annotation, chunks_info), index|
       text = annotation["text"]
       # Padding check is not necessary because preprocessing is already done
-      offset = if chunks_info.empty?
-        0
-      else
+      offset = if chunks_info.last
         chunks_info.last[:offset] + chunks_info.last[:length]
+      else
+        0
       end
       chunks_info << {
         text: text,
