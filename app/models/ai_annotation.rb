@@ -40,16 +40,6 @@ class AiAnnotation < ApplicationRecord
         adding_result_as_json = { "text" => "", "denotations" => [], "relations" => [] }
       end
 
-      # Check denotation IDs
-      if adding_result_as_json["denotations"]
-        adding_result_as_json["denotations"].each_with_index do |denotation, idx|
-          if denotation["id"].nil?
-            # Assign a temporary ID if ID is nil
-            denotation["id"] = "TEMP_#{index}_#{idx}"
-          end
-        end
-      end
-
       all_chunk_results << adding_result_as_json if adding_result_as_json.present? && adding_result_as_json["text"].present?
 
       tokens_sum + adding_tokens_sum
