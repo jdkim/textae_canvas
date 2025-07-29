@@ -106,7 +106,6 @@ GEM
       dotenv (= 3.1.7)
       railties (>= 6.1)
     drb (2.2.1)
-    erb (5.0.2)
     elastic-transport (8.4.0)
       faraday (< 3)
       multi_json
@@ -115,6 +114,7 @@ GEM
       elasticsearch-api (= 9.0.3)
     elasticsearch-api (9.0.3)
       multi_json
+    erb (5.0.2)
     erubi (1.13.1)
     event_stream_parser (1.0.0)
     faraday (2.12.2)
