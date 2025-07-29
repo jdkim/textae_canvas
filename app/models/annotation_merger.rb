@@ -19,9 +19,9 @@ class AnnotationMerger
     # Check referential integrity of relations
     @annotations.each_with_index do |annotation, idx|
       relations = annotation["relations"]
-      denotation_ids = denotation_id_sets[idx]
+      denotations = annotation["denotations"]
       relations.each do |relation|
-        unless referable_to?(relation, denotation_ids)
+        unless referable_to?(relation, denotations)
           raise ArgumentError, "Relation #{relation.inspect} in chunk #{idx + 1} refers to missing denotation."
         end
       end
@@ -37,7 +37,9 @@ class AnnotationMerger
 
   private
 
-  def referable_to?(relation, denotation_ids)
+  def referable_to?(relation, denotations)
+    denotation_ids = denotations.map { _1["id"] }
+
     denotation_ids.include?(relation["subj"]) && denotation_ids.include?(relation["obj"])
   end
 
