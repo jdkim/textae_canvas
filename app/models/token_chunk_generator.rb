@@ -1,9 +1,9 @@
 class TokenChunkGenerator
-  def initialize(annotation, language, tokens, window_size)
+  include LanguageDetectable
+  def initialize(annotation, tokens, window_size)
     @original_text = annotation["text"]
     @original_denotations = annotation["denotations"] || []
     @original_relations = annotation["relations"] || []
-    @language = language
     @tokens = tokens || []
     @window_size = window_size
     @slicer = AnnotationSlicer.new(annotation)
@@ -65,6 +65,7 @@ class TokenChunkGenerator
   def find_chunk_end_boundary(text, current_end)
     last_found_end = current_end
     begin_index = current_end
+    @text = text
 
     while current_end < text.length
       char = text[current_end]
@@ -86,6 +87,9 @@ class TokenChunkGenerator
     current_end
   end
 
+  def language
+    @language ||= LanguageDetectable.detect_language(@text)
+  end
 
   # Find if any denotation crosses the chunk boundary
   def find_denotation_crossing_index(chunk_begin, chunk_end, window_tokens)
@@ -105,7 +109,7 @@ class TokenChunkGenerator
 
   # Decide window unit: char count for CJK, token count otherwise
   def window_unit(word_count, char_count)
-    case @language
+    case language
     when "ja", "ko"
       char_count
     else

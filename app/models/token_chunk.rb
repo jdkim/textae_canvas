@@ -15,12 +15,10 @@ class TokenChunk
 
     # Analyze the text and detect language
     response = @tokenizer.analyze original_text
-    language = response.language
 
     # Generate chunks using the TokenChunkGenerator
     TokenChunkGenerator.new(annotations,
-                            language,
-                            response.tokens,
+                            response,
                             window_size)
                        .generate_chunks
   end
