@@ -1,3 +1,8 @@
+<%= render partial: 'layouts/dialog', locals: {
+  message: @dialog_message,
+  buttons: @dialog_buttons
+} %>
+
 <div class="textae-container">
   <div id="ai-textae-editor" mode="view" inspect="current-annotation">
     <%= @ai_annotation.content %>

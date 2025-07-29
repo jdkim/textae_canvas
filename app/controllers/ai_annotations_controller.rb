@@ -31,7 +31,8 @@ class AiAnnotationsController < ApplicationController
     @ai_annotation.annotation = JSON.parse(ai_annotation_params[:content])
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
-    ai_annotation = @ai_annotation.annotate!
+    force = params[:button] == "force"
+    ai_annotation = @ai_annotation.annotate!(force: force)
     increment_token_usage(@ai_annotation.token_used)
 
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"

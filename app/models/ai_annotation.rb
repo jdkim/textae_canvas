@@ -13,7 +13,7 @@ class AiAnnotation < ApplicationRecord
     instance
   end
 
-  def annotate!
+  def annotate!(force: false)
     if @annotation.dig("selectedText", "status") == "selected"
       # Get selected range from the annotation
       begin_offset = @annotation.dig("selectedText", "begin").to_i
@@ -41,6 +41,7 @@ class AiAnnotation < ApplicationRecord
     AiAnnotation.old.destroy_all
   end
 
+  private
   # Set a new UUID
   def set_uuid
     self.uuid = SecureRandom.uuid
@@ -94,5 +95,15 @@ class AiAnnotation < ApplicationRecord
       AnnotationMerger.new(result[:chunk_results]).merged,
       result[:token_used]
     ]
+  end
+
+  # Delete old annotations
+  def clean_old_annotations
+    AiAnnotation.old.destroy_all
+  end
+
+  # Set a new UUID
+  def set_uuid
+    self.uuid = SecureRandom.uuid
   end
 end
