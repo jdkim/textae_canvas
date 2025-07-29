@@ -21,7 +21,7 @@ class AnnotationMerger
       relations = annotation["relations"]
       denotation_ids = denotation_id_sets[idx]
       relations.each do |relation|
-        unless denotation_ids.include?(relation["subj"]) && denotation_ids.include?(relation["obj"])
+        unless referable_to?(relation, denotation_ids)
           raise ArgumentError, "Relation #{relation.inspect} in chunk #{idx + 1} refers to missing denotation."
         end
       end
@@ -36,6 +36,10 @@ class AnnotationMerger
   end
 
   private
+
+  def referable_to?(relation, denotation_ids)
+    denotation_ids.include?(relation["subj"]) && denotation_ids.include?(relation["obj"])
+  end
 
   # Pre-calculate information for each chunk (length and offset)
   def chunks_info
