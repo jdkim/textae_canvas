@@ -1,7 +1,13 @@
-<dialog id="dialog" <%= "open" if @dialog_opened %>>
-  <p><%= local_assigns[:message] || 'メッセージがありません' %></p>
+<%
+  is_open = local_assigns[:dialog_opened] || false
+  dialog_message = local_assigns[:message] || 'No message provided'
+  dialog_buttons = local_assigns[:buttons] || [{label: 'OK', value: 'ok'}]
+%>
+
+<dialog id="dialog" <%= "open" if is_open %>>
+  <p><%= dialog_message %></p>
   <form method="dialog">
-    <% (local_assigns[:buttons] || [{label: 'OK', value: 'ok'}]).each do |btn| %>
+    <% dialog_buttons.each do |btn| %>
       <button value="<%= btn[:value] %>"><%= btn[:label] %></button>
     <% end %>
   </form>
