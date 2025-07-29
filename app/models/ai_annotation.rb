@@ -16,19 +16,54 @@ class AiAnnotation < ApplicationRecord
   def annotate!
     openai_annotator = OpenAiAnnotator.new
 
-    # Extract text chunks using WordChunk class
-    chunks = WordChunk.from @text, window_size: 50
+    # SimpleInlineTextAnnotation returns keys as symbols
+    parameter = SimpleInlineTextAnnotation.parse(@text).deep_stringify_keys
 
-    total_tokens_used, combined_result = chunks.each_with_index.reduce([ 0, "" ]) do |(tokens_sum, result), (chunk, index)|
-      user_content = "#{chunk}\n\nPrompt:\n#{prompt}"
-      user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.take(2).size > 1
+    chunks = TokenChunk.new.from parameter, window_size: 30
+
+    all_chunk_results = []
+
+    total_tokens_used = chunks.each_with_index.reduce(0) do |tokens_sum, (chunk, index)|
+      simple_inline_text = SimpleInlineTextAnnotation.generate(chunk)
+      user_content = "#{simple_inline_text}\n\nPrompt:\n#{prompt}"
+      user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.size > 1
+
       adding_tokens_sum, adding_result = openai_annotator.call(user_content)
-      [ tokens_sum + adding_tokens_sum, result + adding_result ]
+      # Remove backslashes from OpenAI response
+      adding_result = adding_result.gsub("\\", "")
+
+      # SimpleInlineTextAnnotation returns keys as symbols
+      begin
+        adding_result_as_json = SimpleInlineTextAnnotation.parse(adding_result).deep_stringify_keys
+      rescue => e
+        # If parsing fails, create an empty result
+        adding_result_as_json = { "text" => "", "denotations" => [], "relations" => [] }
+      end
+
+      # Check denotation IDs
+      if adding_result_as_json["denotations"]
+        adding_result_as_json["denotations"].each_with_index do |denotation, idx|
+          if denotation["id"].nil?
+            # Assign a temporary ID if ID is nil
+            denotation["id"] = "TEMP_#{index}_#{idx}"
+          end
+        end
+      end
+
+      all_chunk_results << adding_result_as_json if adding_result_as_json.present? && adding_result_as_json["text"].present?
+
+      tokens_sum + adding_tokens_sum
+    end
+
+    # Merge results from all chunks
+    if all_chunk_results.any?
+      combined_result = AnnotationMerger.new(all_chunk_results).merged
+    else
+      combined_result = { "text" => @text, "denotations" => [], "relations" => [] }
     end
 
     self.token_used = total_tokens_used
-    result = SimpleInlineTextAnnotation.parse(combined_result)
-    result = JSON.generate(result)
+    result = JSON.generate(combined_result)
     AiAnnotation.create!(prompt: prompt, content: result)
   end
 
@@ -38,10 +73,12 @@ class AiAnnotation < ApplicationRecord
 
   private
 
+  # Delete old annotations
   def clean_old_annotations
     AiAnnotation.old.destroy_all
   end
 
+  # Set a new UUID
   def set_uuid
     self.uuid = SecureRandom.uuid
   end

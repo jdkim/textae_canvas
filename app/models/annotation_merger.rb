@@ -36,7 +36,6 @@ class AnnotationMerger
 
   def referable_to?(relation, denotations)
     denotation_ids = denotations.map { it["id"] }
-
     denotation_ids.include?(relation["subj"]) && denotation_ids.include?(relation["obj"])
   end
 
@@ -44,7 +43,6 @@ class AnnotationMerger
   def chunks_info
     @chunks_info ||= @annotations.each_with_object([]).with_index do |(annotation, chunks_info), index|
       text = annotation["text"]
-      # Padding check is not necessary because preprocessing is already done
       offset = if chunks_info.last
         chunks_info.last[:offset] + chunks_info.last[:length]
       else
@@ -61,19 +59,28 @@ class AnnotationMerger
 
   # Pre-calculate ID mapping information for each chunk
   def id_mappings
-    id_seq = 1
+    @id_mappings ||= begin
+                       global_id_seq = 1
 
-    @id_mappings ||= @annotations.each_with_object([]) do |annotation, id_mappings|
-      denotations = annotation["denotations"]
+                       @annotations.map do |annotation|
+                         denotations = annotation["denotations"]
 
-      chunk_mapping = denotations.each_with_object({}) do |denotation, mapping|
-        new_id = "T#{id_seq}"
-        mapping[denotation["id"]] = new_id
-        id_seq += 1
-      end
+                         chunk_mapping = {}
+                         denotations.each_with_index do |denotation, idx|
+                           original_id = denotation["id"]
+                           # Generate a temporary ID if ID is nil or empty
+                           if original_id.nil? || original_id.empty?
+                             original_id = "TEMP_#{idx}_#{global_id_seq}"
+                             denotation["id"] = original_id
+                           end
+                           new_id = "T#{global_id_seq}"
+                           chunk_mapping[original_id] = new_id
+                           global_id_seq += 1
+                         end
 
-      id_mappings << chunk_mapping
-    end
+                         chunk_mapping
+                       end
+                     end
   end
 
   def merged_text
@@ -105,6 +112,7 @@ class AnnotationMerger
     }
   end
 
+  # Merge relations and remap IDs
   def merged_relations
     @annotations.each_with_index.each_with_object([]) do |(annotation, index), merged|
       relations = annotation["relations"]
