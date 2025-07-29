@@ -21,14 +21,43 @@ class AiAnnotation < ApplicationRecord
 
     chunks = TokenChunk.new.from parameter, window_size: 30
 
-    total_tokens_used, combined_result = chunks.each_with_index.reduce([ 0, "" ]) do |(tokens_sum, result), (chunk, index)|
+    all_chunk_results = []
+
+    total_tokens_used = chunks.each_with_index.reduce(0) do |tokens_sum, (chunk, index)|
       simple_inline_text = SimpleInlineTextAnnotation.generate(chunk)
       user_content = "#{simple_inline_text}\n\nPrompt:\n#{@prompt}"
-      user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.take(2).size > 1
+      user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.size > 1
+
       adding_tokens_sum, adding_result = openai_annotator.call(user_content)
+
       # SimpleInlineTextAnnotation returns keys as symbols
-      adding_result_as_json = SimpleInlineTextAnnotation.parse(adding_result).deep_stringify_keys
-      [ tokens_sum + adding_tokens_sum, AnnotationMerger.new([ result, adding_result_as_json ].compact.reject(&:empty?)).merged ]
+      begin
+        adding_result_as_json = SimpleInlineTextAnnotation.parse(adding_result).deep_stringify_keys
+      rescue => e
+        # If parsing fails, create an empty result
+        adding_result_as_json = { "text" => "", "denotations" => [], "relations" => [] }
+      end
+
+      # Check denotation IDs
+      if adding_result_as_json["denotations"]
+        adding_result_as_json["denotations"].each_with_index do |denotation, idx|
+          if denotation["id"].nil?
+            # Assign a temporary ID if ID is nil
+            denotation["id"] = "TEMP_#{index}_#{idx}"
+          end
+        end
+      end
+
+      all_chunk_results << adding_result_as_json if adding_result_as_json.present? && adding_result_as_json["text"].present?
+
+      tokens_sum + adding_tokens_sum
+    end
+
+    # Merge results from all chunks
+    if all_chunk_results.any?
+      combined_result = AnnotationMerger.new(all_chunk_results).merged
+    else
+      combined_result = { "text" => @text, "denotations" => [], "relations" => [] }
     end
 
     self.token_used = total_tokens_used
@@ -42,10 +71,12 @@ class AiAnnotation < ApplicationRecord
 
   private
 
+  # Delete old annotations
   def clean_old_annotations
     AiAnnotation.old.destroy_all
   end
 
+  # Set a new UUID
   def set_uuid
     self.uuid = SecureRandom.uuid
   end
