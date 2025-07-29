@@ -34,9 +34,9 @@ class AnnotationMerger
         0
       end
       chunks_info << {
-        text: text,
+        text:,
         length: text.length,
-        offset: offset
+        offset:
       }
     end
   end
