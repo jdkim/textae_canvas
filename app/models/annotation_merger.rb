@@ -44,9 +44,9 @@ class AnnotationMerger
     @chunks_info ||= @annotations.each_with_object([]).with_index do |(annotation, chunks_info), index|
       text = annotation["text"]
       offset = if chunks_info.last
-                 chunks_info.last[:offset] + chunks_info.last[:length]
+        chunks_info.last[:offset] + chunks_info.last[:length]
       else
-                 0
+        0
       end
 
       chunks_info << {
