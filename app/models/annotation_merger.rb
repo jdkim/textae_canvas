@@ -65,7 +65,7 @@ class AnnotationMerger
   end
 
   def merged_denotations
-    @annotations.each_with_index.each_with_object([]) do |(annotation, index), merged|
+    @annotations.each_with_object([]).with_index do |(annotation, merged), index|
       denotations = annotation["denotations"]
       offset = @chunks_info[index][:offset]
       id_mapping = @id_mappings[index]
