@@ -12,8 +12,6 @@ class AnnotationMerger
       relations = annotation["relations"] || []
       annotation.merge("text" => text, "denotations" => denotations, "relations" => relations)
     end
-    @chunks_info = chunks_info
-    @id_mappings = id_mappings
   end
 
   def merged
@@ -27,7 +25,7 @@ class AnnotationMerger
 
   # Pre-calculate information for each chunk (length and offset)
   def chunks_info
-    @annotations.each_with_object([]).with_index do |(annotation, chunks_info), index|
+    @chunks_info ||= @annotations.each_with_object([]).with_index do |(annotation, chunks_info), index|
       text = annotation["text"]
       # Padding check is not necessary because preprocessing is already done
       offset = if chunks_info.empty?
@@ -47,7 +45,7 @@ class AnnotationMerger
   def id_mappings
     id_seq = 1
 
-    @annotations.each_with_object([]) do |annotation, id_mappings|
+    @id_mappings ||= @annotations.each_with_object([]) do |annotation, id_mappings|
       denotations = annotation["denotations"]
 
       chunk_mapping = denotations.each_with_object({}) do |denotation, mapping|
@@ -67,8 +65,8 @@ class AnnotationMerger
   def merged_denotations
     @annotations.each_with_object([]).with_index do |(annotation, merged), index|
       denotations = annotation["denotations"]
-      offset = @chunks_info[index][:offset]
-      id_mapping = @id_mappings[index]
+      offset = chunks_info[index][:offset]
+      id_mapping = id_mappings[index]
 
       denotations.each do |denotation|
         new_id = id_mapping[denotation["id"]]
@@ -87,7 +85,7 @@ class AnnotationMerger
   def merged_relations
     @annotations.each_with_index.each_with_object([]) do |(annotation, index), merged|
       relations = annotation["relations"]
-      id_mapping = @id_mappings[index]
+      id_mapping = id_mappings[index]
 
       relations.each do |relation|
         subj = id_mapping[relation["subj"]]
