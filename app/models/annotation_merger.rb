@@ -12,6 +12,20 @@ class AnnotationMerger
       relations = annotation["relations"] || []
       annotation.merge("text" => text, "denotations" => denotations, "relations" => relations)
     end
+
+    # Pre-build Denotation ID sets
+    denotation_id_sets = @annotations.map { |a| (a["denotations"] || []).map { |d| d["id"] }.to_set }
+
+    # Check referential integrity of relations
+    @annotations.each_with_index do |annotation, idx|
+      relations = annotation["relations"] || []
+      denotation_ids = denotation_id_sets[idx]
+      relations.each do |relation|
+        unless denotation_ids.include?(relation["subj"]) && denotation_ids.include?(relation["obj"])
+          raise ArgumentError, "Relation #{relation.inspect} in chunk #{idx + 1} refers to missing denotation."
+        end
+      end
+    end
   end
 
   def merged
@@ -96,10 +110,7 @@ class AnnotationMerger
       relations.each do |relation|
         subj = id_mapping[relation["subj"]]
         obj = id_mapping[relation["obj"]]
-
-        if subj && obj
-          merged << relation.merge("subj" => subj, "obj" => obj)
-        end
+        merged << relation.merge("subj" => subj, "obj" => obj)
       end
     end
   end
