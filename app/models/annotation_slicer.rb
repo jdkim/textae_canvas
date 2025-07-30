@@ -24,10 +24,10 @@ class AnnotationSlicer
       end_index = denotation["span"]["end"]
       if range.cover?(begin_index..end_index)
         arr << {
-                  "id" => denotation["id"],
-                  "span" => { "begin" => begin_index - range.begin, "end" => end_index - range.begin },
-                  "obj" => denotation["obj"]
-               }
+          "id" => denotation["id"],
+          "span" => { "begin" => begin_index - range.begin, "end" => end_index - range.begin },
+          "obj" => denotation["obj"]
+        }
       elsif (begin_index < range.begin && range.begin < end_index) || (begin_index < range.end && range.end < end_index)
         raise Exceptions::DenotationFragmentedError, "Denotation #{denotation.inspect} fragmented" if @strict_mode
       elsif (begin_index <= range.begin && range.end < end_index) || (begin_index < range.begin && range.end <= end_index)

@@ -25,6 +25,38 @@ if ENV["LOCAL_ONLY"]
       assert_equal json_data["relations"], chunks.first["relations"]
     end
 
+    test "should split into one chunk for long window size" do
+      json_data = {
+        "text" => "Humpty Dumpty sat on a wall. Humpty Dumpty had a great fall. All the king's horses and all the king's men Couldn't put Humpty together again.",
+        "denotations" => [],
+        "relations" => []
+      }
+
+      chunks = TokenChunk.new.from(json_data, window_size: 50)
+
+      assert_equal 1, chunks.size
+      assert_equal json_data["text"], chunks.first["text"]
+      assert_equal json_data["denotations"], chunks.first["denotations"]
+      assert_equal json_data["relations"], chunks.first["relations"]
+    end
+
+    test "should split into three chunks for short window size" do
+      json_data = {
+        "text" => "Humpty Dumpty sat on a wall. Humpty Dumpty had a great fall. All the king's horses and all the king's men Couldn't put Humpty together again.",
+        "denotations" => [],
+        "relations" => []
+      }
+
+      chunks = TokenChunk.new.from(json_data, window_size: 5)
+
+      assert_equal 3, chunks.size
+      assert_equal "Humpty Dumpty sat on a wall.", chunks[0]["text"]
+      assert_equal "Humpty Dumpty had a great fall.", chunks[1]["text"]
+      assert_equal "All the king's horses and all the king's men Couldn't put Humpty together again.", chunks[2]["text"]
+      assert_equal json_data["denotations"], chunks.first["denotations"]
+      assert_equal json_data["relations"], chunks.first["relations"]
+    end
+
     test "should split into multiple chunks with small window and no crossing relations" do
       json_data = {
         "text" => "Alice met Bob. Carol likes Dave.",
@@ -68,13 +100,15 @@ if ENV["LOCAL_ONLY"]
 
     test "should raise error when relation crosses chunk boundary" do
       json_data = {
-        "text" => "Elon Musk is a member of the PayPal Mafia.",
+        "text" => "Elon Musk is a member of the PayPal Mafia. He is clever.",
         "denotations" => [
           { "id" => "T1", "span" => { "begin" => 0, "end" => 9 }, "obj" => "Person" },
-          { "id" => "T2", "span" => { "begin" => 29, "end" => 41 }, "obj" => "Organization" }
+          { "id" => "T2", "span" => { "begin" => 29, "end" => 41 }, "obj" => "Organization" },
+          { "id" => "T3", "span" => { "begin" => 43, "end" => 45 }, "obj" => "Person" }
         ],
         "relations" => [
-          { "pred" => "member_of", "subj" => "T1", "obj" => "T2" }
+          { "pred" => "member_of", "subj" => "T1", "obj" => "T2" },
+          { "pred" => "is", "subj" => "T1", "obj" => "T3" }
         ]
       }
 
@@ -128,7 +162,8 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => [
           { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" },
-          { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" }
+          { "pred" => "ceo_of", "subj" => "T3", "obj" => "T4" },
+          { "pred" => "friend", "subj" => "T1", "obj" => "T3" }
         ]
       }
 
@@ -389,11 +424,11 @@ if ENV["LOCAL_ONLY"]
         "text" => "終わりです。。。次が始まります。",
         "denotations" => [
           { "id" => "T1", "span" => { "begin" => 0, "end" => 3 }, "obj" => "status" },
-          { "id" => "T2", "span" => { "begin" => 7, "end" => 9 }, "obj" => "status" }
+          { "id" => "T2", "span" => { "begin" => 8, "end" => 9 }, "obj" => "status" }
         ],
         "relations" => []
       }
-      chunks = TokenChunk.new.from(json_data, window_size: 5)
+      chunks = TokenChunk.new.from(json_data, window_size: 6)
 
       assert chunks.size >= 1
       # 連続する句点が正しく処理されるか
@@ -520,7 +555,7 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      chunks = TokenChunk.new.from(json_data, window_size: [ "이순신은 조선의 장군이다.".length, "세종대왕은 한글을 창제했다.".length ].max)
+      chunks = TokenChunk.new.from(json_data, window_size: 15)
 
       assert_equal 2, chunks.size
       assert_equal "이순신은 조선의 장군이다.", chunks[0]["text"]
@@ -552,7 +587,7 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []
       }
-      chunks = TokenChunk.new.from(json_data, window_size: [ "서울은 대한민국의 수도이다.".length, "부산은 두 번째로 큰 도시이다.".length ].max)
+      chunks = TokenChunk.new.from(json_data, window_size: 17)
 
       assert_equal 2, chunks.size
       assert_equal "서울은 대한민국의 수도이다.", chunks[0]["text"]
@@ -599,7 +634,8 @@ if ENV["LOCAL_ONLY"]
         "relations" => [
           { "pred" => "is", "subj" => "T1", "obj" => "T2" },
           { "pred" => "equals", "subj" => "T1", "obj" => "T3" },
-          { "pred" => "is", "subj" => "T3", "obj" => "T4" }
+          { "pred" => "is", "subj" => "T3", "obj" => "T4" },
+          { "pred" => "noun", "subj" => "T1", "obj" => "T4" }
         ]
       }
       # 故意に小さいwindowでrelationがまたがるように
