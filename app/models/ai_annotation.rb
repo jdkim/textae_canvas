@@ -45,7 +45,6 @@ class AiAnnotation < ApplicationRecord
     chunks = TokenChunk.new.from annotation_json, window_size: 50
     result = chunks.each_with_object({ token_used: 0, chunk_results: [] })
                    .with_index do |(chunk, results), index|
-
       annotation_text = SimpleInlineTextAnnotation.generate(chunk)
 
       user_content = "#{annotation_text}\n\nPrompt:\n#{prompt}"

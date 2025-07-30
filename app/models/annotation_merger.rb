@@ -64,7 +64,7 @@ class AnnotationMerger
     @id_mappings ||= @annotations.map do |annotation|
                        denotations = annotation["denotations"]
 
-                       denotations.filter{ it["id"].present? }
+                       denotations.filter { it["id"].present? }
                                   .each_with_object({}) do |denotation, chunk_mapping|
                          original_id = denotation["id"]
                          new_id = "T#{id_seq}"

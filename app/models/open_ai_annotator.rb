@@ -43,7 +43,7 @@ class OpenAiAnnotator
 
     [
       total_tokens,
-      content,
+      content
     ]
   end
 end
