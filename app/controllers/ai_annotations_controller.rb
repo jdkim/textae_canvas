@@ -27,9 +27,35 @@ class AiAnnotationsController < ApplicationController
   end
 
   def update
-    @ai_annotation = AiAnnotation.find_by(uuid: params[:id])
+    @ai_annotation = AiAnnotation.find_by(uuid: params[:uuid])
     @ai_annotation.annotation = JSON.parse(ai_annotation_params[:content])
+
+    if ai_annotation_params[:content].is_a?(Hash)
+      @ai_annotation.text_json = ai_annotation_params[:content].deep_stringify_keys
+    else
+      content_str = ai_annotation_params[:content]
+      unescaped_content =content_str.include?('\\"') ? content_str.gsub('\\"', '"') : content_str
+      if unescaped_content.is_a?(String)
+        unescaped_content = unescaped_content.gsub(' =>', ':')
+        symbolized = JSON.parse(unescaped_content, symbolize_names: true)
+        @ai_annotation.text_json = symbolized.deep_stringify_keys
+      elsif unescaped_content.is_a?(Hash)
+        @ai_annotation.text_json = unescaped_content.deep_stringify_keys
+      else
+        @ai_annotation.text_json = {}
+      end
+    end
+    
     @ai_annotation.prompt = ai_annotation_params[:prompt]
+
+    # 警告ダイアログでキャンセルボタンが押された時はフラッシュメッセージを出す
+    if params[:button] == "cancel"
+      @ai_annotation.content = SimpleInlineTextAnnotation.parse(@ai_annotation.text).deep_stringify_keys.to_s.gsub(" =>", ":")
+      @ai_annotation.save
+      flash.now[:alert] = "AI annotation generation was cancelled."
+      redirect_to "/ai_annotations/#{@ai_annotation.uuid}"
+      return
+    end
 
     force = params[:button] == "force"
     ai_annotation = @ai_annotation.annotate!(force: force)
@@ -41,7 +67,11 @@ class AiAnnotationsController < ApplicationController
         { label: "Cancel", value: :cancel }
       ]
       @dialog_opened = true
-      # annotate!がnilの場合（ダイアログ表示時）はedit画面を再表示
+
+      @ai_annotation.content = SimpleInlineTextAnnotation.generate(JSON.parse(ai_annotation_params[:content]))
+      @content = JSON.parse(ai_annotation_params[:content], symbolize_names: true).deep_stringify_keys
+      @prompt = ai_annotation_params[:prompt]
+      # annotate!がnilの場合（ダイアログ表示時）はedit画面を��表示
       render :edit, status: :unprocessable_entity
       return
     end
@@ -51,6 +81,7 @@ class AiAnnotationsController < ApplicationController
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"
   rescue => e
     Rails.logger.error "Error: #{e.message}"
+    @ai_annotation ||= AiAnnotation.find_by(uuid: params[:uuid]) || AiAnnotation.new
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
     render :edit, status: :unprocessable_entity
   end
@@ -58,6 +89,6 @@ class AiAnnotationsController < ApplicationController
   private
 
   def ai_annotation_params
-    params.expect(ai_annotation: [ :text, :prompt, :content ])
+    params.expect(ai_annotation: [ :text, :prompt, :content, :uuid ])
   end
 end

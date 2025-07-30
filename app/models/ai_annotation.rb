@@ -26,7 +26,11 @@ class AiAnnotation < ApplicationRecord
     self.token_used = tokens_used
     result = JSON.generate(result)
 
-    AiAnnotation.create!(prompt: prompt, content: result)
+    ai_annotation = AiAnnotation.create!(prompt: prompt, content: result)
+    # 警告ダイアログを出すためにnilを返す
+    return nil if combined_result.nil? || total_tokens_used.nil?
+
+    ai_annotation
   end
 
   def text=(annotation)
@@ -67,8 +71,24 @@ class AiAnnotation < ApplicationRecord
     [ merged_result, tokens_used ]
   end
 
-  def sliding_window(annotation_json)
-    chunks = TokenChunk.from annotation_json, window_size: 50
+  def sliding_window(annotation_json, force: false)
+    begin
+      chunks = TokenChunk.new.from annotation_json, window_size: 5, strict_mode: !force
+    rescue Exceptions::RelationOutOfRangeError => e
+      begin
+        chunks = TokenChunk.new.from annotation_json, window_size: 5, strict_mode: !force
+      rescue Exceptions::RelationOutOfRangeError => e2
+        if force
+          # forceモードならstrict_mode: falseで再分割
+          chunks = TokenChunk.new.from annotation_json, window_size: 5, strict_mode: false
+        else
+          # The selected choice (button value) should be obtained in the controller via params[:button]
+          # Cannot be obtained here, so interrupt processing
+          return
+        end
+      end
+    end
+
     result = chunks.each_with_object({ token_used: 0, chunk_results: [] })
                    .with_index do |(chunk, results), index|
       annotation_text = SimpleInlineTextAnnotation.generate(chunk)
