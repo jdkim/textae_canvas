@@ -48,8 +48,6 @@ class TokenChunkGenerator
   private
 
   def sentences
-    return @sentences if @sentences
-
     # Group tokens contained in each sentence range, include period or punctuation in sentence-end token
     @sentences ||= sentence_boundaries.each_with_object([]) do |(begin_offset, end_offset), ext_sentences|
       sentence_tokens = @tokens.select { |token| token.start_offset >= begin_offset && token.end_offset <= end_offset }
