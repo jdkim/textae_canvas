@@ -14,7 +14,17 @@ class AiAnnotation < ApplicationRecord
   end
 
   def annotate!
-    combined_result, total_tokens_used = sliding_window @annotation
+    if @annotation.dig("selectedText", "status") == "selected"
+      # Get selected range from the annotation
+      begin_offset = @annotation.dig("selectedText", "begin").to_i
+      end_offset = @annotation.dig("selectedText", "end").to_i
+      selected_annotation = AnnotationSlicer.new(@annotation).annotation_in(begin_offset..end_offset)
+      Rails.logger.info selected_annotation.inspect
+
+      combined_result, total_tokens_used = sliding_window @annotation
+    else
+      combined_result, total_tokens_used = sliding_window @annotation
+    end
 
     self.token_used = total_tokens_used
     result = JSON.generate(combined_result)
