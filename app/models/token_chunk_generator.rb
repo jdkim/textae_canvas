@@ -47,7 +47,6 @@ class TokenChunkGenerator
 
   def sentences
     return @sentences if @sentences
-    sentences = []
     sentence_boundaries = []
     sentence_end_regex = /[。．.！？!?]/
     # Detect sentence boundaries from original_text
