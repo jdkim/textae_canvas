@@ -9,23 +9,23 @@ class TokenChunkGenerator
     @slicer = AnnotationSlicer.new(annotation)
   end
 
-  # トークン列を文単位で分割する（original_textから文区切り位置を検出）
+  # Split token sequence by sentence (detect sentence boundaries from original_text)
   def split_tokens_by_sentence(tokens)
     sentences = []
     sentence_boundaries = []
     sentence_end_regex = /[。．.！？!?]/
-    # 文末記号でoriginal_textを分割し、各文のoffset範囲を取得
+    # Split original_text by sentence-ending punctuation and get offset ranges for each sentence
     start_offset = 0
     @original_text.scan(/.*?[。．.！？!?]/m) do |sentence|
       end_offset = start_offset + sentence.length
       sentence_boundaries << [ start_offset, end_offset ]
       start_offset = end_offset
     end
-    # 残りの文（文末記号がない場合）
+    # Remaining sentence (if no sentence-ending punctuation)
     if start_offset < @original_text.length
       sentence_boundaries << [ start_offset, @original_text.length ]
     end
-    # 各文範囲に含まれるtokensをグループ化し、文末記号はSmartMultilingualTokenizer::Tokenで追加
+    # Group tokens contained in each sentence range, add sentence-ending punctuation as SmartMultilingualTokenizer::Token
     sentence_boundaries.each do |begin_off, end_off|
       sentence_tokens = tokens.select { |token| token.start_offset >= begin_off && token.end_offset <= end_off }
       sentence_text = @original_text[begin_off...end_off]
@@ -33,7 +33,7 @@ class TokenChunkGenerator
         punct_offset = end_off - 1
         punct_text = @original_text[punct_offset]
         unless sentence_tokens.any? { |t| t.start_offset == punct_offset }
-          # SmartMultilingualTokenizer::Tokenで文末記号トークンを生成
+          # Generate sentence-ending punctuation token with SmartMultilingualTokenizer::Token
           punct_token = SmartMultilingualTokenizer::Token.new(punct_text, punct_offset, end_off)
           sentence_tokens << punct_token
         end
@@ -50,27 +50,27 @@ class TokenChunkGenerator
     sentences = []
     sentence_boundaries = []
     sentence_end_regex = /[。．.！？!?]/
-    # original_textから文区切り位置を検出
+    # Detect sentence boundaries from original_text
     start_offset = 0
     @original_text.scan(/.*?[。．.！？!?]/m) do |sentence|
       end_offset = start_offset + sentence.length
       sentence_boundaries << [ start_offset, end_offset ]
       start_offset = end_offset
     end
-    # 残りの文（文末記号がない場合）
+    # Remaining sentence (if no sentence-ending punctuation)
     if start_offset < @original_text.length
       sentence_boundaries << [ start_offset, @original_text.length ]
     end
-    # 各文範囲に含まれるtokensをグループ化し、文末トークンにピリオドや句点を含める
+    # Group tokens contained in each sentence range, include period or punctuation in sentence-end token
     sentence_boundaries.each do |begin_off, end_off|
       sentence_tokens = @tokens.select { |token| token.start_offset >= begin_off && token.end_offset <= end_off }
-      # 文末記号がoriginal_textに含まれていれば、その部分のトークンも追加
+      # If sentence-ending punctuation is in original_text, add token for that part
       sentence_text = @original_text[begin_off...end_off]
       punct_token = nil
       if sentence_text =~ sentence_end_regex
         punct_offset = end_off - 1
         punct_text = @original_text[punct_offset]
-        # トークン化されていない場合は自作トークンとして追加
+        # If not tokenized, add as custom token
         unless sentence_tokens.any? { |t| t.start_offset == punct_offset }
           punct_token = SmartMultilingualTokenizer::Token.new(punct_text, punct_offset, punct_offset + 1, "punctuation")
         end
@@ -78,7 +78,7 @@ class TokenChunkGenerator
       sentence_tokens << punct_token if punct_token
       sentences << sentence_tokens unless sentence_tokens.empty?
     end
-    # チャンク化処理
+    # Chunking process
     i = 0
     while i < sentences.size
       chunk_tokens = []
