@@ -132,13 +132,6 @@ class TokenChunkGenerator
     [ chunk_begin, extended_chunk_end, actual_tokens ]
   end
 
-  # Calculate the next index to start chunking from
-  def next_chunk_begin_index(i, chunk_end)
-    tokens_consumed = @tokens[i..].take_while { it.end_offset <= chunk_end }.size
-
-    i + [ tokens_consumed, 1 ].max
-  end
-
   # Find the end of the chunk by sentence boundary or punctuation
   def find_chunk_end_boundary(text, current_end)
     last_found_end = current_end
