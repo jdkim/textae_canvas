@@ -22,10 +22,6 @@ class AiAnnotation < ApplicationRecord
     AiAnnotation.create!(prompt: prompt, content: result)
   end
 
-  def text_json=(annotation_json)
-    self.text = SimpleInlineTextAnnotation.generate(annotation_json)
-  end
-
   private
 
   # Delete old annotations
