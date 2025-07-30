@@ -36,7 +36,7 @@ class AiAnnotationsController < ApplicationController
       content_str = ai_annotation_params[:content]
       unescaped_content =content_str.include?('\\"') ? content_str.gsub('\\"', '"') : content_str
       if unescaped_content.is_a?(String)
-        unescaped_content = unescaped_content.gsub(' =>', ':')
+        unescaped_content = unescaped_content.gsub(" =>", ":")
         symbolized = JSON.parse(unescaped_content, symbolize_names: true)
         @ai_annotation.text_json = symbolized.deep_stringify_keys
       elsif unescaped_content.is_a?(Hash)
