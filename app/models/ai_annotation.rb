@@ -1,5 +1,5 @@
 class AiAnnotation < ApplicationRecord
-  attr_accessor :text, :token_used
+  attr_accessor :annotation, :text, :token_used
 
   before_create :clean_old_annotations
   before_create :set_uuid
@@ -14,9 +14,7 @@ class AiAnnotation < ApplicationRecord
   end
 
   def annotate!
-    parameter = SimpleInlineTextAnnotation.parse(@text)
-
-    combined_result, total_tokens_used = sliding_window(parameter)
+    combined_result, total_tokens_used = sliding_window @annotation
 
     self.token_used = total_tokens_used
     result = JSON.generate(combined_result)
