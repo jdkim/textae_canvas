@@ -9,43 +9,10 @@ class TokenChunkGenerator
     @slicer = AnnotationSlicer.new(annotation)
   end
 
-  # Split token sequence by sentence (detect sentence boundaries from original_text)
-  def split_tokens_by_sentence(tokens)
-    sentences = []
-    sentence_boundaries = []
-    sentence_end_regex = /[。．.！？!?]/
-    # Split original_text by sentence-ending punctuation and get offset ranges for each sentence
-    start_offset = 0
-    @original_text.scan(/.*?[。．.！？!?]/m) do |sentence|
-      end_offset = start_offset + sentence.length
-      sentence_boundaries << [ start_offset, end_offset ]
-      start_offset = end_offset
-    end
-    # Remaining sentence (if no sentence-ending punctuation)
-    if start_offset < @original_text.length
-      sentence_boundaries << [ start_offset, @original_text.length ]
-    end
-
-    # Group tokens contained in each sentence range, add sentence-ending punctuation as SmartMultilingualTokenizer::Token
-    sentence_boundaries.each_with_object([]) do |(begin_offset, end_offset), ext_sentences|
-      sentence_tokens = tokens.select { |token| token.start_offset >= begin_offset && token.end_offset <= end_offset }
-      sentence_text = @original_text[begin_offset...end_offset]
-      if sentence_text =~ sentence_end_regex
-        punct_offset = end_offset - 1
-        punct_text = @original_text[punct_offset]
-        unless sentence_tokens.any? { |t| t.start_offset == punct_offset }
-          # Generate sentence-ending punctuation token with SmartMultilingualTokenizer::Token
-          punct_token = SmartMultilingualTokenizer::Token.new(punct_text, punct_offset, punct_offset + 1, "punctuation")
-          sentence_tokens << punct_token
-        end
-      end
-      ext_sentences << sentence_tokens unless sentence_tokens.empty?
-    end
-  end
-
   # Main loop for generating token chunks
   def generate_chunks
     return [] if @tokens.empty?
+
     chunks = []
     # Chunking process
     i = 0
