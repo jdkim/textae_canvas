@@ -1,4 +1,6 @@
 class TokenChunkGenerator
+  SENTENCE_BOUNDARY_PATTERN = "[。．.！？!?]"
+
   include LanguageDetectable
   def initialize(annotation, tokens, window_size)
     @original_text = annotation["text"]
@@ -48,10 +50,10 @@ class TokenChunkGenerator
   def sentences
     return @sentences if @sentences
     sentence_boundaries = []
-    sentence_end_regex = /[。．.！？!?]/
+    sentence_end_regex = /#{SENTENCE_BOUNDARY_PATTERN}/
     # Detect sentence boundaries from original_text
     start_offset = 0
-    @original_text.scan(/.*?[。．.！？!?]/m) do |sentence|
+    @original_text.scan(/.*?#{SENTENCE_BOUNDARY_PATTERN}/m) do |sentence|
       end_offset = start_offset + sentence.length
       sentence_boundaries << [ start_offset, end_offset ]
       start_offset = end_offset
