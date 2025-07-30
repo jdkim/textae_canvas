@@ -48,37 +48,6 @@ class TokenChunkGenerator
   def generate_chunks
     return [] if @tokens.empty?
     chunks = []
-    sentences = []
-    sentence_boundaries = []
-    sentence_end_regex = /[。．.！？!?]/
-    # Detect sentence boundaries from original_text
-    start_offset = 0
-    @original_text.scan(/.*?[。．.！？!?]/m) do |sentence|
-      end_offset = start_offset + sentence.length
-      sentence_boundaries << [ start_offset, end_offset ]
-      start_offset = end_offset
-    end
-    # Remaining sentence (if no sentence-ending punctuation)
-    if start_offset < @original_text.length
-      sentence_boundaries << [ start_offset, @original_text.length ]
-    end
-    # Group tokens contained in each sentence range, include period or punctuation in sentence-end token
-    sentence_boundaries.each do |begin_offset, end_offset|
-      sentence_tokens = @tokens.select { |token| token.start_offset >= begin_offset && token.end_offset <= end_offset }
-      # If sentence-ending punctuation is in original_text, add token for that part
-      sentence_text = @original_text[begin_offset...end_offset]
-      punct_token = nil
-      if sentence_text =~ sentence_end_regex
-        punct_offset = end_offset - 1
-        punct_text = @original_text[punct_offset]
-        # If not tokenized, add as custom token
-        unless sentence_tokens.any? { |t| t.start_offset == punct_offset }
-          punct_token = SmartMultilingualTokenizer::Token.new(punct_text, punct_offset, punct_offset + 1, "punctuation")
-        end
-      end
-      sentence_tokens << punct_token if punct_token
-      sentences << sentence_tokens unless sentence_tokens.empty?
-    end
     # Chunking process
     i = 0
     while i < sentences.size
@@ -111,6 +80,42 @@ class TokenChunkGenerator
   end
 
   private
+
+  def sentences
+    sentences = []
+    sentence_boundaries = []
+    sentence_end_regex = /[。．.！？!?]/
+    # Detect sentence boundaries from original_text
+    start_offset = 0
+    @original_text.scan(/.*?[。．.！？!?]/m) do |sentence|
+      end_offset = start_offset + sentence.length
+      sentence_boundaries << [start_offset, end_offset]
+      start_offset = end_offset
+    end
+    # Remaining sentence (if no sentence-ending punctuation)
+    if start_offset < @original_text.length
+      sentence_boundaries << [start_offset, @original_text.length]
+    end
+    # Group tokens contained in each sentence range, include period or punctuation in sentence-end token
+    sentence_boundaries.each do |begin_offset, end_offset|
+      sentence_tokens = @tokens.select { |token| token.start_offset >= begin_offset && token.end_offset <= end_offset }
+      # If sentence-ending punctuation is in original_text, add token for that part
+      sentence_text = @original_text[begin_offset...end_offset]
+      punct_token = nil
+      if sentence_text =~ sentence_end_regex
+        punct_offset = end_offset - 1
+        punct_text = @original_text[punct_offset]
+        # If not tokenized, add as custom token
+        unless sentence_tokens.any? { |t| t.start_offset == punct_offset }
+          punct_token = SmartMultilingualTokenizer::Token.new(punct_text, punct_offset, punct_offset + 1, "punctuation")
+        end
+      end
+      sentence_tokens << punct_token if punct_token
+      sentences << sentence_tokens unless sentence_tokens.empty?
+    end
+
+    @sentences ||= sentences
+  end
 
   # Decide chunk start/end and which tokens to include
   def resolve_chunk_range_and_tokens(window_tokens)
