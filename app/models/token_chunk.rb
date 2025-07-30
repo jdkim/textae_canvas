@@ -11,7 +11,7 @@ class TokenChunk
     # window_sizeが不正ならArgumentErrorを投げる
     raise ArgumentError, "window_size must be greater than 0" if window_size <= 0
 
-    # Analyze the text and detect language
+    # Analyze the text
     response = @tokenizer.analyze original_text
 
     # Generate chunks using the TokenChunkGenerator
