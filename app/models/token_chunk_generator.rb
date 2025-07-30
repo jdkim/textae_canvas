@@ -51,7 +51,6 @@ class TokenChunkGenerator
     i = 0
     while i < sentences.size
       chunk_tokens = []
-      chunk_size = 0
       # @window_sizeに収まるだけ文を追加
       while i < sentences.size
         @text = sentences[i].first&.token
@@ -60,7 +59,6 @@ class TokenChunkGenerator
           break
         end
         chunk_tokens.concat(sentences[i])
-        chunk_size = size
         i += 1
       end
       # 1文がwindow_sizeを超える場合はその文だけでチャンク化
