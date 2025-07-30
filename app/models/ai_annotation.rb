@@ -29,6 +29,11 @@ class AiAnnotation < ApplicationRecord
     AiAnnotation.create!(prompt: prompt, content: result)
   end
 
+  def text=(annotation)
+    @text = annotation
+    @annotation = SimpleInlineTextAnnotation.parse(annotation)
+  end
+
   private
 
   # Delete old annotations
