@@ -1,4 +1,6 @@
 module TokenChunk
+  Token = Data.define(:token, :start_offset, :end_offset, :type)
+
   # Generate token chunks from JSON data using the specified window size
   def self.from(annotations, window_size: 20)
     # window_sizeが不正ならArgumentErrorを投げる

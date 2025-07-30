@@ -1,6 +1,5 @@
 module TokenChunk
   class SmartMultilingualTokenizer
-    Token = Data.define(:token, :start_offset, :end_offset, :type)
     INDEX_NAME = "smart_multilingual"
 
     def initialize

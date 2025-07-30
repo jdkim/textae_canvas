@@ -60,7 +60,7 @@ module TokenChunk
           punct_text = @original_text[punct_offset]
           # If not tokenized, add as custom token
           unless sentence_tokens.any? { |t| t.start_offset == punct_offset }
-            punct_token = SmartMultilingualTokenizer::Token.new(punct_text, punct_offset, punct_offset + 1, "punctuation")
+            punct_token = Token.new(punct_text, punct_offset, punct_offset + 1, "punctuation")
           end
         end
         sentence_tokens << punct_token if punct_token
