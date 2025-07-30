@@ -61,7 +61,7 @@ class TokenChunkGenerator
         chunk_tokens.concat(sentences[i])
         i += 1
       end
-      # 1文がwindow_sizeを超える場合はその文だけでチャンク化
+      # If a single sentence exceeds window_size, chunk only that sentence
       if chunk_tokens.empty? && i < sentences.size
         chunk_tokens = sentences[i]
         i += 1
