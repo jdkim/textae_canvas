@@ -50,7 +50,6 @@ class TokenChunkGenerator
   def sentences
     return @sentences if @sentences
     sentence_boundaries = []
-    sentence_end_regex = /#{SENTENCE_BOUNDARY_PATTERN}/
     # Detect sentence boundaries from original_text
     start_offset = 0
     @original_text.scan(/.*?#{SENTENCE_BOUNDARY_PATTERN}/m) do |sentence|
@@ -68,7 +67,7 @@ class TokenChunkGenerator
       # If sentence-ending punctuation is in original_text, add token for that part
       sentence_text = @original_text[begin_offset...end_offset]
       punct_token = nil
-      if sentence_text =~ sentence_end_regex
+      if sentence_text =~ /#{SENTENCE_BOUNDARY_PATTERN}/
         punct_offset = end_offset - 1
         punct_text = @original_text[punct_offset]
         # If not tokenized, add as custom token
