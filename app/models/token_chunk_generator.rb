@@ -49,18 +49,7 @@ class TokenChunkGenerator
 
   def sentences
     return @sentences if @sentences
-    sentence_boundaries = []
-    # Detect sentence boundaries from original_text
-    start_offset = 0
-    @original_text.scan(/.*?#{SENTENCE_BOUNDARY_PATTERN}/m) do |sentence|
-      end_offset = start_offset + sentence.length
-      sentence_boundaries << [ start_offset, end_offset ]
-      start_offset = end_offset
-    end
-    # Remaining sentence (if no sentence-ending punctuation)
-    if start_offset < @original_text.length
-      sentence_boundaries << [ start_offset, @original_text.length ]
-    end
+
     # Group tokens contained in each sentence range, include period or punctuation in sentence-end token
     @sentences ||= sentence_boundaries.each_with_object([]) do |(begin_offset, end_offset), ext_sentences|
       sentence_tokens = @tokens.select { |token| token.start_offset >= begin_offset && token.end_offset <= end_offset }
@@ -78,6 +67,24 @@ class TokenChunkGenerator
       sentence_tokens << punct_token if punct_token
       ext_sentences << sentence_tokens unless sentence_tokens.empty?
     end
+  end
+
+  def sentence_boundaries
+    sentence_boundaries = []
+
+    # Detect sentence boundaries from original_text
+    start_offset = 0
+    @original_text.scan(/.*?#{SENTENCE_BOUNDARY_PATTERN}/m) do |sentence|
+      end_offset = start_offset + sentence.length
+      sentence_boundaries << [ start_offset, end_offset ]
+      start_offset = end_offset
+    end
+    # Remaining sentence (if no sentence-ending punctuation)
+    if start_offset < @original_text.length
+      sentence_boundaries << [ start_offset, @original_text.length ]
+    end
+
+    sentence_boundaries
   end
 
   def language
