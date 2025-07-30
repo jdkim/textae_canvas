@@ -41,7 +41,7 @@ class AiAnnotation < ApplicationRecord
   end
 
   def sliding_window(annotation_json)
-    chunks = TokenChunk.new.from annotation_json, window_size: 50
+    chunks = TokenChunk.from annotation_json, window_size: 50
     result = chunks.each_with_object({ token_used: 0, chunk_results: [] })
                    .with_index do |(chunk, results), index|
       annotation_text = SimpleInlineTextAnnotation.generate(chunk)
