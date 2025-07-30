@@ -6,13 +6,11 @@ class TokenChunk
 
   # Generate token chunks from JSON data using the specified window size
   def from(annotations, window_size: 20)
-    original_text = annotations["text"]
-
     # window_sizeが不正ならArgumentErrorを投げる
     raise ArgumentError, "window_size must be greater than 0" if window_size <= 0
 
     # Analyze the text
-    response = @tokenizer.analyze original_text
+    response = @tokenizer.analyze annotations["text"]
 
     # Generate chunks using the TokenChunkGenerator
     TokenChunkGenerator.new(annotations,
