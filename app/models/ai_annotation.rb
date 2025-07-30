@@ -14,8 +14,7 @@ class AiAnnotation < ApplicationRecord
   end
 
   def annotate!
-    # SimpleInlineTextAnnotation returns keys as symbols
-    parameter = SimpleInlineTextAnnotation.parse(@text).deep_stringify_keys
+    parameter = SimpleInlineTextAnnotation.parse(@text)
 
     combined_result, total_tokens_used = sliding_window(parameter)
 
@@ -57,8 +56,7 @@ class AiAnnotation < ApplicationRecord
       chunk_result = chunk_result.gsub("\\", "")
 
       begin
-        # SimpleInlineTextAnnotation returns keys as symbols
-        adding_result_as_json = SimpleInlineTextAnnotation.parse(chunk_result).deep_stringify_keys
+        adding_result_as_json = SimpleInlineTextAnnotation.parse(chunk_result)
         results[:chunk_results] << adding_result_as_json
       rescue => e
         # Log the error but continue processing other chunks
