@@ -25,7 +25,7 @@ if ENV["LOCAL_ONLY"]
       assert_equal json_data["relations"], chunks.first["relations"]
     end
 
-    test "should split into single chunk when all relations fit in window2" do
+    test "should split into one chunk for long window size" do
       json_data = {
         "text" => "Humpty Dumpty sat on a wall. Humpty Dumpty had a great fall. All the king's horses and all the king's men Couldn't put Humpty together again.",
         "denotations" => [],
@@ -40,7 +40,7 @@ if ENV["LOCAL_ONLY"]
       assert_equal json_data["relations"], chunks.first["relations"]
     end
 
-    test "should split into single chunk when all relations fit in window3" do
+    test "should split into three chunks for short window size" do
       json_data = {
         "text" => "Humpty Dumpty sat on a wall. Humpty Dumpty had a great fall. All the king's horses and all the king's men Couldn't put Humpty together again.",
         "denotations" => [],
