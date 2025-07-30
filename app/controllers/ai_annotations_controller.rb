@@ -45,7 +45,7 @@ class AiAnnotationsController < ApplicationController
         @ai_annotation.text_json = {}
       end
     end
-    
+
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
     # 警告ダイアログでキャンセルボタンが押された時はフラッシュメッセージを出す
