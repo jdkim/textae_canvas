@@ -89,12 +89,12 @@ class TokenChunkGenerator
     start_offset = 0
     @original_text.scan(/.*?[。．.！？!?]/m) do |sentence|
       end_offset = start_offset + sentence.length
-      sentence_boundaries << [start_offset, end_offset]
+      sentence_boundaries << [ start_offset, end_offset ]
       start_offset = end_offset
     end
     # Remaining sentence (if no sentence-ending punctuation)
     if start_offset < @original_text.length
-      sentence_boundaries << [start_offset, @original_text.length]
+      sentence_boundaries << [ start_offset, @original_text.length ]
     end
     # Group tokens contained in each sentence range, include period or punctuation in sentence-end token
     @sentences ||= sentence_boundaries.each_with_object([]) do |(begin_offset, end_offset), ext_sentences|
