@@ -116,14 +116,4 @@ class TokenChunkGenerator
   def language
     @language ||= LanguageDetectable.detect_language(@text)
   end
-
-  # Decide window unit: char count for CJK, token count otherwise
-  def window_unit(word_count, char_count)
-    case language
-    when "ja", "ko"
-      char_count
-    else
-      word_count
-    end
-  end
 end
