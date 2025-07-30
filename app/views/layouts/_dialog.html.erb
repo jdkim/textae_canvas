@@ -7,14 +7,55 @@
 %>
 
 <dialog id="dialog" <%= "open" if is_open %>>
-  <p><%= dialog_message %></p>
-  <%= form_with url: ai_annotation_path(local_assigns[:content]&.dig('uuid') || params[:uuid]), model: @ai_annotation, id: "dialog-form", local: true do |f| %>
-    <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-    <%= f.hidden_field :content, value: raw(local_assigns[:content]) %>
-    <%= f.hidden_field :prompt, value: local_assigns[:prompt] %>
-    <input type="hidden" name="button" id="dialog-button-value" />
-    <% dialog_buttons.each do |btn| %>
-      <button type="button" onclick="document.getElementById('dialog-button-value').value='<%= btn[:value] %>'; document.getElementById('dialog-form').submit();"><%= btn[:label] %></button>
+  <div class="dialog-content">
+    <p><%= dialog_message %></p>
+
+    <%= form_with url: ai_annotation_path(local_assigns[:content]&.dig('uuid') || params[:uuid]),
+                  model: @ai_annotation,
+                  id: "dialog-form",
+                  local: true do |f| %>
+      <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+      <%= f.hidden_field :content, value: raw(local_assigns[:content]) %>
+      <%= f.hidden_field :prompt, value: local_assigns[:prompt] %>
+      <input type="hidden" name="button" id="dialog-button-value" />
+
+      <div class="dialog-buttons">
+        <% dialog_buttons.each do |btn| %>
+          <button type="button"
+                  data-action="<%= btn[:value] %>"
+                  onclick="document.getElementById('dialog-button-value').value='<%= btn[:value] %>'; document.getElementById('dialog-form').submit();">
+            <%= btn[:label] %>
+          </button>
+        <% end %>
+      </div>
     <% end %>
-  <% end %>
+  </div>
 </dialog>
+
+<% if is_open %>
+  <script>
+      // ダイアログが開いている時にbodyにクラスを追加
+      document.body.classList.add('dialog-overlay-active');
+
+      // ESCキーでダイアログを閉じる機能
+      document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape') {
+              const dialog = document.getElementById('dialog');
+              if (dialog && dialog.open) {
+                  // キャンセルボタンをクリックしたのと同じ動作
+                  document.getElementById('dialog-button-value').value = 'cancel';
+                  document.getElementById('dialog-form').submit();
+              }
+          }
+      });
+
+      // バックドロップクリックでダイアログを閉じる機能
+      document.getElementById('dialog').addEventListener('click', function(event) {
+          if (event.target === this) {
+              // キャンセルボタンをクリックしたのと同じ動作
+              document.getElementById('dialog-button-value').value = 'cancel';
+              document.getElementById('dialog-form').submit();
+          }
+      });
+  </script>
+<% end %>

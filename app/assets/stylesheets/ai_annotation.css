@@ -75,3 +75,141 @@
     opacity: 0.6;
   }
 }
+
+/* ダイアログのスタイル改善 */
+dialog {
+  /* ダイアログの基本レイアウト */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  /* サイズとパディング */
+  min-width: 400px;
+  max-width: 500px;
+  padding: 0;
+  margin: 0;
+
+  /* 境界線とシャドウ */
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(0, 0, 0, 0.2);
+
+  /* 背景 */
+  background: white;
+
+  /* アニメーション */
+  opacity: 0;
+  scale: 0.9;
+  transition: opacity 0.2s ease, scale 0.2s ease;
+
+  /* Z-index for layering */
+  z-index: 1000;
+}
+
+/* ダイアログが開いている時のスタイル */
+dialog[open] {
+  opacity: 1;
+  scale: 1;
+}
+
+/* バックドロップ（背景のオーバーレイ） */
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ダイアログ内部のコンテンツ */
+dialog .dialog-content {
+  padding: 24px;
+}
+
+/* ダイアログのタイトル/メッセージ */
+dialog p {
+  margin: 0 0 24px 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+  font-weight: 500;
+}
+
+/* ダイアログのフォーム */
+dialog form {
+  margin: 0;
+}
+
+/* ボタンコンテナ */
+dialog .dialog-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+/* ダイアログボタンの基本スタイル */
+dialog button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+/* キャンセルボタン（セカンダリ） */
+dialog button[data-action="cancel"] {
+  background-color: #f5f5f5;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+dialog button[data-action="cancel"]:hover {
+  background-color: #ebebeb;
+  color: #555;
+}
+
+/* 強制実行ボタン（プライマリ） */
+dialog button[data-action="force"] {
+  background-color: #dc3545;
+  color: white;
+}
+
+dialog button[data-action="force"]:hover {
+  background-color: #c82333;
+}
+
+/* フォーカス状態 */
+dialog button:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* 既存のフラッシュメッセージスタイルを隠す（ダイアログ表示時） */
+.dialog-overlay-active .flash.alert {
+  display: none;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 480px) {
+  dialog {
+    min-width: 90vw;
+    max-width: 90vw;
+    margin: 20px;
+  }
+
+  dialog .dialog-buttons {
+    flex-direction: column;
+  }
+
+  dialog button {
+    width: 100%;
+  }
+}
