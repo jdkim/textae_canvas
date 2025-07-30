@@ -61,7 +61,7 @@ class TokenChunkGenerator
     if start_offset < @original_text.length
       sentence_boundaries << [ start_offset, @original_text.length ]
     end
-    # 各文範囲に含まれるtokensをグループ化し、文末トークンに��リオドや句点を含める
+    # 各文範囲に含まれるtokensをグループ化し、文末トークンにピリオドや句点を含める
     sentence_boundaries.each do |begin_off, end_off|
       sentence_tokens = @tokens.select { |token| token.start_offset >= begin_off && token.end_offset <= end_off }
       # 文末記号がoriginal_textに含まれていれば、その部分のトークンも追加
