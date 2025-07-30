@@ -26,20 +26,21 @@ class TokenChunkGenerator
       sentence_boundaries << [ start_offset, @original_text.length ]
     end
     # Group tokens contained in each sentence range, add sentence-ending punctuation as SmartMultilingualTokenizer::Token
-    sentence_boundaries.each do |begin_off, end_off|
-      sentence_tokens = tokens.select { |token| token.start_offset >= begin_off && token.end_offset <= end_off }
-      sentence_text = @original_text[begin_off...end_off]
+    sentence_boundaries.each do |begin_offset, end_offset|
+      sentence_tokens = tokens.select { |token| token.start_offset >= begin_offset && token.end_offset <= end_offset }
+      sentence_text = @original_text[begin_offset...end_offset]
       if sentence_text =~ sentence_end_regex
-        punct_offset = end_off - 1
+        punct_offset = end_offset - 1
         punct_text = @original_text[punct_offset]
         unless sentence_tokens.any? { |t| t.start_offset == punct_offset }
           # Generate sentence-ending punctuation token with SmartMultilingualTokenizer::Token
-          punct_token = SmartMultilingualTokenizer::Token.new(punct_text, punct_offset, end_off)
+          punct_token = SmartMultilingualTokenizer::Token.new(punct_text, punct_offset, punct_offset + 1, "punctuation")
           sentence_tokens << punct_token
         end
       end
       sentences << sentence_tokens unless sentence_tokens.empty?
     end
+
     sentences
   end
 
@@ -62,13 +63,13 @@ class TokenChunkGenerator
       sentence_boundaries << [ start_offset, @original_text.length ]
     end
     # Group tokens contained in each sentence range, include period or punctuation in sentence-end token
-    sentence_boundaries.each do |begin_off, end_off|
-      sentence_tokens = @tokens.select { |token| token.start_offset >= begin_off && token.end_offset <= end_off }
+    sentence_boundaries.each do |begin_offset, end_offset|
+      sentence_tokens = @tokens.select { |token| token.start_offset >= begin_offset && token.end_offset <= end_offset }
       # If sentence-ending punctuation is in original_text, add token for that part
-      sentence_text = @original_text[begin_off...end_off]
+      sentence_text = @original_text[begin_offset...end_offset]
       punct_token = nil
       if sentence_text =~ sentence_end_regex
-        punct_offset = end_off - 1
+        punct_offset = end_offset - 1
         punct_text = @original_text[punct_offset]
         # If not tokenized, add as custom token
         unless sentence_tokens.any? { |t| t.start_offset == punct_offset }
@@ -100,6 +101,7 @@ class TokenChunkGenerator
       chunk_data = @slicer.annotation_in chunk_begin..chunk_end
       chunks << chunk_data
     end
+
     chunks
   end
 
