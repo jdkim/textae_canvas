@@ -25,8 +25,9 @@ class TokenChunkGenerator
     if start_offset < @original_text.length
       sentence_boundaries << [ start_offset, @original_text.length ]
     end
+
     # Group tokens contained in each sentence range, add sentence-ending punctuation as SmartMultilingualTokenizer::Token
-    sentence_boundaries.each do |begin_offset, end_offset|
+    sentence_boundaries.each_with_object([]) do |(begin_offset, end_offset), ext_sentences|
       sentence_tokens = tokens.select { |token| token.start_offset >= begin_offset && token.end_offset <= end_offset }
       sentence_text = @original_text[begin_offset...end_offset]
       if sentence_text =~ sentence_end_regex
@@ -38,10 +39,8 @@ class TokenChunkGenerator
           sentence_tokens << punct_token
         end
       end
-      sentences << sentence_tokens unless sentence_tokens.empty?
+      ext_sentences << sentence_tokens unless sentence_tokens.empty?
     end
-
-    sentences
   end
 
   # Main loop for generating token chunks
