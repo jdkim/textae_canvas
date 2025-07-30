@@ -58,7 +58,7 @@ class AiAnnotation < ApplicationRecord
                                            slicer.annotation_in(end_offset..annotation_json["text"].length)
                                          ]).merged
 
-    [merged_result, tokens_used]
+    [ merged_result, tokens_used ]
   end
 
   def sliding_window(annotation_json)
