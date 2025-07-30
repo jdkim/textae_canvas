@@ -18,16 +18,13 @@ class AiAnnotation < ApplicationRecord
       # Get selected range from the annotation
       begin_offset = @annotation.dig("selectedText", "begin").to_i
       end_offset = @annotation.dig("selectedText", "end").to_i
-      selected_annotation = AnnotationSlicer.new(@annotation).annotation_in(begin_offset..end_offset)
-      Rails.logger.info selected_annotation.inspect
-
-      combined_result, total_tokens_used = sliding_window @annotation
+      result, tokens_used = selected_window @annotation, begin_offset, end_offset
     else
-      combined_result, total_tokens_used = sliding_window @annotation
+      result, tokens_used = sliding_window @annotation
     end
 
-    self.token_used = total_tokens_used
-    result = JSON.generate(combined_result)
+    self.token_used = tokens_used
+    result = JSON.generate(result)
 
     AiAnnotation.create!(prompt: prompt, content: result)
   end
@@ -42,6 +39,26 @@ class AiAnnotation < ApplicationRecord
   # Set a new UUID
   def set_uuid
     self.uuid = SecureRandom.uuid
+  end
+
+  # Annotates the part specified by the user.
+  def selected_window(annotation_json, begin_offset, end_offset)
+    slicer = AnnotationSlicer.new(annotation_json)
+    selected_annotation = slicer.annotation_in(begin_offset..end_offset)
+    annotation_text = SimpleInlineTextAnnotation.generate(selected_annotation)
+
+    user_content = "#{annotation_text}\n\nPrompt:\n#{prompt}"
+
+    tokens_used, result = OpenAiAnnotator.new.call(user_content)
+    result_as_json = SimpleInlineTextAnnotation.parse(result)
+
+    merged_result = AnnotationMerger.new([
+                                           slicer.annotation_in(0...begin_offset),
+                                           result_as_json,
+                                           slicer.annotation_in(end_offset..annotation_json["text"].length)
+                                         ]).merged
+
+    [merged_result, tokens_used]
   end
 
   def sliding_window(annotation_json)
