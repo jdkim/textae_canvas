@@ -9,6 +9,7 @@ class AiAnnotation < ApplicationRecord
   def self.prepare_with(text, prompt)
     instance = new
     instance.text = text
+    instance.annotation = { text: text }
     instance.prompt = prompt
     instance
   end
@@ -18,9 +19,9 @@ class AiAnnotation < ApplicationRecord
       # Get selected range from the annotation
       begin_offset = @annotation.dig("selectedText", "begin").to_i
       end_offset = @annotation.dig("selectedText", "end").to_i
-      result, tokens_used = selected_window @annotation, begin_offset, end_offset
+      result, tokens_used = selected_window JSON.generate(@annotation), begin_offset, end_offset
     else
-      result, tokens_used = sliding_window @annotation
+      result, tokens_used = sliding_window JSON.generate(@annotation)
     end
 
     self.token_used = tokens_used
@@ -28,7 +29,7 @@ class AiAnnotation < ApplicationRecord
 
     ai_annotation = AiAnnotation.create!(prompt: prompt, content: result)
     # 警告ダイアログを出すためにnilを返す
-    return nil if combined_result.nil? || total_tokens_used.nil?
+    return nil if result.nil? || tokens_used.nil?
 
     ai_annotation
   end
@@ -73,14 +74,14 @@ class AiAnnotation < ApplicationRecord
 
   def sliding_window(annotation_json, force: false)
     begin
-      chunks = TokenChunk.new.from annotation_json, window_size: 5, strict_mode: !force
+      chunks = TokenChunk.from annotation_json, window_size: 20, strict_mode: !force
     rescue Exceptions::RelationOutOfRangeError => e
       begin
-        chunks = TokenChunk.new.from annotation_json, window_size: 5, strict_mode: !force
+        chunks = TokenChunk.from annotation_json, window_size: 20, strict_mode: !force
       rescue Exceptions::RelationOutOfRangeError => e2
         if force
           # forceモードならstrict_mode: falseで再分割
-          chunks = TokenChunk.new.from annotation_json, window_size: 5, strict_mode: false
+          chunks = TokenChunk.from annotation_json, window_size: 20, strict_mode: false
         else
           # The selected choice (button value) should be obtained in the controller via params[:button]
           # Cannot be obtained here, so interrupt processing
