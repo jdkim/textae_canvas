@@ -82,6 +82,7 @@ class TokenChunkGenerator
   private
 
   def sentences
+    return @sentences if @sentences
     sentences = []
     sentence_boundaries = []
     sentence_end_regex = /[。．.！？!?]/
@@ -97,7 +98,7 @@ class TokenChunkGenerator
       sentence_boundaries << [start_offset, @original_text.length]
     end
     # Group tokens contained in each sentence range, include period or punctuation in sentence-end token
-    sentence_boundaries.each do |begin_offset, end_offset|
+    @sentences ||= sentence_boundaries.each_with_object([]) do |(begin_offset, end_offset), ext_sentences|
       sentence_tokens = @tokens.select { |token| token.start_offset >= begin_offset && token.end_offset <= end_offset }
       # If sentence-ending punctuation is in original_text, add token for that part
       sentence_text = @original_text[begin_offset...end_offset]
@@ -111,10 +112,8 @@ class TokenChunkGenerator
         end
       end
       sentence_tokens << punct_token if punct_token
-      sentences << sentence_tokens unless sentence_tokens.empty?
+      ext_sentences << sentence_tokens unless sentence_tokens.empty?
     end
-
-    @sentences ||= sentences
   end
 
   # Decide chunk start/end and which tokens to include
