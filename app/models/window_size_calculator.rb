@@ -12,4 +12,3 @@ class WindowSizeCalculator
     end
   end
 end
-

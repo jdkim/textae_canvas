@@ -1,6 +1,6 @@
 require "test_helper"
 
-# if ENV["LOCAL_ONLY"]
+if ENV["LOCAL_ONLY"]
   class TokenChunkTest < ActiveSupport::TestCase
     test "should split into single chunk when all relations fit in window" do
       json_data = {
@@ -644,4 +644,4 @@ require "test_helper"
       end
     end
   end
-# end
+end

@@ -18,12 +18,12 @@ class TokenChunkGenerator
     start_offset = 0
     @original_text.scan(/.*?[。．.！？!?]/m) do |sentence|
       end_offset = start_offset + sentence.length
-      sentence_boundaries << [start_offset, end_offset]
+      sentence_boundaries << [ start_offset, end_offset ]
       start_offset = end_offset
     end
     # 残りの文（文末記号がない場合）
     if start_offset < @original_text.length
-      sentence_boundaries << [start_offset, @original_text.length]
+      sentence_boundaries << [ start_offset, @original_text.length ]
     end
     # 各文範囲に含まれるtokensをグループ化し、文末記号はSmartMultilingualTokenizer::Tokenで追加
     sentence_boundaries.each do |begin_off, end_off|
@@ -54,12 +54,12 @@ class TokenChunkGenerator
     start_offset = 0
     @original_text.scan(/.*?[。．.！？!?]/m) do |sentence|
       end_offset = start_offset + sentence.length
-      sentence_boundaries << [start_offset, end_offset]
+      sentence_boundaries << [ start_offset, end_offset ]
       start_offset = end_offset
     end
     # 残りの文（文末記号がない場合）
     if start_offset < @original_text.length
-      sentence_boundaries << [start_offset, @original_text.length]
+      sentence_boundaries << [ start_offset, @original_text.length ]
     end
     # 各文範囲に含まれるtokensをグループ化し、文末トークンに��リオドや句点を含める
     sentence_boundaries.each do |begin_off, end_off|
