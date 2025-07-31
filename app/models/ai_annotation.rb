@@ -78,17 +78,13 @@ class AiAnnotation < ApplicationRecord
     begin
       chunks = TokenChunk.from annotation_json, window_size: 20, strict_mode: !force
     rescue Exceptions::RelationOutOfRangeError => e
-      begin
-        chunks = TokenChunk.from annotation_json, window_size: 20, strict_mode: !force
-      rescue Exceptions::RelationOutOfRangeError => e2
-        if force
-          # If force mode, re-split with strict_mode: false
-          chunks = TokenChunk.from annotation_json, window_size: 20, strict_mode: false
-        else
-          # The selected choice (button value) should be obtained in the controller via params[:button]
-          # Cannot be obtained here, so interrupt processing
-          return
-        end
+      if force
+        # If force mode, re-split with strict_mode: false
+        chunks = TokenChunk.from annotation_json, window_size: 20, strict_mode: false
+      else
+        # The selected choice (button value) should be obtained in the controller via params[:button]
+        # Cannot be obtained here, so interrupt processing
+        return
       end
     end
 
