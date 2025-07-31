@@ -46,7 +46,8 @@ class AiAnnotationsController < ApplicationController
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
     # Show a flash message when the cancel button is pressed in the warning dialog
-    if params[:button] == "cancel"
+    # Check which button was pressed using individual params
+    if params[:btn_cancel].present?
       @ai_annotation.annotaiton = SimpleInlineTextAnnotation.parse(@ai_annotation.text).deep_stringify_keys.to_s.gsub(" =>", ":")
       @ai_annotation.save
       flash.now[:alert] = "AI annotation generation was cancelled."
@@ -54,7 +55,7 @@ class AiAnnotationsController < ApplicationController
       return
     end
 
-    force = params[:button] == "force"
+    force = params[:btn_force].present?
     ai_annotation = @ai_annotation.annotate!(force: force)
 
     if ai_annotation.nil?
