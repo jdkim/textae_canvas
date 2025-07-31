@@ -1,5 +1,4 @@
 require "test_helper"
-require_relative "../../app/models/data_slime"
 
 class AnnotationSlicerTest < ActiveSupport::TestCase
   test "should split in the specified window" do
@@ -17,9 +16,8 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
       ]
     }
 
-    wrap = ::DataSlime.new(json_data)
     # Even with a small window size, it should be divided by sentence and relations should not cross
-    slice = AnnotationSlicer.new(wrap).annotation_in(0..14)
+    slice = AnnotationSlicer.new(json_data).annotation_in(0..14)
 
     assert_equal "Alice met Bob.", slice["text"]
     assert_equal [
@@ -30,8 +28,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                    { "pred" => "met", "subj" => "T1", "obj" => "T2" }
                  ], slice["relations"]
 
-    wrap = ::DataSlime.new(json_data)
-    slice = AnnotationSlicer.new(wrap).annotation_in(15..32)
+    slice = AnnotationSlicer.new(json_data).annotation_in(15..32)
 
     assert_equal "Carol likes Dave.", slice["text"]
     assert_equal [
@@ -58,12 +55,11 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
       ]
     }
 
-    wrap = ::DataSlime.new(json_data)
-    slice = AnnotationSlicer.new(wrap).annotation_in(0..78)
+    slice = AnnotationSlicer.new(json_data).annotation_in(0..78)
 
-    assert_equal wrap["text"], slice["text"]
-    assert_equal wrap["denotations"], slice["denotations"]
-    assert_equal wrap["relations"], slice["relations"]
+    assert_equal json_data["text"], slice["text"]
+    assert_equal json_data["denotations"], slice["denotations"]
+    assert_equal json_data["relations"], slice["relations"]
   end
 
   test "should raise denotation fragmented error" do
@@ -78,21 +74,19 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
       ]
     }
 
-    wrap = ::DataSlime.new(json_data)
-
     # Crossing the start of a denotation
     assert_raises(Exceptions::DenotationFragmentedError) do
-      AnnotationSlicer.new(wrap).annotation_in(0..20)
+      AnnotationSlicer.new(json_data).annotation_in(0..20)
     end
 
     # Trying to cut through the middle of a denotation
     assert_raises(Exceptions::DenotationFragmentedError) do
-      AnnotationSlicer.new(wrap).annotation_in(23..26)
+      AnnotationSlicer.new(json_data).annotation_in(23..26)
     end
 
     # Crossing the end of a denotation
     assert_raises(Exceptions::DenotationFragmentedError) do
-      AnnotationSlicer.new(wrap).annotation_in(27..30)
+      AnnotationSlicer.new(json_data).annotation_in(27..30)
     end
   end
 
@@ -107,9 +101,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
         { "pred" => "founder_of", "subj" => "T1", "obj" => "T2" }
       ]
     }
-
-    wrap = ::DataSlime.new(json_data)
-    slice = AnnotationSlicer.new(wrap, strict_mode: false).annotation_in(0..20)
+    slice = AnnotationSlicer.new(json_data, strict_mode: false).annotation_in(0..20)
 
     assert_equal slice["text"], "Steve Jobs founded A"
     assert_equal slice["denotations"], [
@@ -117,13 +109,13 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
     ]
     assert_equal slice["relations"], []
 
-    slice = AnnotationSlicer.new(wrap, strict_mode: false).annotation_in(23..26)
+    slice = AnnotationSlicer.new(json_data, strict_mode: false).annotation_in(23..26)
 
     assert_equal slice["text"], "e I"
     assert_equal slice["denotations"], []
     assert_equal slice["relations"], []
 
-    slice = AnnotationSlicer.new(wrap, strict_mode: false).annotation_in(27..30)
+    slice = AnnotationSlicer.new(json_data, strict_mode: false).annotation_in(27..30)
 
     assert_equal slice["text"], "c. "
     assert_equal slice["denotations"], []
@@ -142,10 +134,8 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
       ]
     }
 
-    wrap = ::DataSlime.new(json_data)
-
     assert_raises(Exceptions::RelationOutOfRangeError) do
-      AnnotationSlicer.new(wrap).annotation_in(0..21)
+      AnnotationSlicer.new(json_data).annotation_in(0..21)
     end
   end
 
@@ -160,9 +150,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
         { "pred" => "member_of", "subj" => "T1", "obj" => "T2" }
       ]
     }
-
-    wrap = ::DataSlime.new(json_data)
-    slice = AnnotationSlicer.new(wrap, strict_mode: false).annotation_in(0..21)
+    slice = AnnotationSlicer.new(json_data, strict_mode: false).annotation_in(0..21)
 
     assert_equal slice["text"], "Elon Musk is a member"
     assert_equal slice["denotations"], [
@@ -184,8 +172,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
       ]
     }
 
-    wrap = ::DataSlime.new(json_data)
-    slice = AnnotationSlicer.new(wrap).annotation_in(0..11)
+    slice = AnnotationSlicer.new(json_data).annotation_in(0..11)
 
     assert_equal "すべての鳥は卵を産む。", slice["text"]
     assert_equal [
@@ -193,8 +180,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                    { "id" => "T2", "span" => { "begin" => 6, "end" => 7 }, "obj" => "egg" }
                  ], slice["denotations"]
 
-    wrap = ::DataSlime.new(json_data)
-    slice = AnnotationSlicer.new(wrap).annotation_in(11..21)
+    slice = AnnotationSlicer.new(json_data).annotation_in(11..21)
 
     assert_equal "ニワトリは鳥である。", slice["text"]
     assert_equal [
@@ -214,8 +200,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
       ]
     }
 
-    wrap = ::DataSlime.new(json_data)
-    slice = AnnotationSlicer.new(wrap).annotation_in(0..14)
+    slice = AnnotationSlicer.new(json_data).annotation_in(0..14)
 
     assert_equal "이순신은 조선의 장군이다.", slice["text"]
     assert_equal [
@@ -223,8 +208,7 @@ class AnnotationSlicerTest < ActiveSupport::TestCase
                    { "id" => "T2", "span" => { "begin" => 5, "end" => 7 }, "obj" => "country" }
                  ], slice["denotations"]
 
-    wrap = ::DataSlime.new(json_data)
-    slice = AnnotationSlicer.new(wrap).annotation_in(15..30)
+    slice = AnnotationSlicer.new(json_data).annotation_in(15..30)
 
     assert_equal "세종대왕은 한글을 창제했다.", slice["text"]
     assert_equal [
