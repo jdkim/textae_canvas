@@ -3,7 +3,7 @@
 - Ruby 3.4.4
 - Rails 8.0.2
 - SQLite3 2.6.0
-- Elasticsearch 7 or above
+- Elasticsearch 8 or above
 
 ## Installation
 ### Clone repository
@@ -59,9 +59,9 @@ https://platform.openai.com/settings/organization/billing/overview
 ### Install Elasticsearch
 Elasticsearch can be installed using the following command:
 ```
-curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.17.29-darwin-x86_64.tar.gz
-tar -xzf elasticsearch-7.17.29-darwin-x86_64.tar.gz
-mv elasticsearch-7.17.29 /usr/local/elasticsearch
+curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.19.0-darwin-x86_64.tar.gz
+tar -xzf elasticsearch-8.19.0-darwin-x86_64.tar.gz
+mv elasticsearch-8.19.0 /usr/local/elasticsearch
 echo 'export PATH="/usr/local/elasticsearch/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
