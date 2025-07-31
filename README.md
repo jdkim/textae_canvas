@@ -71,7 +71,7 @@ After installation, start Elasticsearch with the following command:
 elasticsearch -d
 ```
 ## Create an index
-To create an index for the TextAE campus, run the following command:
+To create an index for the Annotation Canvas, run the following command:
 ```
 curl -X PUT "localhost:9200/smart_multilingual" -H 'Content-Type: application/json' -d '{
   "settings": {
