@@ -1,5 +1,5 @@
 require "test_helper"
-require_relative '../../app/models/data_slime'
+require_relative "../../app/models/data_slime"
 
 class AnnotationSlicerTest < ActiveSupport::TestCase
   test "should split in the specified window" do

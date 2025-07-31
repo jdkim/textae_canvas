@@ -214,7 +214,7 @@ class DataSlime
     return {} if hash.empty?
 
     result = {}
-    stack = [[hash, ""]]
+    stack = [ [ hash, "" ] ]
 
     until stack.empty?
       current_hash, prefix = stack.pop
@@ -223,7 +223,7 @@ class DataSlime
         key = prefix.empty? ? k.to_s : "#{prefix}#{separator}#{k}"
 
         if v.is_a?(Hash) && !v.empty?
-          stack.push([v, key])
+          stack.push([ v, key ])
         else
           result[key] = v
         end
