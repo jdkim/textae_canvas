@@ -3,6 +3,7 @@
 - Ruby 3.4.4
 - Rails 8.0.2
 - SQLite3 2.6.0
+- Elasticsearch 7 or above
 
 ## Installation
 ### Clone repository
@@ -52,4 +53,46 @@ Creation can be done without registering payment information, but you will need 
 Move to billing page, set payment details and purchase credits.
 ```
 https://platform.openai.com/settings/organization/billing/overview
+```
+
+## Elasticsearch setup
+### Install Elasticsearch
+Elasticsearch can be installed using the following command:
+```
+curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.17.29-darwin-x86_64.tar.gz
+tar -xzf elasticsearch-7.17.29-darwin-x86_64.tar.gz
+mv elasticsearch-7.17.29 /usr/local/elasticsearch
+echo 'export PATH="/usr/local/elasticsearch/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+### Start Elasticsearch
+After installation, start Elasticsearch with the following command:
+```
+elasticsearch -d
+```
+## Create an index
+To create an index for the TextAE campus, run the following command:
+```
+curl -X PUT "localhost:9200/smart_multilingual" -H 'Content-Type: application/json' -d '{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 1,
+    "analysis": {
+      "analyzer": {
+        "standard": {
+          "filter": ["lowercase"],
+          "tokenizer": "standard"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "content": {
+        "type": "text",
+        "analyzer": "standard"
+      }
+    }
+  }
+}'
 ```
