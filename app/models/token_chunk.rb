@@ -7,7 +7,7 @@ module TokenChunk
     raise ArgumentError, "window_size must be greater than 0" if window_size <= 0
 
     # Analyze the text
-    tokens = SmartMultilingualTokenizer.new.analyze JSON.parse(annotations)["text"]
+    tokens = SmartMultilingualTokenizer.new.analyze annotations["text"]
 
     # Generate chunks using the TokenChunkGenerator
     TokenChunkGenerator.new(annotations,

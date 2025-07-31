@@ -17,12 +17,13 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      chunks = TokenChunk.from(json_data, window_size: 50)
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 50)
 
       assert_equal 1, chunks.size
-      assert_equal json_data["text"], chunks.first["text"]
-      assert_equal json_data["denotations"], chunks.first["denotations"]
-      assert_equal json_data["relations"], chunks.first["relations"]
+      assert_equal wrap["text"], chunks.first["text"]
+      assert_equal wrap["denotations"], chunks.first["denotations"]
+      assert_equal wrap["relations"], chunks.first["relations"]
     end
 
     test "should split into one chunk for long window size" do
@@ -32,12 +33,13 @@ if ENV["LOCAL_ONLY"]
         "relations" => []
       }
 
-      chunks = TokenChunk.from(json_data, window_size: 50)
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 50)
 
       assert_equal 1, chunks.size
-      assert_equal json_data["text"], chunks.first["text"]
-      assert_equal json_data["denotations"], chunks.first["denotations"]
-      assert_equal json_data["relations"], chunks.first["relations"]
+      assert_equal wrap["text"], chunks.first["text"]
+      assert_equal wrap["denotations"], chunks.first["denotations"]
+      assert_equal wrap["relations"], chunks.first["relations"]
     end
 
     test "should split into three chunks for short window size" do
@@ -47,14 +49,15 @@ if ENV["LOCAL_ONLY"]
         "relations" => []
       }
 
-      chunks = TokenChunk.from(json_data, window_size: 5)
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 5)
 
       assert_equal 3, chunks.size
       assert_equal "Humpty Dumpty sat on a wall.", chunks[0]["text"]
       assert_equal "Humpty Dumpty had a great fall.", chunks[1]["text"]
       assert_equal "All the king's horses and all the king's men Couldn't put Humpty together again.", chunks[2]["text"]
-      assert_equal json_data["denotations"], chunks.first["denotations"]
-      assert_equal json_data["relations"], chunks.first["relations"]
+      assert_equal wrap["denotations"], chunks.first["denotations"]
+      assert_equal wrap["relations"], chunks.first["relations"]
     end
 
     test "should split into multiple chunks with small window and no crossing relations" do
@@ -72,8 +75,9 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
+      wrap = ::DataSlime.new(json_data)
       # ウィンドウサイズを小さくしても、文ごとに分割されリレーションがまたがらない
-      chunks = TokenChunk.from(json_data, window_size: 3)
+      chunks = TokenChunk.from(wrap, window_size: 3)
 
       assert_equal 2, chunks.size
 
@@ -112,8 +116,9 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
+      wrap = ::DataSlime.new(json_data)
       assert_raises(Exceptions::RelationOutOfRangeError) do
-        TokenChunk.from(json_data, window_size: 3)
+        TokenChunk.from(wrap, window_size: 3)
       end
     end
 
@@ -133,7 +138,8 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      chunks = TokenChunk.from(json_data, window_size: 9)
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 9)
 
       assert_equal 2, chunks.size
 
@@ -167,8 +173,9 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
+      wrap = ::DataSlime.new(json_data)
       assert_raises(Exceptions::RelationOutOfRangeError) do
-        TokenChunk.from(json_data, window_size: 3)
+        TokenChunk.from(wrap, window_size: 3)
       end
     end
 
@@ -190,7 +197,8 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      chunks = TokenChunk.from(json_data, window_size: [ "すべての鳥は卵を産む。".length,
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: [ "すべての鳥は卵を産む。".length,
                                                              "ニワトリは鳥である。".length,
                                                              "ゆえに、ニワトリは卵を産む。".length ].max)
 
@@ -231,7 +239,8 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      chunks = TokenChunk.from(json_data, window_size: [ "すべての鳥は卵を産む。".length + 1,
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: [ "すべての鳥は卵を産む。".length + 1,
                                                              "ニワトリは鳥である。".length + 1,
                                                              "ゆえに、ニワトリは卵を産む。".length + 1 ].max)
 
@@ -272,7 +281,8 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      chunks = TokenChunk.from(json_data, window_size: [ "すべての鳥は卵を産む。ニワトリは鳥である。".length,
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: [ "すべての鳥は卵を産む。ニワトリは鳥である。".length,
                                                              "ゆえに、ニワトリは卵を産む。".length ].max)
 
       assert_equal 2, chunks.size
@@ -302,7 +312,9 @@ if ENV["LOCAL_ONLY"]
           { "pred" => "profession_of", "subj" => "T1", "obj" => "T2" }  # 同じ文内のrelationのみ
         ]
       }
-      chunks = TokenChunk.from(json_data, window_size: [ "私はAI engineerです。".length,
+
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: [ "私はAI engineerです。".length,
                                                             "Machine learningを勉強しています。".length ].max)
 
       assert chunks.size >= 1
@@ -322,7 +334,9 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []
       }
-      chunks = TokenChunk.from(json_data, window_size: 15)  # ウィンドウサイズを大きく
+
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 15)  # ウィンドウサイズを大きく
 
       assert chunks.size >= 1
       # 各チャンクが適切な文末記号で終わっているか
@@ -337,7 +351,9 @@ if ENV["LOCAL_ONLY"]
         "denotations" => [],
         "relations" => []
       }
-      chunks = TokenChunk.from(json_data, window_size: 8)
+
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 8)
 
       assert chunks.size >= 1
       chunks.each do |chunk|
@@ -358,7 +374,9 @@ if ENV["LOCAL_ONLY"]
           { "pred" => "part_of", "subj" => "T3", "obj" => "T1" }
         ]
       }
-      chunks = TokenChunk.from(json_data, window_size: 13)
+
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 13)
 
       assert chunks.size >= 1
       # 重複するdenotationが正しく処理されるか
@@ -373,9 +391,10 @@ if ENV["LOCAL_ONLY"]
         "relations" => []
       }
 
+      wrap = ::DataSlime.new(json_data)
       # ゼロウィンドウサイズだと例外が発生することを確認
       assert_raises(ArgumentError) do
-        TokenChunk.from(json_data, window_size: 0)
+        TokenChunk.from(wrap, window_size: 0)
       end
     end
 
@@ -389,7 +408,9 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []  # relationを削除
       }
-      chunks = TokenChunk.from(json_data, window_size: 33)  # ウィンドウサイズを大きく
+
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 33)  # ウィンドウサイズを大きく
 
       assert chunks.size >= 1
       # 長いdenotationが正しく処理されるか
@@ -411,7 +432,9 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []  # relationを削除
       }
-      chunks = TokenChunk.from(json_data, window_size: "2024年4月1日にOpenAI社のGPT-4が発表されました。".length)  # ウィンドウサイズを大きく
+
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: "2024年4月1日にOpenAI社のGPT-4が発表されました。".length)  # ウィンドウサイズを大きく
 
       assert chunks.size >= 1
       # 数字や記号を含むテキストでも正しく処理されるか
@@ -428,7 +451,9 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []
       }
-      chunks = TokenChunk.from(json_data, window_size: 6)
+
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 6)
 
       assert chunks.size >= 1
       # 連続する句点が正しく処理されるか
@@ -445,7 +470,9 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []
       }
-      chunks = TokenChunk.from(json_data, window_size: 5)
+
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 5)
 
       assert chunks.size > 0
       # 日本語テキストの場合、デバッグ情報が含まれているか
@@ -473,7 +500,9 @@ if ENV["LOCAL_ONLY"]
           { "pred" => "has_attribute", "subj" => "T1", "obj" => "T4" }
         ]
       }
-      chunks = TokenChunk.from(json_data, window_size: "太郎は学生で東京に住んでいる優秀な人です。".length)
+
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: "太郎は学生で東京に住んでいる優秀な人です。".length)
 
       assert_equal 1, chunks.size  # 1文なので1チャンク
       # 同じエンティティを参照する複数のrelationが正しく処理されるか
@@ -492,7 +521,9 @@ if ENV["LOCAL_ONLY"]
           { "pred" => "greets", "subj" => "T1", "obj" => "T2" }
         ]
       }
-      chunks = TokenChunk.from(json_data, window_size: 3)
+
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 3)
 
       assert chunks.size >= 1
       # 英語でも句読点が適切に含まれているか
@@ -510,7 +541,9 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []
       }
-      chunks = TokenChunk.from(json_data, window_size: 10)
+
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 10)
 
       assert_equal 1, chunks.size
       assert_equal "短。", chunks[0]["text"]
@@ -532,7 +565,8 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      chunks = TokenChunk.from(json_data, window_size: [ "太郎は東京に住んでいる。".length,
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: [ "太郎は東京に住んでいる。".length,
                                                             "花子は大阪に住んでいる。".length ].max)
 
       assert_equal 2, chunks.size
@@ -555,7 +589,8 @@ if ENV["LOCAL_ONLY"]
         ]
       }
 
-      chunks = TokenChunk.from(json_data, window_size: 15)
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 15)
 
       assert_equal 2, chunks.size
       assert_equal "이순신은 조선의 장군이다.", chunks[0]["text"]
@@ -587,7 +622,9 @@ if ENV["LOCAL_ONLY"]
         ],
         "relations" => []
       }
-      chunks = TokenChunk.from(json_data, window_size: 17)
+
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: 17)
 
       assert_equal 2, chunks.size
       assert_equal "서울은 대한민국의 수도이다.", chunks[0]["text"]
@@ -615,7 +652,8 @@ if ENV["LOCAL_ONLY"]
           { "pred" => "located_in", "subj" => "T1", "obj" => "T4" }
         ]
       }
-      chunks = TokenChunk.from(json_data, window_size: json_data["text"].length)
+      wrap = ::DataSlime.new(json_data)
+      chunks = TokenChunk.from(wrap, window_size: json_data["text"].length)
 
       assert_equal 1, chunks.size
       assert_equal 4, chunks[0]["denotations"].size
@@ -638,9 +676,11 @@ if ENV["LOCAL_ONLY"]
           { "pred" => "noun", "subj" => "T1", "obj" => "T4" }
         ]
       }
+
+      wrap = ::DataSlime.new(json_data)
       # 故意に小さいwindowでrelationがまたがるように
       assert_raises(Exceptions::RelationOutOfRangeError) do
-        TokenChunk.from(json_data, window_size: "김연아는 피겨스케이팅 선수이다. 그".length)
+        TokenChunk.from(wrap, window_size: "김연아는 피겨스케이팅 선수이다. 그".length)
       end
     end
   end

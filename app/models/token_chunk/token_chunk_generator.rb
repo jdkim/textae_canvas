@@ -4,9 +4,9 @@ module TokenChunk
 
     include LanguageDetectable
     def initialize(annotation, tokens, window_size, strict_mode: true)
-      @original_text = JSON.parse(annotation)["text"]
-      @original_denotations = JSON.parse(annotation)["denotations"] || []
-      @original_relations = JSON.parse(annotation)["relations"] || []
+      @original_text = annotation["text"]
+      @original_denotations = annotation["denotations"] || []
+      @original_relations = annotation["relations"] || []
       @tokens = tokens || []
       @window_size = window_size
       @slicer = AnnotationSlicer.new(annotation, strict_mode: strict_mode)

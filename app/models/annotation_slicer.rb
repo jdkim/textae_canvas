@@ -1,8 +1,8 @@
 class AnnotationSlicer
   def initialize(annotation, strict_mode: true)
-    @text = JSON.parse(annotation)["text"]
-    @denotations = JSON.parse(annotation)["denotations"] || []
-    @relations = JSON.parse(annotation)["relations"] || []
+    @text = annotation["text"]
+    @denotations = annotation["denotations"] || []
+    @relations = annotation["relations"] || []
     @strict_mode = strict_mode
   end
 
