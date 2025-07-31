@@ -9,7 +9,6 @@ class AiAnnotation < ApplicationRecord
   def self.prepare_with(text, prompt)
     instance = new
     instance.text = text
-    instance.annotation = { text: text }
     instance.prompt = prompt
     instance
   end
