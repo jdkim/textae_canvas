@@ -13,7 +13,7 @@
   <div id="current-annotation"></div>
 </div>
 
-<%= form_with url: ai_annotation_path(@ai_annotation.uuid), model: @ai_annotation, class: "ai-annotation-form", local: true do |f| %>
+<%= form_with model: @ai_annotation, url: ai_annotation_path(@ai_annotation.uuid), class: "ai-annotation-form", local: true do |f| %>
   <div class="prompt-field">
     <%= f.textarea :prompt, required: true, rows: 3, placeholder: "Order how to annotate the text" %>
   </div>
