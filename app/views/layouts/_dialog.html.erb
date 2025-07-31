@@ -19,8 +19,8 @@
                   id: "dialog-form",
                   local: true do |f| %>
       <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-      <%= f.hidden_field :content, value: raw(local_assigns[:content]) %>
-      <%= f.hidden_field :prompt, value: local_assigns[:prompt] %>
+      <%= f.hidden_field :content, value: raw(content) %>
+      <%= f.hidden_field :prompt, value: prompt %>
       <input type="hidden" name="button" id="dialog-button-value" />
 
       <div class="dialog-buttons">
