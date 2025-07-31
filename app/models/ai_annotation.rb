@@ -15,15 +15,13 @@ class AiAnnotation < ApplicationRecord
   end
 
   def annotate!(force: false)
-    annotation_slime = DataSlime.new(@annotation)
-
-    if annotation_slime.dig("selectedText", "status") == "selected"
+    if @annotation.dig("selectedText", "status") == "selected"
       # Get selected range from the annotation
-      begin_offset = annotation_slime.dig("selectedText", "begin").to_i
-      end_offset = annotation_slime.dig("selectedText", "end").to_i
-      result, tokens_used = selected_window annotation_slime, begin_offset, end_offset
+      begin_offset = @annotation.dig("selectedText", "begin").to_i
+      end_offset = @annotation.dig("selectedText", "end").to_i
+      result, tokens_used = selected_window @annotation, begin_offset, end_offset
     else
-      result, tokens_used = sliding_window annotation_slime
+      result, tokens_used = sliding_window @annotation
     end
 
     self.token_used = tokens_used
