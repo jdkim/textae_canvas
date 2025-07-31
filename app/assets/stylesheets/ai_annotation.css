@@ -76,29 +76,29 @@
   }
 }
 
-/* ダイアログのスタイル改善 */
+/* Improve dialog styles */
 dialog {
-  /* ダイアログの基本レイアウト */
+  /* Basic dialog layout */
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 
-  /* サイズとパディング */
+  /* Size and padding */
   min-width: 400px;
   max-width: 500px;
   padding: 0;
   margin: 0;
 
-  /* 境界線とシャドウ */
+  /* Border and shadow */
   border: none;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(0, 0, 0, 0.2);
 
-  /* 背景 */
+  /* Background */
   background: white;
 
-  /* アニメーション */
+  /* Animation */
   opacity: 0;
   scale: 0.9;
   transition: opacity 0.2s ease, scale 0.2s ease;
@@ -107,13 +107,13 @@ dialog {
   z-index: 1000;
 }
 
-/* ダイアログが開いている時のスタイル */
+/* Styles when the dialog is open */
 dialog[open] {
   opacity: 1;
   scale: 1;
 }
 
-/* バックドロップ（背景のオーバーレイ） */
+/* Backdrop (background overlay) */
 dialog::backdrop {
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);
@@ -125,12 +125,12 @@ dialog::backdrop {
   to { opacity: 1; }
 }
 
-/* ダイアログ内部のコンテンツ */
+/* Internal content of the dialog */
 dialog .dialog-content {
   padding: 24px;
 }
 
-/* ダイアログのタイトル/メッセージ */
+/* Dialog title/message */
 dialog p {
   margin: 0 0 24px 0;
   font-size: 16px;
@@ -139,12 +139,12 @@ dialog p {
   font-weight: 500;
 }
 
-/* ダイアログのフォーム */
+/* Dialog form */
 dialog form {
   margin: 0;
 }
 
-/* ボタンコンテナ */
+/* Button container */
 dialog .dialog-buttons {
   display: flex;
   gap: 12px;
@@ -152,7 +152,7 @@ dialog .dialog-buttons {
   margin-top: 24px;
 }
 
-/* ダイアログボタンの基本スタイル */
+/* Basic style for dialog buttons */
 dialog button {
   padding: 10px 20px;
   border: none;
@@ -164,7 +164,7 @@ dialog button {
   min-width: 80px;
 }
 
-/* キャンセルボタン（セカンダリ） */
+/* Cancel button (secondary) */
 dialog button[data-action="cancel"] {
   background-color: #f5f5f5;
   color: #666;
@@ -176,7 +176,7 @@ dialog button[data-action="cancel"]:hover {
   color: #555;
 }
 
-/* 強制実行ボタン（プライマリ） */
+/* Force execute button (primary) */
 dialog button[data-action="force"] {
   background-color: #dc3545;
   color: white;
@@ -186,18 +186,18 @@ dialog button[data-action="force"]:hover {
   background-color: #c82333;
 }
 
-/* フォーカス状態 */
+/* Focus state */
 dialog button:focus {
   outline: 2px solid #007bff;
   outline-offset: 2px;
 }
 
-/* 既存のフラッシュメッセージスタイルを隠す（ダイアログ表示時） */
+/* Hide existing flash message styles (when dialog is displayed) */
 .dialog-overlay-active .flash.alert {
   display: none;
 }
 
-/* レスポンシブ対応 */
+/* Responsive design */
 @media (max-width: 480px) {
   dialog {
     min-width: 90vw;

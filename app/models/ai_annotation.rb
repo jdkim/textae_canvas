@@ -30,7 +30,7 @@ class AiAnnotation < ApplicationRecord
     result = JSON.generate(result)
 
     ai_annotation = AiAnnotation.create!(prompt: prompt, content: result)
-    # 警告ダイアログを出すためにnilを返す
+    # Return nil to show the warning dialog
     return nil if result.nil? || tokens_used.nil?
 
     ai_annotation
@@ -82,7 +82,7 @@ class AiAnnotation < ApplicationRecord
         chunks = TokenChunk.from annotation_json, window_size: 20, strict_mode: !force
       rescue Exceptions::RelationOutOfRangeError => e2
         if force
-          # forceモードならstrict_mode: falseで再分割
+          # If force mode, re-split with strict_mode: false
           chunks = TokenChunk.from annotation_json, window_size: 20, strict_mode: false
         else
           # The selected choice (button value) should be obtained in the controller via params[:button]

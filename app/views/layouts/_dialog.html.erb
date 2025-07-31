@@ -1,7 +1,11 @@
 <%
+  # Determine the open/closed state of the dialog
   is_open = local_assigns[:dialog_opened] || false
+  # Get the dialog message
   dialog_message = local_assigns[:message] || 'No message provided'
+  # Get the dialog buttons
   dialog_buttons = local_assigns[:buttons] || [{label: 'OK', value: 'ok'}]
+  # Get content and prompt
   content = local_assigns[:content] || ''
   prompt = local_assigns[:prompt] || ''
 %>
@@ -34,25 +38,25 @@
 
 <% if is_open %>
   <script>
-      // ダイアログが開いている時にbodyにクラスを追加
+      // Add class to body when dialog is open
       document.body.classList.add('dialog-overlay-active');
 
-      // ESCキーでダイアログを閉じる機能
+      // Close dialog with ESC key
       document.addEventListener('keydown', function(event) {
           if (event.key === 'Escape') {
               const dialog = document.getElementById('dialog');
               if (dialog && dialog.open) {
-                  // キャンセルボタンをクリックしたのと同じ動作
+                  // Perform the same action as clicking the cancel button
                   document.getElementById('dialog-button-value').value = 'cancel';
                   document.getElementById('dialog-form').submit();
               }
           }
       });
 
-      // バックドロップクリックでダイアログを閉じる機能
+      // Close dialog by clicking on the backdrop
       document.getElementById('dialog').addEventListener('click', function(event) {
           if (event.target === this) {
-              // キャンセルボタンをクリックしたのと同じ動作
+              // Perform the same action as clicking the cancel button
               document.getElementById('dialog-button-value').value = 'cancel';
               document.getElementById('dialog-form').submit();
           }
