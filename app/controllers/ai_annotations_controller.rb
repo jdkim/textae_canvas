@@ -31,18 +31,6 @@ class AiAnnotationsController < ApplicationController
     @history = AiAnnotation.order(created_at: :desc).limit(10)
     @ai_annotation.annotation = JSON.parse(ai_annotation_params[:content])
 
-    content_str = ai_annotation_params[:content]
-    unescaped_content =content_str.include?('\\"') ? content_str.gsub('\\"', '"') : content_str
-    if unescaped_content.is_a?(String)
-      unescaped_content = unescaped_content.gsub(" =>", ":")
-      symbolized = JSON.parse(unescaped_content, symbolize_names: true)
-      @ai_annotation.annotation = symbolized.deep_stringify_keys
-    elsif unescaped_content.is_a?(Hash)
-      @ai_annotation.annotation = unescaped_content.deep_stringify_keys
-    else
-      @ai_annotation.annotaiton= {}
-    end
-
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
     # Show a flash message when the cancel button is pressed in the warning dialog
