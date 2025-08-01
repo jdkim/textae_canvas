@@ -28,6 +28,7 @@ class AiAnnotationsController < ApplicationController
 
   def update
     @ai_annotation = AiAnnotation.find_by(uuid: params[:id])
+    @history = AiAnnotation.order(created_at: :desc).limit(10)
     @ai_annotation.annotation = JSON.parse(ai_annotation_params[:content])
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
