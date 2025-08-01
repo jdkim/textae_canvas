@@ -90,9 +90,16 @@ class AiAnnotation < ApplicationRecord
       end
     end
 
-    [
-      AnnotationMerger.new(result[:chunk_results]).merged,
-      result[:token_used]
-    ]
+    begin
+      [
+        AnnotationMerger.new(result[:chunk_results]).merged,
+        result[:token_used]
+      ]
+    rescue ArgumentError => e
+      # If the response from OpenAI is invalid, rethrow as InvalidResponseError (with backtrace)
+      error = Exceptions::InvalidResponseError.new("Invalid response from OpenAI: #{e.message}")
+      error.set_backtrace(e.backtrace)
+      raise error
+    end
   end
 end

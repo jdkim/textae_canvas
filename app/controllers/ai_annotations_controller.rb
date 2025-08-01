@@ -35,6 +35,12 @@ class AiAnnotationsController < ApplicationController
     increment_token_usage(@ai_annotation.token_used)
 
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"
+  rescue Exceptions::InvalidResponseError => e
+    # Error that may occur in AnnotationMerger when the LLM response is invalid
+    Rails.logger.error "InvalidResponseError: #{e.message}"
+    flash.now[:alert] = "Invalid response from AI. Please check the input text and prompt."
+    @ai_annotation = @history.last || AiAnnotation.new
+    render :edit, status: :unprocessable_entity
   rescue => e
     Rails.logger.error "Error: #{e.message}"
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
