@@ -96,7 +96,7 @@ class AiAnnotation < ApplicationRecord
         result[:token_used]
       ]
     rescue ArgumentError => e
-      # If the response from OpenAI is invalid, rethrow as InvalidResponseError (with backtrace)
+      # If the response from OpenAI LLM is incomplete or information is lost, rethrow as InvalidResponseError (with backtrace)
       error = Exceptions::InvalidResponseError.new("Invalid response from OpenAI: #{e.message}")
       error.set_backtrace(e.backtrace)
       raise error
