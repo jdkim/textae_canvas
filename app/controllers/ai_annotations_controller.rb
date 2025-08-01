@@ -38,7 +38,7 @@ class AiAnnotationsController < ApplicationController
   rescue Exceptions::InvalidResponseError => e
     # Error that may occur in AnnotationMerger when the LLM response is invalid
     Rails.logger.error "InvalidResponseError: #{e.message}"
-    flash.now[:alert] = "Invalid response from AI. Please check the input text and prompt."
+    flash.now[:alert] = "Invalid response from AI. Please retry."
     @ai_annotation = @history.last || AiAnnotation.new
     render :edit, status: :unprocessable_entity
   rescue => e
