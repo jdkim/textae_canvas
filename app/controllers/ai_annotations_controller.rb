@@ -22,8 +22,15 @@ class AiAnnotationsController < ApplicationController
   end
 
   def edit
-    @ai_annotation = AiAnnotation.find_by!(uuid: params[:uuid])
     @history = AiAnnotation.order(created_at: :desc).limit(10)
+    begin
+      @ai_annotation = AiAnnotation.find_by!(uuid: params[:uuid])
+    rescue ActiveRecord::RecordNotFound => e
+      Rails.logger.error "Error: #{e.message}"
+      flash[:alert] = "The specified UUID is invalid."
+      # Redirect to remove invalid UUID entered in the URL
+      redirect_to root_url
+    end
   end
 
   def update
