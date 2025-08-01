@@ -47,7 +47,7 @@ class AiAnnotationsController < ApplicationController
     ai_annotation = @ai_annotation.annotate!(force: force)
 
     if ai_annotation.nil?
-      @dialog_message = "The relationship was lost when TextAE Campus split the string and queried the LLM. Do you want to proceed?"
+      @dialog_message = "The relationship was lost when Annotation Canvas split the string and queried the LLM. Do you want to proceed?"
       @dialog_buttons = [
         { label: "Force", value: :force },
         { label: "Cancel", value: :cancel }
