@@ -8,7 +8,4 @@ module Exceptions
   class RelationOutOfRangeError < StandardError; end
 
   class DenotationFragmentedError < StandardError; end
-
-  # This error is raised when the AI response is invalid.
-  class InvalidResponseError < StandardError; end
 end
