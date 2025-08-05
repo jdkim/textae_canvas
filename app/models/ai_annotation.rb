@@ -84,11 +84,6 @@ class AiAnnotation < ApplicationRecord
       begin
         adding_result_as_json = SimpleInlineTextAnnotation.parse(chunk_result)
         results[:chunk_results] << adding_result_as_json
-      rescue SimpleInlineTextAnnotation::RelationWithoutDenotationError => e
-        # If the response from OpenAI LLM is incomplete or information is lost, rethrow as InvalidResponseError (with backtrace)
-        error = Exceptions::InvalidResponseError.new("Invalid response from OpenAI: #{e.message}")
-        error.set_backtrace(e.backtrace)
-        raise error
       rescue => e
         # Log the error but continue processing other chunks
         Rails.logger.error "Error parsing chunk result: #{e.message}"
