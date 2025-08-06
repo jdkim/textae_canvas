@@ -28,13 +28,19 @@ class AiAnnotationsController < ApplicationController
 
   def update
     @ai_annotation = AiAnnotation.find_by(uuid: params[:id])
+    @history = AiAnnotation.order(created_at: :desc).limit(10)
     @ai_annotation.annotation = JSON.parse(ai_annotation_params[:content])
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
     ai_annotation = @ai_annotation.annotate!
     increment_token_usage(@ai_annotation.token_used)
-
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"
+  rescue SimpleInlineTextAnnotation::RelationWithoutDenotationError => e
+    # Error that may occur in SimpleInlineTextAnnotation when the LLM response is invalid
+    Rails.logger.error "#{e.class}: #{e.message}"
+    flash.now[:alert] = "Invalid response from AI. Please retry."
+    @ai_annotation.reload
+    render :edit, status: :unprocessable_entity
   rescue => e
     Rails.logger.error "Error: #{e.message}"
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
