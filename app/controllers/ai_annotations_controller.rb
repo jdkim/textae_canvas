@@ -57,7 +57,7 @@ class AiAnnotationsController < ApplicationController
       @ai_annotation.annotation = SimpleInlineTextAnnotation.generate(JSON.parse(ai_annotation_params[:content]))
       @content = JSON.parse(ai_annotation_params[:content], symbolize_names: true).deep_stringify_keys
       @prompt = ai_annotation_params[:prompt]
-      # annotate!がnilの場合（ダイアログ表示時）はedit画面を再表示
+      # If annotate! returns nil (when dialog is shown), re-render the edit view
       render :edit, status: :unprocessable_entity
       return
     end
