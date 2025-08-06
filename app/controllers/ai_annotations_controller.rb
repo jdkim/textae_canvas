@@ -39,7 +39,7 @@ class AiAnnotationsController < ApplicationController
     # Error that may occur in SimpleInlineTextAnnotation when the LLM response is invalid
     Rails.logger.error "#{e.class}: #{e.message}"
     flash.now[:alert] = "Invalid response from AI. Please retry."
-    @ai_annotation = @history.first || AiAnnotation.new
+    @ai_annotation.reload
     render :edit, status: :unprocessable_entity
   rescue => e
     Rails.logger.error "Error: #{e.message}"
