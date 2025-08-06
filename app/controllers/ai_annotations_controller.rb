@@ -36,7 +36,7 @@ class AiAnnotationsController < ApplicationController
     increment_token_usage(@ai_annotation.token_used)
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"
   rescue SimpleInlineTextAnnotation::RelationWithoutDenotationError => e
-    # Error that may occur in AnnotationMerger when the LLM response is invalid
+    # Error that may occur in SimpleInlineTextAnnotation when the LLM response is invalid
     Rails.logger.error "#{e.class}: #{e.message}"
     flash.now[:alert] = "Invalid response from AI. Please retry."
     @ai_annotation = @history.first || AiAnnotation.new
