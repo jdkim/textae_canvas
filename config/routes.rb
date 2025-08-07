@@ -12,7 +12,6 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root "ai_annotations#new"
 
-  get "/ai_annotations/new" => "ai_annotations#new"
   get "/ai_annotations/:uuid" => "ai_annotations#edit"
   resources :ai_annotations, only: %i[create update]
 end
