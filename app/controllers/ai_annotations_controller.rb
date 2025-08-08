@@ -11,9 +11,29 @@ class AiAnnotationsController < ApplicationController
     prompt = ai_annotation_params[:prompt]
     @new_ai_annotation = AiAnnotation.prepare_with(text, prompt)
 
-    ai_annotation = @new_ai_annotation.annotate!
-    increment_token_usage(@new_ai_annotation.token_used)
+    begin
+      ai_annotation = @new_ai_annotation.annotate!
+    rescue Exceptions::RelationOutOfRangeError => e
+      ai_annotation = @new_ai_annotation.annotate!(force: true)
+    end
 
+    if ai_annotation.nil?
+      @dialog_message = "The relationship was lost when Annotation Canvas split the string and queried the LLM. Do you want to proceed?"
+      @dialog_buttons = [
+        { label: "Force", value: :force },
+        { label: "Cancel", value: :cancel }
+      ]
+      @dialog_opened = true
+
+      @new_ai_annotation.annotation = SimpleInlineTextAnnotation.generate(JSON.parse(ai_annotation_params[:content]))
+      @content = JSON.parse(ai_annotation_params[:content], symbolize_names: true).deep_stringify_keys
+      @prompt = ai_annotation_params[:prompt]
+      # If annotate! returns nil (when dialog is shown), re-render the edit view
+      render :edit, status: :unprocessable_entity
+      return
+    end
+
+    increment_token_usage(@new_ai_annotation.token_used)
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"
   rescue => e
     Rails.logger.error "Error: #{e.message}"
@@ -29,37 +49,43 @@ class AiAnnotationsController < ApplicationController
   def update
     @ai_annotation = AiAnnotation.find_by(uuid: params[:uuid])
     @history = AiAnnotation.order(created_at: :desc).limit(10)
-    @ai_annotation.annotation = JSON.parse(ai_annotation_params[:content])
-
+    content = ai_annotation_params[:content]
+    annotation_json = JSON.parse(content)
+    @ai_annotation.annotation = annotation_json
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
     # Show a flash message when the cancel button is pressed in the warning dialog
     # Check which button was pressed using individual params
     if params[:btn_cancel].present?
-      @ai_annotation.annotaiton = SimpleInlineTextAnnotation.parse(@ai_annotation.text).deep_stringify_keys.to_s.gsub(" =>", ":")
+      @ai_annotation.annotation = annotation_json
       @ai_annotation.save
       flash.now[:alert] = "AI annotation generation was cancelled."
-      redirect_to "/ai_annotations/#{@ai_annotation.uuid}"
+      render :edit, status: :unprocessable_entity
       return
     end
 
     force = params[:btn_force].present?
-    ai_annotation = @ai_annotation.annotate!(force: force)
 
-    if ai_annotation.nil?
-      @dialog_message = "The relationship was lost when Annotation Canvas split the string and queried the LLM. Do you want to proceed?"
-      @dialog_buttons = [
-        { label: "Force", value: :force },
-        { label: "Cancel", value: :cancel }
-      ]
-      @dialog_opened = true
+    begin
+      ai_annotation = @ai_annotation.annotate!(force: force)
+    rescue Exceptions::RelationOutOfRangeError => e
+      if force
+        ai_annotation = @ai_annotation.annotate!(force: true)
+      else
+        @dialog_message = "The relationship was lost when Annotation Canvas split the string and queried the LLM. Do you want to proceed?"
+        @dialog_buttons = [
+          { label: "Force", value: :force },
+          { label: "Cancel", value: :cancel }
+        ]
+        @dialog_opened = true
 
-      @ai_annotation.annotation = SimpleInlineTextAnnotation.generate(JSON.parse(ai_annotation_params[:content]))
-      @content = JSON.parse(ai_annotation_params[:content], symbolize_names: true).deep_stringify_keys
-      @prompt = ai_annotation_params[:prompt]
-      # If annotate! returns nil (when dialog is shown), re-render the edit view
-      render :edit, status: :unprocessable_entity
-      return
+        @ai_annotation.annotation = annotation_json
+        @content = JSON.generate(annotation_json)
+        @prompt = ai_annotation_params[:prompt]
+        # If annotate! returns nil (when dialog is shown), re-render the edit view
+        render :edit, status: :unprocessable_entity
+        return
+      end
     end
 
     increment_token_usage(@ai_annotation.token_used)

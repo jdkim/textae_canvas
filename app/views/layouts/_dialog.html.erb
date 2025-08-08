@@ -7,14 +7,14 @@
   dialog_buttons = local_assigns[:buttons] || [{label: 'OK', value: 'ok'}]
   # Get content and prompt
   content = local_assigns[:content] || ''
+  content_json = content.present? ? JSON.parse(content) : nil
   prompt = local_assigns[:prompt] || ''
 %>
 
 <dialog id="dialog" <%= "open" if is_open %>>
   <div class="dialog-content">
     <p><%= dialog_message %></p>
-
-    <%= form_with url: ai_annotation_path(local_assigns[:content]&.dig('uuid') || params[:uuid]),
+    <%= form_with url: ai_annotation_path(content_json&.dig('uuid') || params[:uuid]),
                   model: @ai_annotation,
                   id: "dialog-form",
                   local: true do |f| %>

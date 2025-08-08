@@ -20,7 +20,7 @@ class AiAnnotation < ApplicationRecord
       end_offset = @annotation.dig("selectedText", "end").to_i
       result, tokens_used = selected_window @annotation, begin_offset, end_offset
     else
-      result, tokens_used = sliding_window @annotation
+      result, tokens_used = sliding_window @annotation, force: force
     end
 
     self.token_used = tokens_used
@@ -72,19 +72,7 @@ class AiAnnotation < ApplicationRecord
   end
 
   def sliding_window(annotation_json, force: false)
-    begin
-      chunks = TokenChunk.from annotation_json, window_size: 20, strict_mode: !force
-    rescue Exceptions::RelationOutOfRangeError => e
-      if force
-        # If force mode, re-split with strict_mode: false
-        chunks = TokenChunk.from annotation_json, window_size: 20, strict_mode: false
-      else
-        # The selected choice (button value) should be obtained in the controller via params[:button]
-        # Cannot be obtained here, so interrupt processing
-        return
-      end
-    end
-
+    chunks = TokenChunk.from annotation_json, window_size: 20, strict_mode: !force
     result = chunks.each_with_object({ token_used: 0, chunk_results: [] })
                    .with_index do |(chunk, results), index|
       annotation_text = SimpleInlineTextAnnotation.generate(chunk)
