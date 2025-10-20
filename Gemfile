@@ -35,7 +35,7 @@ gem "dotenv-rails"
 gem "ruby-openai"
 
 # Ruby integrations for Elasticsearch (client, API, etc.)
-gem "elasticsearch", "~> 9.0", ">= 9.0.3"
+gem "elasticsearch", "~> 8.0"
 
 # neural network model for language identification
 gem "cld3", "~> 3.7"

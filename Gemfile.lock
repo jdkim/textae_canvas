@@ -109,10 +109,10 @@ GEM
     elastic-transport (8.4.1)
       faraday (< 3)
       multi_json
-    elasticsearch (9.1.2)
+    elasticsearch (8.19.1)
       elastic-transport (~> 8.3)
-      elasticsearch-api (= 9.1.2)
-    elasticsearch-api (9.1.2)
+      elasticsearch-api (= 8.19.1)
+    elasticsearch-api (8.19.1)
       multi_json
     erb (5.1.1)
     erubi (1.13.1)
@@ -355,7 +355,7 @@ DEPENDENCIES
   cld3 (~> 3.7)
   debug
   dotenv-rails
-  elasticsearch (~> 9.0, >= 9.0.3)
+  elasticsearch (~> 8.0)
   importmap-rails
   jbuilder
   propshaft
