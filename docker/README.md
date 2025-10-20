@@ -113,7 +113,7 @@ Additional environment variables can be added to your `.env` file:
 ### Volumes
 
 - `esdata`: Persistent storage for Elasticsearch data
-- `bundle`: Cache for Ruby gems (declared but not currently used)
+- `bundle`: Reserved for future use (not currently mounted)
 
 ### Services
 
