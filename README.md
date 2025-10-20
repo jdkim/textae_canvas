@@ -6,6 +6,21 @@
 - Elasticsearch 8 or above
 
 ## Installation
+
+### Option 1: Docker Development Environment (Recommended)
+
+The easiest way to set up the development environment is using Docker and Docker Compose:
+
+```bash
+cd docker
+docker-compose up -d
+docker-compose exec web bash /workspaces/textae_canvas/docker/post-create.sh
+```
+
+For detailed instructions, see [docker/README.md](docker/README.md).
+
+### Option 2: Manual Installation
+
 ### Clone repository
 ```
 git clone https://github.com/jdkim/textae_canvas.git
