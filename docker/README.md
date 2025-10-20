@@ -12,7 +12,7 @@ This directory contains Docker configuration files for setting up a development 
 1. **Build and start the services:**
    ```bash
    cd docker
-   docker-compose up -d
+   docker compose up -d
    ```
 
 2. **Add environment variables to your `.env` file:**
@@ -21,7 +21,7 @@ This directory contains Docker configuration files for setting up a development 
 
 3. **Run the post-create script to initialize the environment:**
    ```bash
-   docker-compose exec web bash /workspaces/textae_canvas/docker/post-create.sh
+   docker compose exec web bash /workspaces/textae_canvas/docker/post-create.sh
    ```
 
    This script will:
@@ -37,39 +37,39 @@ This directory contains Docker configuration files for setting up a development 
 
 - **View logs:**
   ```bash
-  docker-compose logs -f
+  docker compose logs -f
   ```
 
 - **Stop services:**
   ```bash
-  docker-compose down
+  docker compose down
   ```
 
 - **Stop services and remove volumes:**
   ```bash
-  docker-compose down -v
+  docker compose down -v
   ```
 
 - **Rebuild the web container:**
   ```bash
-  docker-compose build web
+  docker compose build web
   ```
 
 - **Run Rails console:**
   ```bash
-  docker-compose exec web bin/rails console
+  docker compose exec web bin/rails console
   ```
 
 - **Run tests:**
   ```bash
-  docker-compose exec web bin/rails test
+  docker compose exec web bin/rails test
   ```
 
 ## Configuration
 
 ### Environment Variables
 
-The following environment variables are configured in `docker-compose.yml`:
+The following environment variables are configured in `docker compose.yml`:
 
 - `RAILS_ENV`: Set to `development`
 - `ELASTICSEARCH_HOST`: Set to `es:9200` (points to the Elasticsearch service)

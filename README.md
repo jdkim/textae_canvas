@@ -19,8 +19,8 @@ The easiest way to set up the development environment is using Docker and Docker
 
 ```bash
 cd docker
-docker-compose up -d
-docker-compose exec web bash /workspaces/textae_canvas/docker/post-create.sh
+docker compose up -d
+docker compose exec web bash /workspaces/textae_canvas/docker/post-create.sh
 ```
 
 For detailed instructions, see [docker/README.md](docker/README.md).
