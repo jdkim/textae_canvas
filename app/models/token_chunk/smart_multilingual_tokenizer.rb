@@ -3,7 +3,8 @@ module TokenChunk
     INDEX_NAME = "smart_multilingual"
 
     def initialize
-      @client = Elasticsearch::Client.new(hosts: [ "localhost:9200" ])
+      elasticsearch_host = ENV.fetch("ELASTICSEARCH_HOST", "localhost:9200")
+      @client = Elasticsearch::Client.new(hosts: [ elasticsearch_host ])
     end
 
     # Tokenize text using Elasticsearch's analyze API
