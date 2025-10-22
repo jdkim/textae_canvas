@@ -1,7 +1,7 @@
 {
-  "name": "textae_canvas",
-  "version": "1.0.0",
-  "description": "- Ruby 3.4.7 - Rails 8.0.2 - SQLite3 2.6.0 - Elasticsearch 8",
+  "name": "annotation_canvas",
+  "version": "0.0.1",
+  "description": "Annotate text with AI on a canvas",
   "main": "index.js",
   "directories": {
     "lib": "lib",
@@ -12,8 +12,9 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "prettier": "^3.6.2"
-  }
+  },
+  "private": "true"
 }
