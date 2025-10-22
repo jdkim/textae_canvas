@@ -112,9 +112,9 @@ curl -X PUT "localhost:9200/smart_multilingual" -H 'Content-Type: application/js
 }'
 ```
 
-## JavaScript Code Formatting with Biome
+## Code Formatting with Biome
 
-This project uses Biome for JavaScript code formatting and linting.
+This project uses Biome for JavaScript and CSS code formatting and linting.
 
 ### Install dependencies
 ```bash
@@ -122,13 +122,36 @@ npm install
 ```
 
 ### Check formatting
-To check if your JavaScript files are formatted correctly:
+To check if your JavaScript and CSS files are formatted correctly:
 ```bash
-npx @biomejs/biome check app/javascript
+npm run format:check
+```
+
+Or to check specific directories:
+```bash
+npx @biomejs/biome format app/javascript
+npx @biomejs/biome format app/assets/stylesheets
 ```
 
 ### Format files
-To automatically format JavaScript files:
+To automatically format JavaScript and CSS files:
 ```bash
-npx @biomejs/biome check --write app/javascript
+npm run format
+```
+
+Or to format specific directories:
+```bash
+npx @biomejs/biome format --write app/javascript
+npx @biomejs/biome format --write app/assets/stylesheets
+```
+
+### Run full check (format + lint)
+To run both formatting and linting checks:
+```bash
+npm run check
+```
+
+To automatically fix issues:
+```bash
+npm run check:write
 ```

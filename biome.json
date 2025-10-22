@@ -14,6 +14,11 @@
     "indentWidth": 2,
     "lineWidth": 80
   },
+  "css": {
+    "formatter": {
+      "enabled": true
+    }
+  },
   "javascript": {
     "formatter": {
       "quoteStyle": "double",
