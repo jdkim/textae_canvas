@@ -1,0 +1,7 @@
+node_modules
+vendor
+tmp
+log
+storage
+public/assets
+.git

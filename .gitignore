@@ -36,3 +36,6 @@
 # Ignore credential.yml
 /config/credentials.yml.enc
 /vendor/bundle
+
+# Ignore node_modules
+/node_modules
