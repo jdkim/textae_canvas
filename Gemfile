@@ -14,8 +14,6 @@ gem "puma", "~> 7.1"
 gem "importmap-rails"
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
 gem "stimulus-rails"
-# Build JSON APIs with ease [https://github.com/rails/jbuilder]
-gem "jbuilder"
 # Custom gem providing inline text annotation functionality [https://github.com/pubannotation/simple_inline_annotation_format]
 gem "simple_inline_text_annotation"
 
@@ -54,9 +52,6 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
-end
-
-group :test do
 end
 
 gem "solid_cache", "~> 1.0"
