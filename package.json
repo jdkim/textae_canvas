@@ -1,0 +1,19 @@
+{
+  "name": "textae_canvas",
+  "version": "1.0.0",
+  "description": "- Ruby 3.4.7 - Rails 8.0.2 - SQLite3 2.6.0 - Elasticsearch 8",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}
