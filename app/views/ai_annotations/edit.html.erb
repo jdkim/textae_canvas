@@ -1,4 +1,4 @@
-<div class="textae-container">
+<div class="textae-container" data-controller="textae-container">
   <div id="ai-textae-editor" mode="view" control="visible" inspect="current-annotation">
     <%= @ai_annotation.content %>
   </div>
@@ -16,4 +16,3 @@
     <%= f.submit "Annotate", disabled: true, class: "button", data: { ai_annotation_form_target: "submit" } %>
   </div>
 <% end %>
-<%= javascript_import_module_tag 'setupTextAE' %>
