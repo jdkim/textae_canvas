@@ -112,9 +112,9 @@ curl -X PUT "localhost:9200/smart_multilingual" -H 'Content-Type: application/js
 }'
 ```
 
-## JavaScript Code Formatting with Prettier
+## JavaScript Code Formatting with Biome
 
-This project uses Prettier for JavaScript code formatting.
+This project uses Biome for JavaScript code formatting and linting.
 
 ### Install dependencies
 ```bash
@@ -124,11 +124,11 @@ npm install
 ### Check formatting
 To check if your JavaScript files are formatted correctly:
 ```bash
-npx prettier --check "app/**/*.js"
+npx @biomejs/biome check app/javascript
 ```
 
 ### Format files
 To automatically format JavaScript files:
 ```bash
-npx prettier --write "app/**/*.js"
+npx @biomejs/biome check --write app/javascript
 ```
