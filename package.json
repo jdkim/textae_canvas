@@ -13,8 +13,8 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
+  "private": "true",
   "devDependencies": {
-    "prettier": "^3.6.2"
-  },
-  "private": "true"
+    "@biomejs/biome": "^2.2.7"
+  }
 }
