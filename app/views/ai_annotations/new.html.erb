@@ -1,17 +1,15 @@
-<%= form_with model: @new_ai_annotation, class: "ai-annotation-form" do |f| %>
+<%= form_with model: @new_ai_annotation, class: "ai-annotation-form", data: { controller: "ai-annotation-form", action: "input->ai-annotation-form#updateSubmitButton" } do |f| %>
   <div class="text-field">
     <label>Text</label>
-    <%= f.textarea :text, required: true, rows: 15, placeholder: "Write or paste text here" %>
+    <%= f.textarea :text, required: true, rows: 15, placeholder: "Write or paste text here", data: { ai_annotation_form_target: "text" } %>
   </div>
 
   <div class="prompt-field">
     <label>Prompt</label>
-    <%= f.textarea :prompt, required: true, rows: 3, placeholder: "Order how to annotate the text" %>
+    <%= f.textarea :prompt, required: true, rows: 3, placeholder: "Order how to annotate the text", data: { ai_annotation_form_target: "prompt" } %>
   </div>
 
   <div class="submit-field">
-    <%= f.submit "Annotate", disabled: true, class: "button" %>
+    <%= f.submit "Annotate", disabled: true, class: "button", data: { ai_annotation_form_target: "submit" } %>
   </div>
 <% end %>
-
-<%= javascript_import_module_tag 'initFormValidation' %>
