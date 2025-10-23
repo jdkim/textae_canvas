@@ -1,0 +1,62 @@
+{
+  "name": "Annotation Canvas",
+  "dockerComposeFile": "../docker/docker-compose.yml",
+  "service": "web",
+  "workspaceFolder": "/workspaces/textae_canvas",
+
+  // Features to add to the dev container
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  // Configure tool-specific properties
+  "customizations": {
+    "vscode": {
+      // VSCode extensions to install
+      "extensions": [
+        "rebornix.ruby",
+        "castwide.solargraph",
+        "kaiwood.endwise",
+        "shopify.ruby-lsp",
+        "misogi.ruby-rubocop",
+        "biomejs.biome",
+        "ms-azuretools.vscode-docker"
+      ],
+      // VSCode settings
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "biomejs.biome",
+        "[ruby]": {
+          "editor.defaultFormatter": "shopify.ruby-lsp",
+          "editor.formatOnSave": true
+        },
+        "ruby.lsp.formatter": "rubocop",
+        "files.associations": {
+          "*.html.erb": "erb"
+        }
+      }
+    }
+  },
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally
+  "forwardPorts": [3000, 9200],
+
+  // Ports that should be visible to others
+  "portsAttributes": {
+    "3000": {
+      "label": "Rails Server",
+      "onAutoForward": "notify"
+    },
+    "9200": {
+      "label": "Elasticsearch",
+      "onAutoForward": "silent"
+    }
+  },
+
+  // Run commands after the container is created
+  "postCreateCommand": "bash /workspaces/textae_canvas/docker/post-create.sh && npm install",
+
+  // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root
+  "remoteUser": "root"
+}
