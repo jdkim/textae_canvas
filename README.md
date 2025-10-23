@@ -13,9 +13,23 @@ git clone https://github.com/jdkim/textae_canvas.git
 cd textae_canvas
 ```
 
-### Option 1: Docker Development Environment (Recommended)
+### Option 1: VS Code DevContainer (Recommended)
 
-The easiest way to set up the development environment is using Docker and Docker Compose:
+The easiest way to set up the development environment is using VS Code with Dev Containers:
+
+1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop)
+2. Install [VS Code Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+3. Copy `.env.example` to `.env` and set your OpenAI API key
+4. Open the repository in VS Code
+5. Click "Reopen in Container" when prompted (or run "Dev Containers: Reopen in Container" from the Command Palette)
+
+The environment will be automatically set up with all dependencies, database, and Elasticsearch.
+
+For detailed instructions, see [.devcontainer/README.md](.devcontainer/README.md).
+
+### Option 2: Docker Development Environment
+
+You can also use Docker Compose directly without VS Code:
 
 ```bash
 cd docker
@@ -25,7 +39,7 @@ docker compose exec web bash /workspaces/textae_canvas/docker/post-create.sh
 
 For detailed instructions, see [docker/README.md](docker/README.md).
 
-### Option 2: Manual Installation
+### Option 3: Manual Installation
 
 ### Install dependencies
 ```
