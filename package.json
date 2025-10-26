@@ -20,6 +20,6 @@
   "license": "MIT",
   "private": "true",
   "devDependencies": {
-    "@biomejs/biome": "^2.2.7"
+    "@biomejs/biome": "^2.3.0"
   }
 }
