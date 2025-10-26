@@ -52,6 +52,9 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+
+  # A Ruby language server for code intelligence
+  gem "solargraph", require: false
 end
 
 gem "solid_cache", "~> 1.0"
