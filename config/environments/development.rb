@@ -75,7 +75,7 @@ Rails.application.configure do
 
   # Allow access from GitHub Codespaces
   if ENV["CODESPACES"] == "true"
-    domain = ENV["GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN"] || "app.github.dev"
+    domain = ENV["GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN"]
     config.hosts << /.*#{Regexp.escape(domain)}\z/
   end
 end
