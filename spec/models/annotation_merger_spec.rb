@@ -24,7 +24,7 @@ RSpec.describe AnnotationMerger, type: :model do
         ]
       }
 
-      merged = AnnotationMerger.new([ann1, ann2]).merged
+      merged = AnnotationMerger.new([ ann1, ann2 ]).merged
 
       expect(merged["text"]).to eq "Alice met Bob. Carol likes Dave. "
       expect(merged["denotations"]).to eq [
@@ -42,7 +42,7 @@ RSpec.describe AnnotationMerger, type: :model do
     it 'should merge with empty relations and denotations' do
       ann1 = { "text" => "Hello.", "denotations" => [], "relations" => [] }
       ann2 = { "text" => "World!", "denotations" => [], "relations" => [] }
-      merged = AnnotationMerger.new([ann1, ann2]).merged
+      merged = AnnotationMerger.new([ ann1, ann2 ]).merged
 
       expect(merged["text"]).to eq "Hello. World!"
       expect(merged).not_to have_key("denotations")
@@ -52,7 +52,7 @@ RSpec.describe AnnotationMerger, type: :model do
     it 'should merge with no relations and denotations' do
       ann1 = { "text" => "Hello." }
       ann2 = { "text" => "World!" }
-      merged = AnnotationMerger.new([ann1, ann2]).merged
+      merged = AnnotationMerger.new([ ann1, ann2 ]).merged
 
       expect(merged["text"]).to eq "Hello. World!"
       expect(merged).not_to have_key("denotations")
@@ -62,15 +62,15 @@ RSpec.describe AnnotationMerger, type: :model do
     it 'should merge multibyte text' do
       ann1 = {
         "text" => "すべての鳥は卵を産む。",
-        "denotations" => [{ "id" => "T1", "span" => { "begin" => 4, "end" => 5 }, "obj" => "bird" }],
+        "denotations" => [ { "id" => "T1", "span" => { "begin" => 4, "end" => 5 }, "obj" => "bird" } ],
         "relations" => []
       }
       ann2 = {
         "text" => "ニワトリは鳥である。",
-        "denotations" => [{ "id" => "T1", "span" => { "begin" => 0, "end" => 4 }, "obj" => "chicken" }],
+        "denotations" => [ { "id" => "T1", "span" => { "begin" => 0, "end" => 4 }, "obj" => "chicken" } ],
         "relations" => []
       }
-      merged = AnnotationMerger.new([ann1, ann2]).merged
+      merged = AnnotationMerger.new([ ann1, ann2 ]).merged
 
       expect(merged["text"]).to eq "すべての鳥は卵を産む。ニワトリは鳥である。"
       expect(merged["denotations"]).to eq [
