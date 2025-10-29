@@ -1,7 +1,7 @@
 # Annotation Canvas
 ## Environment
 - Ruby 3.4.7
-- Rails 8.1.0
+- Rails 8.1.1
 - SQLite3 2.6.0
 - Elasticsearch 8
 
