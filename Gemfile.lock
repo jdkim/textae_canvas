@@ -461,7 +461,7 @@ DEPENDENCIES
   omniauth-rails_csrf_protection
   propshaft
   puma (~> 7.1)
-  rails (= 8.1.1)
+  rails (~> 8.1.1)
   rspec-rails
   rubocop-rails-omakase
   ruby-openai
