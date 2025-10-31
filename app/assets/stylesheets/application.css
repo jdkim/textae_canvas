@@ -125,14 +125,17 @@ header {
 
 .user-popover-menu {
   position: fixed;
-  background: white;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   min-width: 220px;
   padding: 8px;
   margin: 0;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px) saturate(150%);
   animation: popover-fade-in 0.2s ease-out;
   z-index: 1000;
 }
@@ -170,25 +173,13 @@ header {
   }
 }
 
-@supports (popover: auto) {
-  .user-popover-menu {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.12),
-      0 2px 8px rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  }
-
-  .user-menu-toggle::after {
-    content: "✨";
-    font-size: 10px;
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    opacity: 0.7;
-  }
+.user-menu-toggle::after {
+  content: "✨";
+  font-size: 10px;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  opacity: 0.7;
 }
 
 .popover-logout-button {
@@ -243,4 +234,3 @@ header {
 .signin-button i {
   margin-right: 8px;
 }
-
