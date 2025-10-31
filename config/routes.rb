@@ -1,7 +1,13 @@
 Rails.application.routes.draw do
   devise_for :users, controllers: {
-    omniauth_callbacks: "users/omniauth_callbacks"
+    omniauth_callbacks: "users/omniauth_callbacks",
+    sessions: "users/sessions"
   }
+
+  devise_scope :user do
+    delete "/logout", to: "users/sessions#destroy", as: :user_logout
+    post "/logout", to: "users/sessions#destroy"
+  end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
