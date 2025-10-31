@@ -91,6 +91,7 @@ header {
 }
 
 .user-menu {
+  position: relative;
   display: inline-block;
 }
 
@@ -129,9 +130,19 @@ header {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   min-width: 220px;
   padding: 8px;
-  margin: 8px 0;
+  margin: 0;
   backdrop-filter: blur(8px);
   animation: popover-fade-in 0.2s ease-out;
+  z-index: 1000;
+}
+
+.user-popover-menu:popover-open {
+  position: fixed !important;
+  inset: unset !important;
+  top: 64px !important;
+  right: 16px !important;
+  transform: none !important;
+  margin: 0 !important;
 }
 
 .user-popover-menu::backdrop {
