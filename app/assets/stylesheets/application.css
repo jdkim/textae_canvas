@@ -124,6 +124,7 @@ header {
 }
 
 .user-popover-menu {
+  position: fixed;
   background: white;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 12px;
@@ -136,13 +137,11 @@ header {
   z-index: 1000;
 }
 
-.user-popover-menu:popover-open {
-  position: fixed !important;
-  inset: unset !important;
-  top: 64px !important;
-  right: 16px !important;
-  transform: none !important;
-  margin: 0 !important;
+.user-menu .user-popover-menu:popover-open {
+  inset: unset;
+  top: 64px;
+  right: 16px;
+  transform: none;
 }
 
 .user-popover-menu::backdrop {
