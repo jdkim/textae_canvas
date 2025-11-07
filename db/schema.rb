@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_28_072109) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_07_081343) do
   create_table "ai_annotations", force: :cascade do |t|
     t.text "content"
     t.datetime "created_at", null: false
@@ -23,6 +23,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_28_072109) do
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "google_id"
+    t.text "id_token"
     t.datetime "updated_at", null: false
   end
 end

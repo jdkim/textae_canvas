@@ -44,4 +44,92 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe '.from_omniauth' do
+    let(:auth) do
+      double('auth',
+        info: double('info', email: 'test@example.com'),
+        uid: '12345',
+        credentials: double('credentials', id_token: 'mock_id_token')
+      )
+    end
+
+    context 'when user does not exist' do
+      it 'creates a new user with omniauth data' do
+        expect {
+          User.from_omniauth(auth)
+        }.to change(User, :count).by(1)
+
+        user = User.last
+        expect(user.email).to eq('test@example.com')
+        expect(user.google_id).to eq('12345')
+        expect(user.id_token).to eq('mock_id_token')
+      end
+    end
+
+    context 'when user already exists' do
+      let!(:existing_user) { User.create!(email: 'test@example.com', google_id: '11111') }
+
+      it 'updates existing user with new omniauth data' do
+        expect {
+          User.from_omniauth(auth)
+        }.not_to change(User, :count)
+
+        existing_user.reload
+        expect(existing_user.google_id).to eq('12345')
+        expect(existing_user.id_token).to eq('mock_id_token')
+      end
+    end
+
+    context 'when auth has no id_token' do
+      let(:auth_without_token) do
+        double('auth',
+          info: double('info', email: 'test@example.com'),
+          uid: '12345',
+          credentials: nil
+        )
+      end
+
+      it 'creates user without id_token' do
+        user = User.from_omniauth(auth_without_token)
+        expect(user.id_token).to be_nil
+      end
+    end
+  end
+
+  describe '#jwt_token' do
+    let(:user) { User.create!(email: 'test@example.com', google_id: '12345') }
+
+    context 'when user has valid id_token' do
+      before do
+        # 有効なIDトークンをモック（1時間後に期限切れ）
+        payload = { exp: Time.now.to_i + 3600 }
+        valid_token = JWT.encode(payload, 'secret', 'HS256')
+        user.update!(id_token: valid_token)
+      end
+
+      it 'returns the Google ID token' do
+        expect(user.jwt_token).to eq(user.id_token)
+      end
+    end
+
+    context 'when user has expired id_token' do
+      before do
+        # 期限切れのIDトークンをモック
+        payload = { exp: Time.now.to_i - 3600 }
+        expired_token = JWT.encode(payload, 'secret', 'HS256')
+        user.update!(id_token: expired_token)
+      end
+
+      it 'returns nil for expired token' do
+        expect(user.jwt_token).to be_nil
+      end
+    end
+
+    context 'when user has no id_token' do
+      it 'returns nil' do
+        expect(user.jwt_token).to be_nil
+      end
+    end
+  end
 end
