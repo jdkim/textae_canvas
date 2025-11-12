@@ -13,7 +13,11 @@ class AiAnnotation < ApplicationRecord
     instance
   end
 
-  def annotate!
+  def annotate!(id_token, api_key_uuid, model_id)
+    @id_token = id_token
+    @api_key_uuid = api_key_uuid
+    @model_id = model_id
+
     if @annotation.dig("selectedText", "status") == "selected"
       # Get selected range from the annotation
       begin_offset = @annotation.dig("selectedText", "begin").to_i
@@ -54,7 +58,7 @@ class AiAnnotation < ApplicationRecord
 
     user_content = "#{annotation_text}\n\nPrompt:\n#{prompt}"
 
-    tokens_used, result = OpenAiAnnotator.new.call(user_content)
+    tokens_used, result = OpenAiAnnotator.new.call(@id_token, @api_key_uuid, @model_id, user_content)
     result_as_json = SimpleInlineTextAnnotation.parse(result)
 
     merged_result = AnnotationMerger.new([
@@ -75,7 +79,7 @@ class AiAnnotation < ApplicationRecord
       user_content = "#{annotation_text}\n\nPrompt:\n#{prompt}"
       user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.size > 1
 
-      adding_tokens_sum, chunk_result = OpenAiAnnotator.new.call(user_content)
+      adding_tokens_sum, chunk_result = OpenAiAnnotator.new.call(@id_token, @api_key_uuid, @model_id, user_content)
       results[:token_used] += adding_tokens_sum
 
       # Remove backslashes from OpenAI response
