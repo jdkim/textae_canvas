@@ -44,8 +44,32 @@ header {
       font-size: 1.75rem;
     }
 
-    .new-text-link {
-      display: block;
+    .new-text-button {
+      display: flex;
+      align-items: center;
+      background: transparent;
+      border: none;
+      color: rgb(56, 56, 56);
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+      text-decoration: none;
+    }
+
+    .new-text-button:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .new-text-button i {
+      margin-right: 8px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
   }
 }
