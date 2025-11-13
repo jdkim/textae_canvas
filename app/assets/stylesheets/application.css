@@ -58,12 +58,12 @@ header {
       text-decoration: none;
     }
 
-    .new-text-button:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-    }
-
     .new-text-button i {
       margin-right: 8px;
+    }
+
+    .new-text-button:hover {
+      background-color: rgba(0, 0, 0, 0.05);
     }
 
     .header-right {
@@ -222,16 +222,16 @@ header {
   font-weight: 500;
 }
 
-.popover-logout-button:hover {
-  background-color: #f8f9fa;
-  color: #dc3545;
-  transform: translateX(2px);
-}
-
 .popover-logout-button i {
   margin-right: 12px;
   width: 16px;
   transition: transform 0.2s ease;
+}
+
+.popover-logout-button:hover {
+  background-color: #f8f9fa;
+  color: #dc3545;
+  transform: translateX(2px);
 }
 
 .popover-logout-button:hover i {
@@ -251,12 +251,12 @@ header {
   transition: background-color 0.2s ease;
 }
 
-.signin-button:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
 .signin-button i {
   margin-right: 8px;
+}
+
+.signin-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .submit-row {
@@ -345,4 +345,3 @@ header {
   background-color: #6c757d;
   cursor: not-allowed;
 }
-

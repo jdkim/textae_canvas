@@ -14,19 +14,19 @@ export default class extends Controller {
   async loadApiKeys() {
     try {
       const headers = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json"
       }
 
       // Add Authorization header if JWT token is available
       if (this.jwtTokenValue) {
-        headers['Authorization'] = `Bearer ${this.jwtTokenValue}`
+        headers.Authorization = `Bearer ${this.jwtTokenValue}`
       }
 
       const response = await fetch(this.urlValue || "/api/llm_api_keys/", {
-        method: 'GET',
-        mode: 'cors',
+        method: "GET",
+        mode: "cors",
         headers: headers,
-        credentials: 'omit' // Do not send credentials for cross-origin requests
+        credentials: "omit" // Do not send credentials for cross-origin requests
       })
 
       if (!response.ok) {
@@ -38,22 +38,25 @@ export default class extends Controller {
     } catch (error) {
       console.error("Failed to load API keys:", error)
       // Display error message based on error type
-      let errorMessage = 'Failed to load API keys'
-      if (error.message.includes('401')) {
-        errorMessage = 'Authentication error: JWT token is invalid or expired'
-      } else if (error.message.includes('CORS')) {
-        errorMessage = 'CORS configuration error: CORS settings required on external server'
-      } else if (error.message.includes('Failed to fetch')) {
-        errorMessage = 'Network error: External API server (localhost:3000) is not running'
+      let errorMessage = "Failed to load API keys"
+      if (error.message.includes("401")) {
+        errorMessage = "Authentication error: JWT token is invalid or expired"
+      } else if (error.message.includes("CORS")) {
+        errorMessage =
+          "CORS configuration error: CORS settings required on external server"
+      } else if (error.message.includes("Failed to fetch")) {
+        errorMessage =
+          "Network error: External API server (localhost:3000) is not running"
       }
       this.apiKeySelectTarget.innerHTML = `<option value="">${errorMessage}</option>`
     }
   }
 
   populateApiKeySelect(apiKeys) {
-    this.apiKeySelectTarget.innerHTML = '<option value="">Please select an API key</option>'
+    this.apiKeySelectTarget.innerHTML =
+      '<option value="">Please select an API key</option>'
 
-    apiKeys.forEach(apiKey => {
+    apiKeys.forEach((apiKey) => {
       const option = document.createElement("option")
       option.value = apiKey.uuid
       option.textContent = apiKey.description
@@ -63,9 +66,10 @@ export default class extends Controller {
   }
 
   apiKeyChanged() {
-    const selectedOption = this.apiKeySelectTarget.options[this.apiKeySelectTarget.selectedIndex]
+    const selectedOption =
+      this.apiKeySelectTarget.options[this.apiKeySelectTarget.selectedIndex]
 
-    if (selectedOption && selectedOption.dataset.models) {
+    if (selectedOption?.dataset.models) {
       const models = JSON.parse(selectedOption.dataset.models)
       this.populateModelSelect(models)
     } else {
@@ -74,10 +78,11 @@ export default class extends Controller {
   }
 
   populateModelSelect(models) {
-    this.modelSelectTarget.innerHTML = '<option value="">Please select a model</option>'
+    this.modelSelectTarget.innerHTML =
+      '<option value="">Please select a model</option>'
     this.modelSelectTarget.disabled = false
 
-    models.forEach(model => {
+    models.forEach((model) => {
       const option = document.createElement("option")
       option.value = model.value
       option.textContent = model.label
@@ -88,18 +93,23 @@ export default class extends Controller {
   }
 
   clearModelSelect() {
-    this.modelSelectTarget.innerHTML = '<option value="">Please select API key first</option>'
+    this.modelSelectTarget.innerHTML =
+      '<option value="">Please select API key first</option>'
     this.modelSelectTarget.disabled = true
     this.updateFormSubmitButton()
   }
 
   updateFormSubmitButton() {
     // Update the submit button state of the AI annotation form controller
-    const formController = this.application.getControllerForElementAndIdentifier(
-      this.element.closest('[data-controller*="ai-annotation-form"]'),
-      "ai-annotation-form"
-    )
-    if (formController && typeof formController.updateSubmitButton === 'function') {
+    const formController =
+      this.application.getControllerForElementAndIdentifier(
+        this.element.closest('[data-controller*="ai-annotation-form"]'),
+        "ai-annotation-form"
+      )
+    if (
+      formController &&
+      typeof formController.updateSubmitButton === "function"
+    ) {
       formController.updateSubmitButton()
     }
   }
