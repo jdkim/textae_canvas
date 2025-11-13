@@ -4,6 +4,7 @@ class AiAnnotationsController < ApplicationController
   def new
     @new_ai_annotation = AiAnnotation.new
     @history = AiAnnotation.order(created_at: :desc).limit(10)
+    @llm_api_keys = fetch_llm_api_keys
   end
 
   def create
@@ -24,6 +25,7 @@ class AiAnnotationsController < ApplicationController
   def edit
     @ai_annotation = AiAnnotation.find_by!(uuid: params[:uuid])
     @history = AiAnnotation.order(created_at: :desc).limit(10)
+    @llm_api_keys = fetch_llm_api_keys
   end
 
   def update
@@ -51,5 +53,25 @@ class AiAnnotationsController < ApplicationController
 
   def ai_annotation_params
     params.expect(ai_annotation: [ :text, :prompt, :content ])
+  end
+
+  def fetch_llm_api_keys
+    api_url = ENV.fetch('LLM_API_KEYS_URL', 'http://localhost:3000/api/llm_api_keys/')
+    #jwt_token = current_user.id_token TODO enable when user.id_token is implemented
+
+    headers = { 'Content-Type' => 'application/json' }
+    headers['Authorization'] = "Bearer #{jwt_token}" if jwt_token.present?
+
+    response = HTTParty.get(api_url, headers: headers)
+
+    if response.success?
+      response.parsed_response['llm_api_keys'] || []
+    else
+      Rails.logger.error "Failed to fetch LLM API keys: HTTP #{response.code}"
+      []
+    end
+  rescue => e
+    Rails.logger.error "Failed to fetch LLM API keys: #{e.message}"
+    []
   end
 end
