@@ -56,14 +56,14 @@ header {
       border-radius: 4px;
       transition: background-color 0.2s ease;
       text-decoration: none;
-    }
 
-    .new-text-button i {
-      margin-right: 8px;
-    }
+      i {
+        margin-right: 8px;
+      }
 
-    .new-text-button:hover {
-      background-color: rgba(0, 0, 0, 0.05);
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
     }
 
     .header-right {
@@ -100,23 +100,33 @@ header {
     }
   }
 }
+
 .content {
   width: 80%;
   padding: 20px;
 }
 
-.flash.alert {
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-  border-radius: 12px;
+.flash {
+  &.alert {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 12px;
+  }
 }
 
 .user-menu {
   position: relative;
   display: inline-block;
+
+  .user-popover-menu:popover-open {
+    inset: unset;
+    top: 64px;
+    right: 16px;
+    transform: none;
+  }
 }
 
 .user-menu-toggle {
@@ -131,15 +141,24 @@ header {
   border-radius: 6px;
   transition: all 0.2s ease;
   position: relative;
-}
 
-.user-menu-toggle:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  transform: translateY(-1px);
-}
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+  }
 
-.user-menu-toggle:active {
-  transform: translateY(0);
+  &:active {
+    transform: translateY(0);
+  }
+
+  &::after {
+    content: "✨";
+    font-size: 10px;
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    opacity: 0.7;
+  }
 }
 
 .user-email {
@@ -162,17 +181,10 @@ header {
   backdrop-filter: blur(12px) saturate(150%);
   animation: popover-fade-in 0.2s ease-out;
   z-index: 1000;
-}
 
-.user-menu .user-popover-menu:popover-open {
-  inset: unset;
-  top: 64px;
-  right: 16px;
-  transform: none;
-}
-
-.user-popover-menu::backdrop {
-  background: transparent;
+  &::backdrop {
+    background: transparent;
+  }
 }
 
 @keyframes popover-fade-in {
@@ -197,15 +209,6 @@ header {
   }
 }
 
-.user-menu-toggle::after {
-  content: "✨";
-  font-size: 10px;
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  opacity: 0.7;
-}
-
 .popover-logout-button {
   display: flex;
   align-items: center;
@@ -220,22 +223,22 @@ header {
   border-radius: 8px;
   transition: all 0.2s ease;
   font-weight: 500;
-}
 
-.popover-logout-button i {
-  margin-right: 12px;
-  width: 16px;
-  transition: transform 0.2s ease;
-}
+  i {
+    margin-right: 12px;
+    width: 16px;
+    transition: transform 0.2s ease;
+  }
 
-.popover-logout-button:hover {
-  background-color: #f8f9fa;
-  color: #dc3545;
-  transform: translateX(2px);
-}
+  &:hover {
+    background-color: #f8f9fa;
+    color: #dc3545;
+    transform: translateX(2px);
 
-.popover-logout-button:hover i {
-  transform: translateX(2px);
+    i {
+      transform: translateX(2px);
+    }
+  }
 }
 
 .signin-button {
@@ -249,14 +252,14 @@ header {
   font-size: 14px;
   border-radius: 4px;
   transition: background-color 0.2s ease;
-}
 
-.signin-button i {
-  margin-right: 8px;
-}
+  i {
+    margin-right: 8px;
+  }
 
-.signin-button:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
 }
 
 .submit-row {
@@ -269,6 +272,28 @@ header {
 .api-key-field,
 .model-field {
   flex: 1;
+
+  label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: rgb(56, 56, 56);
+  }
+
+  select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+
+    &:disabled {
+      background-color: #f5f5f5;
+      color: #999;
+      cursor: not-allowed;
+    }
+  }
 }
 
 .submit-field {
@@ -277,71 +302,49 @@ header {
   width: auto;
 }
 
-.api-key-field label,
-.model-field label {
-  display: block;
-  margin-bottom: 4px;
-  font-weight: 500;
-  color: rgb(56, 56, 56);
+.ai-annotation-form {
+  .text-field,
+  .prompt-field {
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: rgb(56, 56, 56);
+  }
+
+  textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+  }
+
+  .button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+    min-width: fit-content;
+
+    &:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+
+    &:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+  }
 }
 
-.api-key-field select,
-.model-field select {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  background-color: white;
-}
-
-.api-key-field select:disabled,
-.model-field select:disabled {
-  background-color: #f5f5f5;
-  color: #999;
-  cursor: not-allowed;
-}
-
-.ai-annotation-form .text-field,
-.ai-annotation-form .prompt-field {
-  margin-bottom: 16px;
-}
-
-.ai-annotation-form label {
-  display: block;
-  margin-bottom: 4px;
-  font-weight: 500;
-  color: rgb(56, 56, 56);
-}
-
-.ai-annotation-form textarea {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  font-family: inherit;
-  resize: vertical;
-}
-
-.ai-annotation-form .button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  white-space: nowrap;
-  min-width: fit-content;
-}
-
-.ai-annotation-form .button:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-
-.ai-annotation-form .button:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
