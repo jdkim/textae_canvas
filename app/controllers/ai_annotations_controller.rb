@@ -56,16 +56,16 @@ class AiAnnotationsController < ApplicationController
   end
 
   def fetch_llm_api_keys
-    api_url = ENV.fetch('LLM_API_KEYS_URL', 'http://localhost:3000/api/llm_api_keys/')
-    #jwt_token = current_user.id_token TODO enable when user.id_token is implemented
+    api_url = ENV.fetch("LLM_API_KEYS_URL", "http://localhost:3000/api/llm_api_keys/")
+    # jwt_token = current_user.id_token TODO enable when user.id_token is implemented
 
-    headers = { 'Content-Type' => 'application/json' }
-    headers['Authorization'] = "Bearer #{jwt_token}" if jwt_token.present?
+    headers = { "Content-Type" => "application/json" }
+    headers["Authorization"] = "Bearer #{jwt_token}" if jwt_token.present?
 
     response = HTTParty.get(api_url, headers: headers)
 
     if response.success?
-      response.parsed_response['llm_api_keys'] || []
+      response.parsed_response["llm_api_keys"] || []
     else
       Rails.logger.error "Failed to fetch LLM API keys: HTTP #{response.code}"
       []
