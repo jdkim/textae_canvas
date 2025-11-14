@@ -32,6 +32,10 @@ export default class extends Controller {
     }
   }
 
+  updateSubmitButton() {
+    this.submitTarget.disabled = !this.#canSubmit()
+  }
+
   #populateModelSelect(models) {
     if (!this.hasModelTarget) return
 
@@ -56,10 +60,6 @@ export default class extends Controller {
       '<option value="">Please select API key first</option>'
     this.modelTarget.disabled = true
     this.updateSubmitButton()
-  }
-
-  updateSubmitButton() {
-    this.submitTarget.disabled = !this.#canSubmit()
   }
 
   #canSubmit() {
