@@ -28,7 +28,8 @@ export default class extends Controller {
   populateModelSelect(models) {
     if (!this.hasModelTarget) return
 
-    this.modelTarget.innerHTML = '<option value="">Please select a model</option>'
+    this.modelTarget.innerHTML =
+      '<option value="">Please select a model</option>'
     this.modelTarget.disabled = false
 
     models.forEach((model) => {
@@ -44,7 +45,8 @@ export default class extends Controller {
   clearModelSelect() {
     if (!this.hasModelTarget) return
 
-    this.modelTarget.innerHTML = '<option value="">Please select API key first</option>'
+    this.modelTarget.innerHTML =
+      '<option value="">Please select API key first</option>'
     this.modelTarget.disabled = true
     this.updateSubmitButton()
   }
@@ -53,7 +55,9 @@ export default class extends Controller {
     const textField = this.hasTextTarget ? this.textTarget.value.trim() : true
     const promptField = this.promptTarget.value.trim()
     const apiKeySelect = document.querySelector('select[name="api_key_uuid"]')
-    const modelSelect = this.hasModelTarget ? this.modelTarget : document.querySelector('select[name="model"]')
+    const modelSelect = this.hasModelTarget
+      ? this.modelTarget
+      : document.querySelector('select[name="model"]')
 
     const apiKeySelected = apiKeySelect?.value
     const modelSelected = modelSelect?.value && !modelSelect.disabled

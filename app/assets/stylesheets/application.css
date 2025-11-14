@@ -19,86 +19,8 @@ body {
   font-family: verdana, arial, helvetica, sans-serif;
 }
 
-header {
-  background-color: white;
-  border-bottom: 1px solid rgb(56, 56, 56);
-  padding: 12px 0;
-
-  .inner {
-    display: flex;
-    justify-content: space-between;
-    padding: 16px;
-
-    a {
-      color: rgb(56, 56, 56);
-      text-decoration: none;
-
-      &:hover {
-        cursor: pointer;
-      }
-    }
-
-    .logo a {
-      font-family: sans-serif, verdana, arial, helvetica;
-      font-weight: bold;
-      font-size: 1.75rem;
-    }
-
-    .new-text-button {
-      display: flex;
-      align-items: center;
-      background: transparent;
-      border: none;
-      color: rgb(56, 56, 56);
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 14px;
-      border-radius: 4px;
-      transition: background-color 0.2s ease;
-      text-decoration: none;
-
-      i {
-        margin-right: 8px;
-      }
-
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.05);
-      }
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-  }
-}
-
 .body {
   display: flex;
-}
-
-.sidebar {
-  width: 20%;
-  background-color: #f8f9fa;
-  padding: 20px;
-  overflow-y: auto;
-
-  h2 {
-    padding: 6px 10px;
-  }
-
-  .history {
-    padding: 6px 10px;
-
-    a {
-      display: inline-block;
-      max-width: 240px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
 }
 
 .content {
@@ -262,6 +184,84 @@ header {
   }
 }
 
+header {
+  background-color: white;
+  border-bottom: 1px solid rgb(56, 56, 56);
+  padding: 12px 0;
+
+  .inner {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+
+    a {
+      color: rgb(56, 56, 56);
+      text-decoration: none;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    .logo a {
+      font-family: sans-serif, verdana, arial, helvetica;
+      font-weight: bold;
+      font-size: 1.75rem;
+    }
+
+    .new-text-button {
+      display: flex;
+      align-items: center;
+      background: transparent;
+      border: none;
+      color: rgb(56, 56, 56);
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+      text-decoration: none;
+
+      i {
+        margin-right: 8px;
+      }
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+}
+
+.sidebar {
+  width: 20%;
+  background-color: #f8f9fa;
+  padding: 20px;
+  overflow-y: auto;
+
+  h2 {
+    padding: 6px 10px;
+  }
+
+  .history {
+    padding: 6px 10px;
+
+    a {
+      display: inline-block;
+      max-width: 240px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
 .submit-row {
   display: flex;
   gap: 16px;
@@ -347,4 +347,3 @@ header {
     }
   }
 }
-
