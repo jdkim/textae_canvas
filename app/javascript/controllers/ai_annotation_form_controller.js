@@ -59,8 +59,23 @@ export default class extends Controller {
   }
 
   updateSubmitButton() {
-    const textField = this.hasTextTarget ? this.textTarget.value.trim() : true
-    const promptField = this.promptTarget.value.trim()
+    this.submitTarget.disabled = !this.canSubmit()
+  }
+
+  canSubmit() {
+    // Text field and prompt field can be validated using HTML5's required attribute,
+    // so we delegate to checkValidity() to utilize standard validation
+    const textField = this.hasTextTarget ? this.textTarget : null
+    const promptField = this.promptTarget
+
+    // Use HTML5 standard validation
+    const basicFieldsValid =
+      (!textField || textField.checkValidity()) && promptField.checkValidity()
+
+    // API Key and Model selects require JavaScript validation for the following reasons:
+    // 1. Model select is dynamically enabled/disabled based on API Key selection
+    // 2. Disabled selects are not validated by checkValidity()
+    // 3. The dependency between the two selects (Model cannot be selected without API Key) cannot be expressed with HTML attributes alone
     const apiKeySelect = document.querySelector('select[name="api_key_uuid"]')
     const modelSelect = this.hasModelTarget
       ? this.modelTarget
@@ -69,8 +84,6 @@ export default class extends Controller {
     const apiKeySelected = apiKeySelect?.value
     const modelSelected = modelSelect?.value && !modelSelect.disabled
 
-    const isValid = textField && promptField && apiKeySelected && modelSelected
-
-    this.submitTarget.disabled = !isValid
+    return basicFieldsValid && apiKeySelected && modelSelected
   }
 }
