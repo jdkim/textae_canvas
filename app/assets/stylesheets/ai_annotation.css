@@ -31,7 +31,6 @@
   }
 
   .submit-field {
-    width: 100%;
     display: flex;
     justify-content: end;
     margin-top: 5px;
@@ -50,7 +49,7 @@
     border-width: 1px;
   }
 
-  #current-annotation {
+  & #current-annotation {
     display: none;
   }
 }

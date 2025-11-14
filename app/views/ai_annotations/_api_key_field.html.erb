@@ -1,0 +1,11 @@
+<div class="api-key-field">
+  <label>API Key</label>
+  <%= select_tag :api_key_uuid,
+                 options_for_select([["Please select an API key", ""]] +
+                                    (@llm_api_keys || []).map { |key| [key['description'], key['uuid']] }),
+                 { required: true,
+                   data: {
+                     action: "change->ai-annotation-form#apiKeyChanged change->ai-annotation-form#updateSubmitButton",
+                     models: (@llm_api_keys || []).map { |key| { value: key['uuid'], models: key['available_models'] } }.to_json
+                   } } %>
+</div>

@@ -7,12 +7,11 @@
 
 <%= form_with model: @ai_annotation, url: ai_annotation_path(@ai_annotation.uuid), class: "ai-annotation-form", data: { controller: "ai-annotation-form", action: "input->ai-annotation-form#updateSubmitButton" } do |f| %>
   <div class="prompt-field">
+    <label>Prompt</label>
     <%= f.textarea :prompt, required: true, rows: 3, placeholder: "Order how to annotate the text", data: { ai_annotation_form_target: "prompt" } %>
   </div>
 
   <%= f.hidden_field :content, id: 'textae-annotation' %>
 
-  <div class="submit-field">
-    <%= f.submit "Annotate", disabled: true, class: "button", data: { ai_annotation_form_target: "submit" } %>
-  </div>
+  <%= render 'submit_row', f: f %>
 <% end %>

@@ -9,7 +9,5 @@
     <%= f.textarea :prompt, required: true, rows: 3, placeholder: "Order how to annotate the text", data: { ai_annotation_form_target: "prompt" } %>
   </div>
 
-  <div class="submit-field">
-    <%= f.submit "Annotate", disabled: true, class: "button", data: { ai_annotation_form_target: "submit" } %>
-  </div>
+  <%= render 'submit_row', f: f %>
 <% end %>
