@@ -63,6 +63,7 @@ class AiAnnotationsController < ApplicationController
       Rails.logger.debug "JWT Token in new action: current_user=#{current_user.email}, id_token=#{current_user.id_token.present? ? '[PRESENT]' : '[EMPTY]'}"
     end
     @history = AiAnnotation.order(created_at: :desc).limit(10)
+    @llm_api_keys = fetch_llm_api_keys
   end
 
   def update
@@ -111,7 +112,7 @@ class AiAnnotationsController < ApplicationController
 
   def fetch_llm_api_keys
     api_url = ENV.fetch("LLM_API_KEYS_URL", "http://localhost:3000/api/llm_api_keys/")
-    # jwt_token = current_user.id_token TODO enable when user.id_token is implemented
+    jwt_token = current_user.id_token
 
     headers = { "Content-Type" => "application/json" }
     headers["Authorization"] = "Bearer #{jwt_token}" if jwt_token.present?
