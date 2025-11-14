@@ -19,7 +19,7 @@ export default class extends Controller {
 
     try {
       const allModels = JSON.parse(modelsData)
-      const selectedKey = allModels.find(item => item.value === selectedValue)
+      const selectedKey = allModels.find((item) => item.value === selectedValue)
 
       if (selectedKey && selectedKey.models) {
         this.populateModelSelect(selectedKey.models)
