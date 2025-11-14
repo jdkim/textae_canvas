@@ -13,7 +13,7 @@ export default class extends Controller {
     const modelsData = event.target.dataset.models
 
     if (!selectedValue || !modelsData) {
-      this.clearModelSelect()
+      this.#clearModelSelect()
       return
     }
 
@@ -22,17 +22,17 @@ export default class extends Controller {
       const selectedKey = allModels.find((item) => item.value === selectedValue)
 
       if (selectedKey?.models) {
-        this.populateModelSelect(selectedKey.models)
+        this.#populateModelSelect(selectedKey.models)
       } else {
-        this.clearModelSelect()
+        this.#clearModelSelect()
       }
     } catch (e) {
       console.error("Failed to parse models data:", e)
-      this.clearModelSelect()
+      this.#clearModelSelect()
     }
   }
 
-  populateModelSelect(models) {
+  #populateModelSelect(models) {
     if (!this.hasModelTarget) return
 
     this.modelTarget.innerHTML =
@@ -49,7 +49,7 @@ export default class extends Controller {
     this.updateSubmitButton()
   }
 
-  clearModelSelect() {
+  #clearModelSelect() {
     if (!this.hasModelTarget) return
 
     this.modelTarget.innerHTML =
@@ -59,10 +59,10 @@ export default class extends Controller {
   }
 
   updateSubmitButton() {
-    this.submitTarget.disabled = !this.canSubmit()
+    this.submitTarget.disabled = !this.#canSubmit()
   }
 
-  canSubmit() {
+  #canSubmit() {
     // Text field and prompt field can be validated using HTML5's required attribute,
     // so we delegate to checkValidity() to utilize standard validation
     const textField = this.hasTextTarget ? this.textTarget : null
