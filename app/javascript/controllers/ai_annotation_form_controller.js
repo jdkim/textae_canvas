@@ -9,18 +9,25 @@ export default class extends Controller {
   }
 
   apiKeyChanged(event) {
-    const selectedOption = event.target.selectedOptions[0]
-    const modelsData = selectedOption?.dataset.models
+    const selectedValue = event.target.value
+    const modelsData = event.target.dataset.models
 
-    if (modelsData) {
-      try {
-        const models = JSON.parse(modelsData)
-        this.populateModelSelect(models)
-      } catch (e) {
-        console.error("Failed to parse models data:", e)
+    if (!selectedValue || !modelsData) {
+      this.clearModelSelect()
+      return
+    }
+
+    try {
+      const allModels = JSON.parse(modelsData)
+      const selectedKey = allModels.find(item => item.value === selectedValue)
+
+      if (selectedKey && selectedKey.models) {
+        this.populateModelSelect(selectedKey.models)
+      } else {
         this.clearModelSelect()
       }
-    } else {
+    } catch (e) {
+      console.error("Failed to parse models data:", e)
       this.clearModelSelect()
     }
   }
