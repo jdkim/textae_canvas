@@ -39,12 +39,12 @@ export default class extends Controller {
       '<option value="">Please select a model</option>'
     this.modelTarget.disabled = false
 
-    models.forEach((model) => {
-      const option = document.createElement("option")
-      option.value = model.value
-      option.textContent = model.label
-      this.modelTarget.appendChild(option)
-    })
+    for (const model of models) {
+        const option = document.createElement("option")
+        option.value = model.value
+        option.textContent = model.label
+        this.modelTarget.appendChild(option)
+    }
 
     this.updateSubmitButton()
   }
