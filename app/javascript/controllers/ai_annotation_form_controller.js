@@ -40,10 +40,10 @@ export default class extends Controller {
     this.modelTarget.disabled = false
 
     for (const model of models) {
-        const option = document.createElement("option")
-        option.value = model.value
-        option.textContent = model.label
-        this.modelTarget.appendChild(option)
+      const option = document.createElement("option")
+      option.value = model.value
+      option.textContent = model.label
+      this.modelTarget.appendChild(option)
     }
 
     this.updateSubmitButton()
