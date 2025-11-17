@@ -1,4 +1,4 @@
-class OpenAiAnnotator
+class LlmAnnotator
   FORMAT_SPECIFICATION = <<~EOS
     Annotate the text according to the prompt with using the following syntax:
 
@@ -21,29 +21,33 @@ class OpenAiAnnotator
     Output the original text with annotations.
   EOS
 
-  def call(user_content)
+  def call(id_token, api_key_uuid, model_id, user_content)
     Rails.logger.info "Request to AI: \n===>\n#{user_content}\n===>" if Rails.env.development?
-
-    # To reduce the risk of API key leakage, API error logging is disabled by default.
-    # If you need to check the error details, enable logging by add argument `log_errors: true` like: OpenAI::Client.new(log_errors: true)
-    client = OpenAI::Client.new
-    parameters = {
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: FORMAT_SPECIFICATION },
-        { role: "user", content: user_content }
-      ]
-    }
-
-    response = client.chat(parameters: parameters)
-    total_tokens = (response.dig("usage", "total_tokens") || 0).to_i
-    content = response.dig("choices", 0, "message", "content") || ""
+    response = request(api_key_uuid, id_token, model_id, user_content)
+    response_body = response.parsed_response
+    # total_tokens = response_body.dig("usage", "total_tokens") || 0
+    total_tokens = 0
+    content = response_body.dig("response", "message") || ""
 
     Rails.logger.info "Response from AI: \n<===\n#{content}\n<===" if Rails.env.development?
 
-    [
-      total_tokens,
-      content
-    ]
+    [ total_tokens, content ]
+  end
+
+  private
+
+  def request(api_key_uuid, id_token, model_id, user_content)
+    HTTParty.post(
+      url(api_key_uuid, model_id),
+      headers: {
+        "Content-Type" => "application/json",
+        "Authorization" => "Bearer #{id_token}"
+      },
+      body: { prompt: "#{FORMAT_SPECIFICATION}\n\n#{user_content}" }.to_json
+    )
+  end
+
+  def url(api_key_uuid, model_id)
+    "#{Rails.application.config.llm_service_base_url}/api/llm_api_keys/#{api_key_uuid}/models/#{model_id}/chats"
   end
 end
