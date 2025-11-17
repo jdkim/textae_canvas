@@ -5,15 +5,9 @@ class User < ApplicationRecord
   validates :google_id, presence: true, uniqueness: true
 
   def self.from_omniauth(auth)
-    user = find_by(email: auth.info.email)
-
-    if user.nil?
-      # Create new user
-      user = new(
-        email: auth.info.email,
-        google_id: auth.uid
-      )
-    end
+    user = where(email: auth.info.email).first_or_initialize(
+      google_id: auth.uid
+    )
 
     user.id_token = auth.credentials.id_token if auth.credentials&.id_token
     user.save!
