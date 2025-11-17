@@ -9,7 +9,9 @@ class User < ApplicationRecord
       google_id: auth.uid
     )
 
+    # Always refresh ID token even for existing users
     user.id_token = auth.credentials.id_token if auth.credentials&.id_token
+
     user.save!
     user
   end
