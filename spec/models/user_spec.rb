@@ -68,14 +68,15 @@ RSpec.describe User, type: :model do
     end
 
     context 'when user already exists' do
-      let!(:existing_user) { User.create!(email: 'test@example.com', google_id: '11111') }
+      let!(:existing_user) { User.create!(email: 'test@example.com', google_id: '12345', id_token: 'old_token') }
 
-      it 'updates existing user with new omniauth data' do
+      it 'updates only id_token and keeps immutable fields' do
         expect {
           User.from_omniauth(auth)
         }.not_to change(User, :count)
 
         existing_user.reload
+        expect(existing_user.email).to eq('test@example.com')
         expect(existing_user.google_id).to eq('12345')
         expect(existing_user.id_token).to eq('mock_id_token')
       end
