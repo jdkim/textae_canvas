@@ -1,5 +1,5 @@
 class AiAnnotation < ApplicationRecord
-  attr_accessor :annotation, :text, :token_used
+  attr_accessor :annotation, :text
 
   before_create :clean_old_annotations
   before_create :set_uuid
@@ -22,12 +22,11 @@ class AiAnnotation < ApplicationRecord
       # Get selected range from the annotation
       begin_offset = @annotation.dig("selectedText", "begin").to_i
       end_offset = @annotation.dig("selectedText", "end").to_i
-      result, tokens_used = selected_window @annotation, begin_offset, end_offset
+      result = selected_window @annotation, begin_offset, end_offset
     else
-      result, tokens_used = sliding_window @annotation
+      result = sliding_window @annotation
     end
 
-    self.token_used = tokens_used
     result = JSON.generate(result)
 
     AiAnnotation.create!(prompt: prompt, content: result)
@@ -58,16 +57,14 @@ class AiAnnotation < ApplicationRecord
 
     user_content = "#{annotation_text}\n\nPrompt:\n#{prompt}"
 
-    tokens_used, result = LlmAnnotator.new.call(@id_token, @api_key_uuid, @model_id, user_content)
+    result = LlmAnnotator.new.call(@id_token, @api_key_uuid, @model_id, user_content)
     result_as_json = SimpleInlineTextAnnotation.parse(result)
 
-    merged_result = AnnotationMerger.new([
-                                           slicer.annotation_in(0...begin_offset),
-                                           result_as_json,
-                                           slicer.annotation_in(end_offset..annotation_json["text"].length)
-                                         ]).merged
-
-    [ merged_result, tokens_used ]
+    AnnotationMerger.new([
+                         slicer.annotation_in(0...begin_offset),
+                         result_as_json,
+                         slicer.annotation_in(end_offset..annotation_json["text"].length)
+                       ]).merged
   end
 
   def sliding_window(annotation_json)
@@ -79,8 +76,7 @@ class AiAnnotation < ApplicationRecord
       user_content = "#{annotation_text}\n\nPrompt:\n#{prompt}"
       user_content += "\n\n(This is part #{index + 1}. Please annotate this part only.)" if chunks.size > 1
 
-      adding_tokens_sum, chunk_result = LlmAnnotator.new.call(@id_token, @api_key_uuid, @model_id, user_content)
-      results[:token_used] += adding_tokens_sum
+      chunk_result = LlmAnnotator.new.call(@id_token, @api_key_uuid, @model_id, user_content)
 
       # Remove backslashes from OpenAI response
       chunk_result = chunk_result.gsub("\\", "")
@@ -94,9 +90,6 @@ class AiAnnotation < ApplicationRecord
       end
     end
 
-    [
-      AnnotationMerger.new(result[:chunk_results]).merged,
-      result[:token_used]
-    ]
+    AnnotationMerger.new(result[:chunk_results]).merged
   end
 end

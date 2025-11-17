@@ -25,13 +25,11 @@ class LlmAnnotator
     Rails.logger.info "Request to AI: \n===>\n#{user_content}\n===>" if Rails.env.development?
     response = request(api_key_uuid, id_token, model_id, user_content)
     response_body = response.parsed_response
-    # total_tokens = response_body.dig("usage", "total_tokens") || 0
-    total_tokens = 0
     content = response_body.dig("response", "message") || ""
 
     Rails.logger.info "Response from AI: \n<===\n#{content}\n<===" if Rails.env.development?
 
-    [ total_tokens, content ]
+    content
   end
 
   private
