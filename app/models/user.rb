@@ -3,16 +3,21 @@ class User < ApplicationRecord
 
   validates :email, presence: true, uniqueness: true
   validates :google_id, presence: true, uniqueness: true
+  validates :id_token, presence: true
 
   def self.from_omniauth(auth)
     user = where(email: auth.info.email).first_or_initialize(
       google_id: auth.uid
     )
 
-    # Always refresh ID token even for existing users
-    user.id_token = auth.credentials.id_token if auth.credentials&.id_token
+    token = auth.credentials&.id_token
+    if token.blank?
+      user.errors.add(:id_token, 'is missing from provider response')
+      return user
+    end
 
-    user.save!
+    user.id_token = token
+    user.save
     user
   end
 

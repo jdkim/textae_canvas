@@ -6,12 +6,12 @@ RSpec.describe User, type: :model do
     subject { user }
 
     context 'with valid email, google_id' do
-      let(:params) { { email: "test@example.com", google_id: 1 } }
+      let(:params) { { email: "test@example.com", google_id: 1, id_token: 'dummy_token' } }
       it { is_expected.to be_valid }
     end
 
     context 'without email' do
-      let(:params) { { google_id: 1 } }
+      let(:params) { { google_id: 1, id_token: 'dummy_token' } }
       it {
         is_expected.not_to be_valid
         expect(user.errors[:email]).to include("can't be blank")
@@ -19,7 +19,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'without google_id' do
-      let(:params) { { email: "test@example.com" } }
+      let(:params) { { email: "test@example.com", id_token: 'dummy_token' } }
       it {
         is_expected.not_to be_valid
         expect(user.errors[:google_id]).to include("can't be blank")
@@ -27,8 +27,8 @@ RSpec.describe User, type: :model do
     end
 
     context 'with duplicate email' do
-      before { User.create!(email: "test@example.com", google_id: 1) }
-      let(:user) { User.new(email: "test@example.com", google_id: 2) }
+      before { User.create!(email: "test@example.com", google_id: 1, id_token: 't1') }
+      let(:user) { User.new(email: "test@example.com", google_id: 2, id_token: 't2') }
       it 'is not valid' do
         expect(user).not_to be_valid
         expect(user.errors[:email]).to include("has already been taken")
@@ -36,8 +36,8 @@ RSpec.describe User, type: :model do
     end
 
     context 'with duplicate google_id' do
-      before { User.create!(email: "test1@example.com", google_id: 1) }
-      let(:user) { User.new(email: "test2@example.com", google_id: 1) }
+      before { User.create!(email: "test1@example.com", google_id: 1, id_token: 't1') }
+      let(:user) { User.new(email: "test2@example.com", google_id: 1, id_token: 't2') }
       it 'is not valid' do
         expect(user).not_to be_valid
         expect(user.errors[:google_id]).to include("has already been taken")
@@ -91,19 +91,21 @@ RSpec.describe User, type: :model do
         )
       end
 
-      it 'creates user without id_token' do
-        user = User.from_omniauth(auth_without_token)
-        expect(user.id_token).to be_nil
+      it 'does not persist user and adds validation error' do
+        expect {
+          user = User.from_omniauth(auth_without_token)
+          expect(user.persisted?).to be_falsey
+          expect(user.errors[:id_token]).to include('is missing from provider response')
+        }.not_to change(User, :count)
       end
     end
   end
 
   describe '#jwt_token' do
-    let(:user) { User.create!(email: 'test@example.com', google_id: '12345') }
+    let(:user) { User.create!(email: 'test@example.com', google_id: '12345', id_token: 'initial_token') }
 
     context 'when user has valid id_token' do
       before do
-        # Mock a valid ID token (expires in 1 hour)
         payload = { exp: Time.now.to_i + 3600 }
         valid_token = JWT.encode(payload, 'secret', 'HS256')
         user.update!(id_token: valid_token)
@@ -116,19 +118,12 @@ RSpec.describe User, type: :model do
 
     context 'when user has expired id_token' do
       before do
-        # Mock an expired ID token
         payload = { exp: Time.now.to_i - 3600 }
         expired_token = JWT.encode(payload, 'secret', 'HS256')
         user.update!(id_token: expired_token)
       end
 
       it 'returns nil for expired token' do
-        expect(user.jwt_token).to be_nil
-      end
-    end
-
-    context 'when user has no id_token' do
-      it 'returns nil' do
         expect(user.jwt_token).to be_nil
       end
     end
