@@ -21,6 +21,7 @@ class User < ApplicationRecord
   end
 
   # Return Google ID token (OpenID Connect)
+  # Validate expiration timestamp when using the token
   def jwt_token
     id_token if id_token.present? && token_valid?
   end
