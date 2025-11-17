@@ -11,17 +11,16 @@ class User < ApplicationRecord
       # Update existing user
       user.email = auth.info.email
       user.google_id = auth.uid
-      user.id_token = auth.credentials.id_token if auth.credentials&.id_token
-      user.save!
     else
       # Create new user
-      user = create!(
+      user = new(
         email: auth.info.email,
-        google_id: auth.uid,
-        id_token: auth.credentials&.id_token
+        google_id: auth.uid
       )
     end
 
+    user.id_token = auth.credentials.id_token if auth.credentials&.id_token
+    user.save!
     user
   end
 
