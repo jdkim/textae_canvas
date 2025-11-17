@@ -1,4 +1,4 @@
-class OpenAiAnnotator
+class LlmAnnotator
   FORMAT_SPECIFICATION = <<~EOS
     Annotate the text according to the prompt with using the following syntax:
 
