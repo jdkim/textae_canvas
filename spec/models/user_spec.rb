@@ -103,7 +103,7 @@ RSpec.describe User, type: :model do
 
     context 'when user has valid id_token' do
       before do
-        # 有効なIDトークンをモック（1時間後に期限切れ）
+        # Mock a valid ID token (expires in 1 hour)
         payload = { exp: Time.now.to_i + 3600 }
         valid_token = JWT.encode(payload, 'secret', 'HS256')
         user.update!(id_token: valid_token)
@@ -116,7 +116,7 @@ RSpec.describe User, type: :model do
 
     context 'when user has expired id_token' do
       before do
-        # 期限切れのIDトークンをモック
+        # Mock an expired ID token
         payload = { exp: Time.now.to_i - 3600 }
         expired_token = JWT.encode(payload, 'secret', 'HS256')
         user.update!(id_token: expired_token)
