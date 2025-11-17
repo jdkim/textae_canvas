@@ -5,21 +5,23 @@ class User < ApplicationRecord
   validates :google_id, presence: true, uniqueness: true
 
   def self.from_omniauth(auth)
-    user = where(email: auth.info.email).first_or_initialize do |u|
-      u.email = auth.info.email
-      u.google_id = auth.uid
+    user = find_by(email: auth.info.email)
+
+    if user
+      # Update existing user
+      user.email = auth.info.email
+      user.google_id = auth.uid
+      user.id_token = auth.credentials.id_token if auth.credentials&.id_token
+      user.save!
+    else
+      # Create new user
+      user = create!(
+        email: auth.info.email,
+        google_id: auth.uid,
+        id_token: auth.credentials&.id_token
+      )
     end
 
-    # Update user info (both on create and on existing record update)
-    user.email = auth.info.email
-    user.google_id = auth.uid
-
-    # Store OpenID Connect ID token (contained inside credentials)
-    if auth.credentials&.id_token
-      user.id_token = auth.credentials.id_token
-    end
-
-    user.save!
     user
   end
 
