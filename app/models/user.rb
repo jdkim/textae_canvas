@@ -7,11 +7,7 @@ class User < ApplicationRecord
   def self.from_omniauth(auth)
     user = find_by(email: auth.info.email)
 
-    if user
-      # Update existing user
-      user.email = auth.info.email
-      user.google_id = auth.uid
-    else
+    if user.nil?
       # Create new user
       user = new(
         email: auth.info.email,
