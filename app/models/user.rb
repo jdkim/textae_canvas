@@ -12,7 +12,7 @@ class User < ApplicationRecord
 
     token = auth.credentials&.id_token
     if token.blank?
-      user.errors.add(:id_token, 'is missing from provider response')
+      user.errors.add(:id_token, "is missing from provider response")
       return user
     end
 
