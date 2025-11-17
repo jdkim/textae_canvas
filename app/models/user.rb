@@ -38,7 +38,7 @@ class User < ApplicationRecord
       # Attempt to decode JWT (no signature verification; only checks expiration)
       decoded_token = JWT.decode(id_token, nil, false)
       payload = decoded_token.first
-      exp = payload['exp'] if payload
+      exp = payload["exp"] if payload
 
       # Valid if current time is before expiration
       exp && Time.now.to_i < exp
