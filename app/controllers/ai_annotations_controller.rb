@@ -1,6 +1,4 @@
 class AiAnnotationsController < ApplicationController
-  include TokenLimitable
-
   def new
     @new_ai_annotation = AiAnnotation.new
     @history = AiAnnotation.order(created_at: :desc).limit(10)
