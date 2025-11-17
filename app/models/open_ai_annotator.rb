@@ -28,8 +28,8 @@ class OpenAiAnnotator
     response = HTTParty.post(
       url,
       headers: {
-        'Content-Type' => 'application/json',
-        'Authorization' => "Bearer #{id_token}"
+        "Content-Type" => "application/json",
+        "Authorization" => "Bearer #{id_token}"
       },
       body: { prompt: "#{FORMAT_SPECIFICATION}\n\n#{user_content}" }.to_json
     )
@@ -41,6 +41,6 @@ class OpenAiAnnotator
 
     Rails.logger.info "Response from AI: \n<===\n#{content}\n<===" if Rails.env.development?
 
-    [total_tokens, content]
+    [ total_tokens, content ]
   end
 end
