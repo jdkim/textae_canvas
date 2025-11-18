@@ -37,6 +37,10 @@ class AiAnnotation < ApplicationRecord
     @annotation = SimpleInlineTextAnnotation.parse(annotation)
   end
 
+  def annotation=(annotation_hash)
+    @annotation = annotation_hash
+  end
+
   private
 
   # Delete old annotations

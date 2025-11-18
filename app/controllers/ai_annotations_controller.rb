@@ -1,6 +1,5 @@
 class AiAnnotationsController < ApplicationController
-  include TokenLimitable
-  before_action :authenticate_user!, except: [:show, :new]
+  before_action :authenticate_user!, except: [ :show, :new ]
 
   def index
     @ai_annotations = AiAnnotation.where(user: current_user)
