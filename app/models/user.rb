@@ -10,7 +10,7 @@ class User < ApplicationRecord
       google_id: auth.uid
     )
 
-    token = auth.credentials&.id_token
+    token = auth.extra&.id_token
     if token.blank?
       user.errors.add(:id_token, "is missing from provider response")
       return user
