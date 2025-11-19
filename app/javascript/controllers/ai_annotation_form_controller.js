@@ -5,6 +5,39 @@ export default class extends Controller {
   static targets = ["text", "prompt", "submit", "model"]
 
   connect() {
+    // Get initial values from URL query parameters or data attributes
+    const urlParams = new URLSearchParams(window.location.search)
+    const defaultApiKey =
+      urlParams.get("api_key_uuid") || this.element.dataset.selectedApiKey || ""
+    const defaultModel =
+      urlParams.get("model") || this.element.dataset.selectedModel || ""
+
+    if (defaultApiKey) {
+      const apiKeySelect = this.element.querySelector(
+        'select[name="api_key_uuid"]'
+      )
+      if (apiKeySelect) {
+        apiKeySelect.value = defaultApiKey
+
+        // Generate model list based on selected API key
+        this.apiKeyChanged({ target: apiKeySelect })
+
+        // Set default model after model list is generated
+        if (defaultModel && this.hasModelTarget) {
+          // Set model value in next event loop (after DOM update)
+          setTimeout(() => {
+            const optionValues = Array.from(this.modelTarget.options).map(
+              (o) => o.value
+            )
+            if (optionValues.includes(defaultModel)) {
+              this.modelTarget.value = defaultModel
+              this.updateSubmitButton()
+            }
+          }, 0)
+        }
+      }
+    }
+
     this.updateSubmitButton()
   }
 
