@@ -50,7 +50,7 @@ RSpec.describe User, type: :model do
       double('auth',
         info: double('info', email: 'test@example.com'),
         uid: '12345',
-        credentials: double('credentials', id_token: 'mock_id_token')
+        extra: double('extra', id_token: 'mock_id_token')
       )
     end
 
@@ -87,7 +87,7 @@ RSpec.describe User, type: :model do
         double('auth',
           info: double('info', email: 'test@example.com'),
           uid: '12345',
-          credentials: nil
+          extra: nil
         )
       end
 
