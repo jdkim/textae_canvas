@@ -40,7 +40,7 @@ export default class extends Controller {
   #applyDefaultApiKeyAndModel() {
     const urlParams = new URLSearchParams(window.location.search)
     const defaultApiKey = urlParams.get("api_key_uuid") || ""
-      
+
     if (defaultApiKey) {
       const apiKeySelect = this.apiKeyTarget
       if (apiKeySelect) {
