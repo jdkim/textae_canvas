@@ -16,10 +16,10 @@ class AiAnnotationsController < ApplicationController
     prompt = ai_annotation_params[:prompt]
     @new_ai_annotation = AiAnnotation.prepare_with(text, prompt)
 
+    token = current_user.id_token
     selected_api_key_uuid = params[:api_key_uuid]
     selected_model = params[:model]
 
-    token = current_user.id_token
     ai_annotation = @new_ai_annotation.annotate! token, selected_api_key_uuid, selected_model
 
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"
@@ -52,10 +52,10 @@ class AiAnnotationsController < ApplicationController
     @ai_annotation.annotation = JSON.parse(ai_annotation_params[:content])
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
+    token = current_user.id_token
     selected_api_key_uuid = params[:api_key_uuid]
     selected_model = params[:model]
 
-    token = current_user.id_token
     ai_annotation = @ai_annotation.annotate! token, selected_api_key_uuid, selected_model
 
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"
