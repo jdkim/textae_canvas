@@ -40,8 +40,7 @@ export default class extends Controller {
   #applyDefaultApiKeyAndModel() {
     const urlParams = new URLSearchParams(window.location.search)
     const defaultApiKey = urlParams.get("api_key_uuid") || ""
-    const defaultModel = urlParams.get("model") || ""
-
+      
     if (defaultApiKey) {
       const apiKeySelect = this.element.querySelector(
         'select[name="api_key_uuid"]'
@@ -52,6 +51,7 @@ export default class extends Controller {
         // Generate model list based on selected API key
         this.apiKeyChanged({ target: apiKeySelect })
 
+        const defaultModel = urlParams.get("model") || ""
         // Set default model after model list is generated
         if (defaultModel && this.hasModelTarget) {
           this.#setDefaultModel(defaultModel)
