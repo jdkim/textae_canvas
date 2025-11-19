@@ -7,11 +7,6 @@ class AiAnnotationsController < ApplicationController
 
   def new
     @new_ai_annotation = AiAnnotation.new
-
-    if user_signed_in?
-      @jwt_token = current_user.id_token || ""
-      Rails.logger.debug "JWT Token in new action: current_user=#{current_user.email}, id_token=#{current_user.id_token.present? ? '[PRESENT]' : '[EMPTY]'}"
-    end
     @history = AiAnnotation.order(created_at: :desc).limit(10)
     @llm_api_keys = fetch_llm_api_keys
   end
@@ -33,7 +28,6 @@ class AiAnnotationsController < ApplicationController
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
 
     # Set required variables in case of error
-    @jwt_token = token || current_user.id_token
     @history = user_signed_in? ? AiAnnotation.order(created_at: :desc).limit(10) : []
 
     render :new, status: :unprocessable_entity
@@ -46,10 +40,6 @@ class AiAnnotationsController < ApplicationController
       return
     end
 
-    if user_signed_in?
-      @jwt_token = current_user.id_token || ""
-      Rails.logger.debug "JWT Token in new action: current_user=#{current_user.email}, id_token=#{current_user.id_token.present? ? '[PRESENT]' : '[EMPTY]'}"
-    end
     @history = AiAnnotation.order(created_at: :desc).limit(10)
     @llm_api_keys = fetch_llm_api_keys
   end
@@ -75,9 +65,6 @@ class AiAnnotationsController < ApplicationController
   rescue SimpleInlineTextAnnotation::RelationWithoutDenotationError => e
     # Error that may occur in SimpleInlineTextAnnotation when the LLM response is invalid
     Rails.logger.error "#{e.class}: #{e.message}"
-
-    # Set required variables in case of error
-    @jwt_token = token || current_user.id_token
 
     flash.now[:alert] = "Invalid response from AI. Please retry."
     @ai_annotation.reload
