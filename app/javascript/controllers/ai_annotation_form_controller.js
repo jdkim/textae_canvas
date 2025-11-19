@@ -5,12 +5,10 @@ export default class extends Controller {
   static targets = ["text", "prompt", "submit", "model"]
 
   connect() {
-    // Get initial values from URL query parameters or data attributes
+    // Get initial values from URL query parameters
     const urlParams = new URLSearchParams(window.location.search)
-    const defaultApiKey =
-      urlParams.get("api_key_uuid") || this.element.dataset.selectedApiKey || ""
-    const defaultModel =
-      urlParams.get("model") || this.element.dataset.selectedModel || ""
+    const defaultApiKey = urlParams.get("api_key_uuid") || ""
+    const defaultModel = urlParams.get("model") || ""
 
     if (defaultApiKey) {
       const apiKeySelect = this.element.querySelector(
