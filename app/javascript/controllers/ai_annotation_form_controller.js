@@ -5,41 +5,8 @@ export default class extends Controller {
   static targets = ["text", "prompt", "submit", "model"]
 
   connect() {
-    this.applyDefaultApiKeyAndModel()
+    this.#applyDefaultApiKeyAndModel()
     this.updateSubmitButton()
-  }
-
-  applyDefaultApiKeyAndModel() {
-    const urlParams = new URLSearchParams(window.location.search)
-    const defaultApiKey = urlParams.get("api_key_uuid") || ""
-    const defaultModel = urlParams.get("model") || ""
-
-    if (defaultApiKey) {
-      const apiKeySelect = this.element.querySelector(
-        'select[name="api_key_uuid"]'
-      )
-      if (apiKeySelect) {
-        apiKeySelect.value = defaultApiKey
-
-        // Generate model list based on selected API key
-        this.apiKeyChanged({ target: apiKeySelect })
-
-        // Set default model after model list is generated
-        if (defaultModel && this.hasModelTarget) {
-          this.setDefaultModel(defaultModel)
-        }
-      }
-    }
-  }
-
-  setDefaultModel(defaultModel) {
-    const optionValues = Array.from(this.modelTarget.options).map(
-      (o) => o.value
-    )
-    if (optionValues.includes(defaultModel)) {
-      this.modelTarget.value = defaultModel
-      this.updateSubmitButton()
-    }
   }
 
   apiKeyChanged(event) {
@@ -68,6 +35,39 @@ export default class extends Controller {
 
   updateSubmitButton() {
     this.submitTarget.disabled = !this.#canSubmit()
+  }
+
+  #applyDefaultApiKeyAndModel() {
+    const urlParams = new URLSearchParams(window.location.search)
+    const defaultApiKey = urlParams.get("api_key_uuid") || ""
+    const defaultModel = urlParams.get("model") || ""
+
+    if (defaultApiKey) {
+      const apiKeySelect = this.element.querySelector(
+        'select[name="api_key_uuid"]'
+      )
+      if (apiKeySelect) {
+        apiKeySelect.value = defaultApiKey
+
+        // Generate model list based on selected API key
+        this.apiKeyChanged({ target: apiKeySelect })
+
+        // Set default model after model list is generated
+        if (defaultModel && this.hasModelTarget) {
+          this.#setDefaultModel(defaultModel)
+        }
+      }
+    }
+  }
+
+  #setDefaultModel(defaultModel) {
+    const optionValues = Array.from(this.modelTarget.options).map(
+      (o) => o.value
+    )
+    if (optionValues.includes(defaultModel)) {
+      this.modelTarget.value = defaultModel
+      this.updateSubmitButton()
+    }
   }
 
   #populateModelSelect(models) {
