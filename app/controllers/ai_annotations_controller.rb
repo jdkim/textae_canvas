@@ -41,7 +41,7 @@ class AiAnnotationsController < ApplicationController
     Rails.logger.error "Error: #{e.message}"
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
 
-    # エラー時に必要な変数を設定
+    # Set required variables in case of error
     @llm_service_url = "#{Rails.application.config.llm_service_base_url}/api/llm_api_keys/"
     @jwt_token = token || current_user.id_token
     @history = user_signed_in? ? AiAnnotation.order(created_at: :desc).limit(10) : []
@@ -91,7 +91,7 @@ class AiAnnotationsController < ApplicationController
     # Error that may occur in SimpleInlineTextAnnotation when the LLM response is invalid
     Rails.logger.error "#{e.class}: #{e.message}"
 
-    # エラー時に必要な変数を設定
+    # Set required variables in case of error
     @llm_service_url = "#{Rails.application.config.llm_service_base_url}/api/llm_api_keys/"
     @jwt_token = token || current_user.id_token
 
