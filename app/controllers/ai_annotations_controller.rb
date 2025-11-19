@@ -1,13 +1,8 @@
 class AiAnnotationsController < ApplicationController
-  before_action :authenticate_user!, except: [ :show, :new ]
+  before_action :authenticate_user!, except: [ :new ]
 
   def index
     @ai_annotations = AiAnnotation.where(user: current_user)
-  end
-
-  def show
-    @ai_annotation = AiAnnotation.find_by(uuid: params[:uuid])
-    redirect_to root_path unless @ai_annotation
   end
 
   def new
