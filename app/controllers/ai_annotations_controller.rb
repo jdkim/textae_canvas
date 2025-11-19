@@ -7,7 +7,6 @@ class AiAnnotationsController < ApplicationController
 
   def new
     @new_ai_annotation = AiAnnotation.new
-    @llm_service_url = "#{Rails.application.config.llm_service_base_url}/api/llm_api_keys/"
 
     if user_signed_in?
       @jwt_token = current_user.id_token || ""
@@ -34,7 +33,6 @@ class AiAnnotationsController < ApplicationController
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
 
     # Set required variables in case of error
-    @llm_service_url = "#{Rails.application.config.llm_service_base_url}/api/llm_api_keys/"
     @jwt_token = token || current_user.id_token
     @history = user_signed_in? ? AiAnnotation.order(created_at: :desc).limit(10) : []
 
@@ -47,8 +45,6 @@ class AiAnnotationsController < ApplicationController
       redirect_to root_path
       return
     end
-
-    @llm_service_url = "#{Rails.application.config.llm_service_base_url}/api/llm_api_keys/"
 
     if user_signed_in?
       @jwt_token = current_user.id_token || ""
@@ -81,7 +77,6 @@ class AiAnnotationsController < ApplicationController
     Rails.logger.error "#{e.class}: #{e.message}"
 
     # Set required variables in case of error
-    @llm_service_url = "#{Rails.application.config.llm_service_base_url}/api/llm_api_keys/"
     @jwt_token = token || current_user.id_token
 
     flash.now[:alert] = "Invalid response from AI. Please retry."
