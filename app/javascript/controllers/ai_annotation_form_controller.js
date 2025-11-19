@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="ai-annotation-form"
 export default class extends Controller {
-  static targets = ["text", "prompt", "submit", "model"]
+  static targets = ["text", "prompt", "submit", "model", "apiKey"]
 
   connect() {
     this.#applyDefaultApiKeyAndModel()
@@ -42,9 +42,7 @@ export default class extends Controller {
     const defaultApiKey = urlParams.get("api_key_uuid") || ""
       
     if (defaultApiKey) {
-      const apiKeySelect = this.element.querySelector(
-        'select[name="api_key_uuid"]'
-      )
+      const apiKeySelect = this.apiKeyTarget
       if (apiKeySelect) {
         apiKeySelect.value = defaultApiKey
 
