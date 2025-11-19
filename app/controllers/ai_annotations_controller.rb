@@ -78,7 +78,7 @@ class AiAnnotationsController < ApplicationController
     if user_signed_in?
       begin
         @llm_api_keys = LlmMetaServerResource.llm_api_keys current_user
-      rescue ActionController::ParameterMissing
+      rescue ArgumentError
         Rails.logger.error "User ID token is missing or invalid"
         flash.now[:alert] = "Unable to fetch API keys due to missing or invalid user."
       end
