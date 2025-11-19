@@ -21,4 +21,3 @@ class LlmMetaServerResource
     []
   end
 end
-
