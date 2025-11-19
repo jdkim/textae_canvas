@@ -1,8 +1,14 @@
 class AiAnnotationsController < ApplicationController
+  before_action :authenticate_user!, except: [ :new ]
+
+  def index
+    @ai_annotations = AiAnnotation.where(user: current_user)
+  end
+
   def new
     @new_ai_annotation = AiAnnotation.new
     @history = AiAnnotation.order(created_at: :desc).limit(10)
-    @llm_api_keys = fetch_llm_api_keys
+    fetch_llm_api_keys
   end
 
   def create
@@ -10,34 +16,50 @@ class AiAnnotationsController < ApplicationController
     prompt = ai_annotation_params[:prompt]
     @new_ai_annotation = AiAnnotation.prepare_with(text, prompt)
 
-    ai_annotation = @new_ai_annotation.annotate!
-    increment_token_usage(@new_ai_annotation.token_used)
+    token = current_user.id_token
+    selected_api_key_uuid = params[:api_key_uuid]
+    selected_model = params[:model]
+
+    ai_annotation = @new_ai_annotation.annotate! token, selected_api_key_uuid, selected_model
 
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"
   rescue => e
     Rails.logger.error "Error: #{e.message}"
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
+
+    # Set required variables in case of error
+    @history = user_signed_in? ? AiAnnotation.order(created_at: :desc).limit(10) : []
+
     render :new, status: :unprocessable_entity
   end
 
   def edit
-    @ai_annotation = AiAnnotation.find_by!(uuid: params[:uuid])
+    @ai_annotation = AiAnnotation.find_by(uuid: params[:uuid])
+    return redirect_to root_path unless @ai_annotation
+
     @history = AiAnnotation.order(created_at: :desc).limit(10)
-    @llm_api_keys = fetch_llm_api_keys
+    fetch_llm_api_keys
   end
 
   def update
-    @ai_annotation = AiAnnotation.find_by(uuid: params[:id])
+    @ai_annotation = AiAnnotation.find_by(uuid: params[:uuid])
+    return redirect_to root_path unless @ai_annotation
+
     @history = AiAnnotation.order(created_at: :desc).limit(10)
     @ai_annotation.annotation = JSON.parse(ai_annotation_params[:content])
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
-    ai_annotation = @ai_annotation.annotate!
-    increment_token_usage(@ai_annotation.token_used)
+    token = current_user.id_token
+    selected_api_key_uuid = params[:api_key_uuid]
+    selected_model = params[:model]
+
+    ai_annotation = @ai_annotation.annotate! token, selected_api_key_uuid, selected_model
+
     redirect_to "/ai_annotations/#{ai_annotation.uuid}"
   rescue SimpleInlineTextAnnotation::RelationWithoutDenotationError => e
     # Error that may occur in SimpleInlineTextAnnotation when the LLM response is invalid
     Rails.logger.error "#{e.class}: #{e.message}"
+
     flash.now[:alert] = "Invalid response from AI. Please retry."
     @ai_annotation.reload
     render :edit, status: :unprocessable_entity
@@ -49,27 +71,22 @@ class AiAnnotationsController < ApplicationController
 
   private
 
-  def ai_annotation_params
-    params.expect(ai_annotation: [ :text, :prompt, :content ])
+  def fetch_llm_api_keys
+    if user_signed_in?
+      begin
+        @llm_api_keys = LlmMetaServerResource.llm_api_keys current_user
+      rescue ArgumentError
+        Rails.logger.error "User ID token is missing or invalid"
+        flash.now[:alert] = "Unable to fetch API keys due to missing or invalid user."
+      end
+    else
+      Rails.logger.info "Login required for paid models"
+      flash.now[:info] = "Login is required to use paid models."
+      @llm_api_keys = []
+    end
   end
 
-  def fetch_llm_api_keys
-    api_url = ENV.fetch("LLM_API_KEYS_URL", "http://localhost:3000/api/llm_api_keys/")
-    # jwt_token = current_user.id_token TODO enable when user.id_token is implemented
-
-    headers = { "Content-Type" => "application/json" }
-    headers["Authorization"] = "Bearer #{jwt_token}" if jwt_token.present?
-
-    response = HTTParty.get(api_url, headers: headers)
-
-    if response.success?
-      response.parsed_response["llm_api_keys"] || []
-    else
-      Rails.logger.error "Failed to fetch LLM API keys: HTTP #{response.code}"
-      []
-    end
-  rescue => e
-    Rails.logger.error "Failed to fetch LLM API keys: #{e.message}"
-    []
+  def ai_annotation_params
+    params.expect(ai_annotation: [ :text, :prompt, :content, :api_key_uuid, :model ])
   end
 end
