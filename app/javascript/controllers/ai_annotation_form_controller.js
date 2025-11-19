@@ -59,10 +59,10 @@ export default class extends Controller {
   }
 
   #setDefaultModel(defaultModel) {
-    const optionValues = Array.from(this.modelTarget.options).map(
-      (o) => o.value
+    const option = Array.from(this.modelTarget.options).find(
+      (o) => o.value === defaultModel
     )
-    if (optionValues.includes(defaultModel)) {
+    if (option) {
       this.modelTarget.value = defaultModel
       this.updateSubmitButton()
     }
