@@ -8,7 +8,7 @@ class AiAnnotationsController < ApplicationController
   def new
     @new_ai_annotation = AiAnnotation.new
     @history = AiAnnotation.order(created_at: :desc).limit(10)
-    @llm_api_keys = LlmMetaServerResource.llm_api_keys current_user
+    fetch_llm_api_keys
   end
 
   def create
@@ -41,7 +41,7 @@ class AiAnnotationsController < ApplicationController
     end
 
     @history = AiAnnotation.order(created_at: :desc).limit(10)
-    @llm_api_keys = LlmMetaServerResource.llm_api_keys current_user
+    fetch_llm_api_keys
   end
 
   def update
@@ -73,6 +73,21 @@ class AiAnnotationsController < ApplicationController
   end
 
   private
+
+  def fetch_llm_api_keys
+    if user_signed_in?
+      begin
+        @llm_api_keys = LlmMetaServerResource.llm_api_keys current_user
+      rescue ActionController::ParameterMissing
+        Rails.logger.error "User ID token is missing or invalid"
+        flash.now[:alert] = "Unable to fetch API keys due to missing or invalid user."
+      end
+    else
+      Rails.logger.info "Login required for paid models"
+      flash.now[:info] = "Login is required to use paid models."
+      @llm_api_keys = []
+    end
+  end
 
   def ai_annotation_params
     params.expect(ai_annotation: [ :text, :prompt, :content, :api_key_uuid, :model ])

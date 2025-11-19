@@ -4,9 +4,10 @@ class LlmMetaServerResource
   def self.llm_api_keys(current_user)
     api_url = ENV.fetch("LLM_API_KEYS_URL", "http://localhost:3000/api/llm_api_keys/")
     jwt_token = current_user.id_token
+    raise ActionController::ParameterMissing, "User ID token is missing or invalid" if jwt_token.blank?
 
     headers = { "Content-Type" => "application/json" }
-    headers["Authorization"] = "Bearer #{jwt_token}" if jwt_token.present?
+    headers["Authorization"] = "Bearer #{jwt_token}"
 
     response = HTTParty.get(api_url, headers: headers)
 
@@ -16,8 +17,5 @@ class LlmMetaServerResource
       Rails.logger.error "Failed to fetch LLM API keys: HTTP #{response.code}"
       []
     end
-  rescue => e
-    Rails.logger.error "Failed to fetch LLM API keys: #{e.message}"
-    []
   end
 end
