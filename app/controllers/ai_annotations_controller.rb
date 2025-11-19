@@ -35,10 +35,7 @@ class AiAnnotationsController < ApplicationController
 
   def edit
     @ai_annotation = AiAnnotation.find_by(uuid: params[:uuid])
-    unless @ai_annotation
-      redirect_to root_path
-      return
-    end
+    return redirect_to root_path unless @ai_annotation
 
     @history = AiAnnotation.order(created_at: :desc).limit(10)
     fetch_llm_api_keys
