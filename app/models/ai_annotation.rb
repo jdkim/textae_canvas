@@ -41,7 +41,7 @@ class AiAnnotation < ApplicationRecord
     @annotation = annotation_hash
   end
 
-  def self.fetch_llm_api_keys(current_user)
+  def self.llm_api_keys(current_user)
     api_url = ENV.fetch("LLM_API_KEYS_URL", "http://localhost:3000/api/llm_api_keys/")
     jwt_token = current_user.id_token
 

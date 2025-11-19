@@ -8,7 +8,7 @@ class AiAnnotationsController < ApplicationController
   def new
     @new_ai_annotation = AiAnnotation.new
     @history = AiAnnotation.order(created_at: :desc).limit(10)
-    @llm_api_keys = AiAnnotation.fetch_llm_api_keys current_user
+    @llm_api_keys = AiAnnotation.llm_api_keys current_user
   end
 
   def create
@@ -41,7 +41,7 @@ class AiAnnotationsController < ApplicationController
     end
 
     @history = AiAnnotation.order(created_at: :desc).limit(10)
-    @llm_api_keys = AiAnnotation.fetch_llm_api_keys current_user
+    @llm_api_keys = AiAnnotation.llm_api_keys current_user
   end
 
   def update
