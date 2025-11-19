@@ -11,9 +11,6 @@ class AiAnnotationsController < ApplicationController
   end
 
   def new
-    Rails.logger.info "User authenticated: #{user_signed_in?}"
-    Rails.logger.info "Current user: #{current_user.inspect}"
-
     @new_ai_annotation = AiAnnotation.new
     @llm_service_url = "#{Rails.application.config.llm_service_base_url}/api/llm_api_keys/"
 
@@ -67,9 +64,6 @@ class AiAnnotationsController < ApplicationController
   end
 
   def update
-    Rails.logger.info "=== UPDATE ACTION CALLED ==="
-    Rails.logger.info "All params: #{params.inspect}"
-
     @ai_annotation = AiAnnotation.find_by(uuid: params[:uuid])
     unless @ai_annotation
       redirect_to root_path
