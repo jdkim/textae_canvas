@@ -22,7 +22,7 @@ class AiAnnotationsController < ApplicationController
 
     ai_annotation = @new_ai_annotation.annotate! token, selected_api_key_uuid, selected_model
 
-    redirect_to "/ai_annotations/#{ai_annotation.uuid}?api_key_uuid=#{selected_api_key_uuid}&model=#{selected_model}"
+    redirect_to ai_annotation_path(ai_annotation.uuid, api_key_uuid: selected_api_key_uuid, model: selected_model)
   rescue => e
     Rails.logger.error "Error: #{e.message}"
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
@@ -55,7 +55,7 @@ class AiAnnotationsController < ApplicationController
 
     ai_annotation = @ai_annotation.annotate! token, selected_api_key_uuid, selected_model
 
-    redirect_to "/ai_annotations/#{ai_annotation.uuid}?api_key_uuid=#{selected_api_key_uuid}&model=#{selected_model}"
+    redirect_to ai_annotation_path(ai_annotation.uuid, api_key_uuid: selected_api_key_uuid, model: selected_model)
   rescue SimpleInlineTextAnnotation::RelationWithoutDenotationError => e
     # Error that may occur in SimpleInlineTextAnnotation when the LLM response is invalid
     Rails.logger.error "#{e.class}: #{e.message}"
