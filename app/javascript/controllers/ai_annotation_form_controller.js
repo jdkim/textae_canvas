@@ -42,12 +42,11 @@ export default class extends Controller {
     const defaultApiKey = urlParams.get("api_key_uuid")
 
     if (defaultApiKey) {
-      const apiKeySelect = this.apiKeyTarget
       if (this.hasApiKeyTarget) {
-        apiKeySelect.value = defaultApiKey
+        this.apiKeyTarget.value = defaultApiKey
 
         // Generate model list based on selected API key
-        this.apiKeyChanged({ target: apiKeySelect })
+        this.apiKeyChanged({ target: this.apiKeyTarget })
 
         const defaultModel = urlParams.get("model") || ""
         // Set default model after model list is generated
