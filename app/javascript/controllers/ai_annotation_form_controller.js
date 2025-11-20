@@ -48,22 +48,24 @@ export default class extends Controller {
         // Generate model list based on selected API key
         this.apiKeyChanged({ target: this.apiKeyTarget })
 
-        const defaultModel = urlParams.get("model") || ""
         // Set default model after model list is generated
-        if (defaultModel && this.hasModelTarget) {
-          this.#setDefaultModel(defaultModel)
-        }
+        this.#setDefaultModel()
       }
     }
   }
 
-  #setDefaultModel(defaultModel) {
-    const option = Array.from(this.modelTarget.options).find(
-      (o) => o.value === defaultModel
-    )
-    if (option) {
-      this.modelTarget.value = option
-      this.updateSubmitButton()
+  #setDefaultModel() {
+    const urlParams = new URLSearchParams(window.location.search)
+    const defaultModel = urlParams.get("model")
+
+    if (defaultModel && this.hasModelTarget) {
+      const option = Array.from(this.modelTarget.options).find(
+        (o) => o.value === defaultModel
+      )
+      if (option) {
+        this.modelTarget.value = option
+        this.updateSubmitButton()
+      }
     }
   }
 
