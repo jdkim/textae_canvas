@@ -5,7 +5,7 @@ export default class extends Controller {
   static targets = ["text", "prompt", "submit", "model", "apiKey"]
 
   connect() {
-    this.#applyDefaultApiKeyAndModel()
+    this.#setDefaultApiKeyAndModel()
     this.updateSubmitButton()
   }
 
@@ -37,7 +37,7 @@ export default class extends Controller {
     this.submitTarget.disabled = !this.#canSubmit()
   }
 
-  #applyDefaultApiKeyAndModel() {
+  #setDefaultApiKeyAndModel() {
     const urlParams = new URLSearchParams(window.location.search)
     const defaultApiKey = urlParams.get("api_key_uuid")
 
