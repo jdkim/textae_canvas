@@ -41,8 +41,12 @@ export default class extends Controller {
     const urlParams = new URLSearchParams(window.location.search)
     const defaultApiKey = urlParams.get("api_key_uuid")
 
-    if (defaultApiKey) {
-      if (this.hasApiKeyTarget) {
+    if (defaultApiKey && this.hasApiKeyTarget) {
+      // Verify that the API key exists in the select options
+      const option = Array.from(this.apiKeyTarget.options).find(
+        (o) => o.value === defaultApiKey
+      )
+      if (option) {
         this.apiKeyTarget.value = defaultApiKey
 
         // Generate model list based on selected API key
@@ -63,7 +67,7 @@ export default class extends Controller {
         (o) => o.value === defaultModel
       )
       if (option) {
-        this.modelTarget.value = option
+        this.modelTarget.value = option.value
         this.updateSubmitButton()
       }
     }
