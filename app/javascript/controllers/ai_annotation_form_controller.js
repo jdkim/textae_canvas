@@ -47,7 +47,7 @@ export default class extends Controller {
         (o) => o.value === defaultApiKey
       )
       if (option) {
-        this.apiKeyTarget.value = defaultApiKey
+        this.apiKeyTarget.value = option.value
 
         // Generate model list based on selected API key
         this.apiKeyChanged({ target: this.apiKeyTarget })
