@@ -43,7 +43,7 @@ export default class extends Controller {
 
     if (defaultApiKey) {
       const apiKeySelect = this.apiKeyTarget
-      if (apiKeySelect) {
+      if (this.hasApiKeyTarget) {
         apiKeySelect.value = defaultApiKey
 
         // Generate model list based on selected API key
