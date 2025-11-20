@@ -63,7 +63,7 @@ export default class extends Controller {
       (o) => o.value === defaultModel
     )
     if (option) {
-      this.modelTarget.value = defaultModel
+      this.modelTarget.value = option
       this.updateSubmitButton()
     }
   }
