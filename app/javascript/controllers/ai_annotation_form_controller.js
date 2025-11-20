@@ -2,9 +2,10 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="ai-annotation-form"
 export default class extends Controller {
-  static targets = ["text", "prompt", "submit", "model"]
+  static targets = ["text", "prompt", "submit", "model", "apiKey"]
 
   connect() {
+    this.#setDefaultApiKeyAndModel()
     this.updateSubmitButton()
   }
 
@@ -34,6 +35,41 @@ export default class extends Controller {
 
   updateSubmitButton() {
     this.submitTarget.disabled = !this.#canSubmit()
+  }
+
+  #setDefaultApiKeyAndModel() {
+    const urlParams = new URLSearchParams(window.location.search)
+    const defaultApiKey = urlParams.get("api_key_uuid")
+
+    if (defaultApiKey && this.hasApiKeyTarget) {
+      // Verify that the API key exists in the select options
+      const option = Array.from(this.apiKeyTarget.options).find(
+        (o) => o.value === defaultApiKey
+      )
+      if (option) {
+        this.apiKeyTarget.value = option.value
+
+        // Generate model list based on selected API key
+        this.apiKeyChanged({ target: this.apiKeyTarget })
+
+        // Set default model after model list is generated
+        this.#setDefaultModel()
+      }
+    }
+  }
+
+  #setDefaultModel() {
+    const urlParams = new URLSearchParams(window.location.search)
+    const defaultModel = urlParams.get("model")
+
+    if (defaultModel && this.hasModelTarget) {
+      const option = Array.from(this.modelTarget.options).find(
+        (o) => o.value === defaultModel
+      )
+      if (option) {
+        this.modelTarget.value = option.value
+      }
+    }
   }
 
   #populateModelSelect(models) {
