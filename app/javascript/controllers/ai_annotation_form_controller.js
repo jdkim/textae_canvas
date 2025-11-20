@@ -68,7 +68,6 @@ export default class extends Controller {
       )
       if (option) {
         this.modelTarget.value = option.value
-        this.updateSubmitButton()
       }
     }
   }
