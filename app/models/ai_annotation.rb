@@ -36,7 +36,6 @@ class AiAnnotation < ApplicationRecord
     @id_token = id_token
     @api_key_uuid = api_key_uuid
     @model_id = model_id
-    local_parent = parent
 
     if @annotation.dig("selectedText", "status") == "selected"
       # Get selected range from the annotation
@@ -49,7 +48,7 @@ class AiAnnotation < ApplicationRecord
 
     result = JSON.generate(result)
 
-    AiAnnotation.create!(prompt: prompt, content: result, parent: local_parent, user: self.user)
+    AiAnnotation.create!(prompt: prompt, content: result, parent: parent, user: self.user)
   end
 
   def text=(annotation)
