@@ -10,13 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_07_081343) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_21_000000) do
   create_table "ai_annotations", force: :cascade do |t|
     t.text "content"
     t.datetime "created_at", null: false
+    t.integer "parent_id"
     t.text "prompt"
     t.datetime "updated_at", null: false
     t.string "uuid", null: false
+    t.index ["parent_id"], name: "index_ai_annotations_on_parent_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -26,4 +28,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_07_081343) do
     t.text "id_token"
     t.datetime "updated_at", null: false
   end
+
+  add_foreign_key "ai_annotations", "ai_annotations", column: "parent_id"
 end

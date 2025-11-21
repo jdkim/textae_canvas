@@ -5,6 +5,7 @@ class AiAnnotation < ApplicationRecord
   before_create :set_uuid
 
   scope :old, -> { where("created_at < ?", 1.day.ago) }
+  belongs_to :parent, class_name: 'AiAnnotation', optional: true
 
   def self.prepare_with(text, prompt)
     instance = new
