@@ -11,7 +11,7 @@ class AiAnnotation < ApplicationRecord
   has_many :children, class_name: "AiAnnotation", foreign_key: "parent_id"
   belongs_to :user, optional: true
 
-  validate :parent_chain_no_cycle
+  validate :prevent_parent_loop
 
   def self.prepare_with(text, prompt, user = nil)
     instance = new
@@ -112,7 +112,7 @@ class AiAnnotation < ApplicationRecord
     AnnotationMerger.new(result[:chunk_results]).merged
   end
 
-  def parent_chain_no_cycle
+  def prevent_parent_loop
     return if parent.nil?
     ancestor = parent
     while ancestor
