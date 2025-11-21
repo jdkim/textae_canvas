@@ -47,8 +47,8 @@ export default class extends Controller {
       if (verticalGap < 80) return;
 
       // Draw curved line to the left for non-adjacent cards
-      const startX = 8; // left edge margin
-      const curveX = startX - 16; // curve outward to the left
+      const startX = 32; // left edge margin
+      const curveX = startX - 40; // curve outward to the left
       const pathData = `M ${startX} ${startY} C ${curveX} ${startY}, ${curveX} ${endY}, ${startX} ${endY}`;
 
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
