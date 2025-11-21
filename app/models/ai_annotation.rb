@@ -29,7 +29,7 @@ class AiAnnotation < ApplicationRecord
 
   def self.guest_history(uuids, limit: 50)
     return AiAnnotation.none if uuids.blank?
-    latest.where(uuid: uuids).limit(limit)
+    latest.where(uuid: uuids, user_id: nil).limit(limit)
   end
 
   def annotate!(id_token, api_key_uuid, model_id, parent: nil)
