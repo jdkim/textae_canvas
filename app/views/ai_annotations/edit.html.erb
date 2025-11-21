@@ -12,6 +12,7 @@
   </div>
 
   <%= f.hidden_field :content, id: 'textae-annotation' %>
+  <%= f.hidden_field :branch_from_uuid, value: @ai_annotation.uuid %>
 
   <%= render 'submit_row', f: f %>
 <% end %>

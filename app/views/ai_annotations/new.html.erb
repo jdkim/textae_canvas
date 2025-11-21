@@ -9,5 +9,7 @@
     <%= f.textarea :prompt, required: true, rows: 3, placeholder: "Order how to annotate the text", data: { ai_annotation_form_target: "prompt" } %>
   </div>
 
+  <%= f.hidden_field :branch_from_uuid, value: params.dig(:ai_annotation, :branch_from_uuid) %>
+
   <%= render 'submit_row', f: f %>
 <% end %>

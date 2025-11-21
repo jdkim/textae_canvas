@@ -1,8 +1,6 @@
 <h2>History</h2>
 <% if @history.present? %>
-  <% @history.each do |item| %>
-  <div class="history">
-    <%= link_to item.prompt, ai_annotation_path(item.uuid) %>
-  </div>
-  <% end %>
+  <%= render_history(@history, active_uuid: (@ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid))) %>
+<% else %>
+  <p class="history-empty">No history yet</p>
 <% end %>
