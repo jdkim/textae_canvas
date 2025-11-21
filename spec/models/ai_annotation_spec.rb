@@ -37,17 +37,13 @@ RSpec.describe AiAnnotation, type: :model do
     end
   end
 
-  describe 'sequence numbering' do
-    it 'assigns incremental sequence_number' do
+  describe 'ordering' do
+    it 'recent orders by created_at desc' do
       a1 = AiAnnotation.create!(content: 'a1', prompt: 'p1')
-      a2 = AiAnnotation.create!(content: 'a2', prompt: 'p2')
-      expect(a2.sequence_number).to eq(a1.sequence_number + 1)
-    end
-
-    it 'recent orders by sequence_number desc' do
-      a1 = AiAnnotation.create!(content: 'a1', prompt: 'p1')
+      sleep 0.01 # Ensure different timestamps
       a2 = AiAnnotation.create!(content: 'a2', prompt: 'p2')
       expect(AiAnnotation.recent.first).to eq(a2)
+      expect(AiAnnotation.recent.second).to eq(a1)
     end
   end
 
