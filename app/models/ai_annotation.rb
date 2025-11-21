@@ -5,7 +5,12 @@ class AiAnnotation < ApplicationRecord
   before_create :set_uuid
 
   scope :old, -> { where("created_at < ?", 1.day.ago) }
-  belongs_to :parent, class_name: "AiAnnotation", optional: true
+  scope :recent, -> { order(created_at: :desc) }
+
+  belongs_to :parent, class_name: 'AiAnnotation', optional: true
+  has_many :children, class_name: 'AiAnnotation', foreign_key: 'parent_id'
+
+  validate :parent_chain_no_cycle
 
   def self.prepare_with(text, prompt)
     instance = new
@@ -14,10 +19,15 @@ class AiAnnotation < ApplicationRecord
     instance
   end
 
-  def annotate!(id_token, api_key_uuid, model_id)
+  def self.history_with_branches(limit: 50)
+    recent.includes(:parent).limit(limit)
+  end
+
+  def annotate!(id_token, api_key_uuid, model_id, parent: nil)
     @id_token = id_token
     @api_key_uuid = api_key_uuid
     @model_id = model_id
+    @parent = parent
 
     if @annotation.dig("selectedText", "status") == "selected"
       # Get selected range from the annotation
@@ -30,7 +40,7 @@ class AiAnnotation < ApplicationRecord
 
     result = JSON.generate(result)
 
-    AiAnnotation.create!(prompt: prompt, content: result)
+    AiAnnotation.create!(prompt: prompt, content: result, parent: @parent)
   end
 
   def text=(annotation)
@@ -92,5 +102,17 @@ class AiAnnotation < ApplicationRecord
     end
 
     AnnotationMerger.new(result[:chunk_results]).merged
+  end
+
+  def parent_chain_no_cycle
+    return if parent.nil?
+    ancestor = parent
+    while ancestor
+      if ancestor == self
+        errors.add(:parent, 'cannot create a cycle')
+        break
+      end
+      ancestor = ancestor.parent
+    end
   end
 end
