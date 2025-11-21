@@ -27,6 +27,11 @@ class AiAnnotation < ApplicationRecord
     scope.limit(limit)
   end
 
+  def self.guest_history(uuids, limit: 50)
+    return AiAnnotation.none if uuids.blank?
+    recent.where(uuid: uuids).limit(limit)
+  end
+
   def annotate!(id_token, api_key_uuid, model_id, parent: nil)
     @id_token = id_token
     @api_key_uuid = api_key_uuid
