@@ -9,25 +9,29 @@ class AiAnnotation < ApplicationRecord
 
   belongs_to :parent, class_name: 'AiAnnotation', optional: true
   has_many :children, class_name: 'AiAnnotation', foreign_key: 'parent_id'
+  belongs_to :user, optional: true
 
   validate :parent_chain_no_cycle
 
-  def self.prepare_with(text, prompt)
+  def self.prepare_with(text, prompt, user = nil)
     instance = new
     instance.text = text
     instance.prompt = prompt
+    instance.user = user if user
     instance
   end
 
-  def self.history_with_branches(limit: 50)
-    recent.includes(:parent).limit(limit)
+  def self.history_with_branches(limit: 50, user: nil)
+    scope = recent.includes(:parent)
+    scope = scope.where(user: user) if user
+    scope.limit(limit)
   end
 
   def annotate!(id_token, api_key_uuid, model_id, parent: nil)
     @id_token = id_token
     @api_key_uuid = api_key_uuid
     @model_id = model_id
-    @parent = parent
+    local_parent = parent
 
     if @annotation.dig("selectedText", "status") == "selected"
       # Get selected range from the annotation
@@ -40,7 +44,7 @@ class AiAnnotation < ApplicationRecord
 
     result = JSON.generate(result)
 
-    AiAnnotation.create!(prompt: prompt, content: result, parent: @parent)
+    AiAnnotation.create!(prompt: prompt, content: result, parent: local_parent, user: self.user)
   end
 
   def text=(annotation)
