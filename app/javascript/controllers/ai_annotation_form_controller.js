@@ -108,6 +108,11 @@ export default class extends Controller {
     const basicFieldsValid =
       (!textField || textField.checkValidity()) && promptField.checkValidity()
 
+    const isGuest = this.element.dataset.guest === "true"
+    if (isGuest) {
+      return basicFieldsValid
+    }
+
     // API Key and Model selects require JavaScript validation for the following reasons:
     // 1. Model select is dynamically enabled/disabled based on API Key selection
     // 2. Disabled selects are not validated by checkValidity()
