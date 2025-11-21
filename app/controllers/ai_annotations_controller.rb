@@ -7,7 +7,7 @@ class AiAnnotationsController < ApplicationController
 
   def new
     @new_ai_annotation = AiAnnotation.new
-    @history = AiAnnotation.order(created_at: :desc).limit(10)
+    @history = AiAnnotation.history_with_branches(limit: 50)
     fetch_llm_api_keys
   end
 
@@ -16,11 +16,12 @@ class AiAnnotationsController < ApplicationController
     prompt = ai_annotation_params[:prompt]
     @new_ai_annotation = AiAnnotation.prepare_with(text, prompt)
 
-    token = current_user.id_token
+    token = current_user.id_token if user_signed_in?
     selected_api_key_uuid = params[:api_key_uuid]
     selected_model = params[:model]
+    parent = AiAnnotation.find_by(uuid: ai_annotation_params[:branch_from_uuid]) if ai_annotation_params[:branch_from_uuid].present?
 
-    ai_annotation = @new_ai_annotation.annotate! token, selected_api_key_uuid, selected_model
+    ai_annotation = @new_ai_annotation.annotate! token, selected_api_key_uuid, selected_model, parent: parent
 
     redirect_to edit_ai_annotation_path(ai_annotation.uuid, api_key_uuid: selected_api_key_uuid, model: selected_model)
   rescue => e
@@ -28,7 +29,7 @@ class AiAnnotationsController < ApplicationController
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
 
     # Set required variables in case of error
-    @history = user_signed_in? ? AiAnnotation.order(created_at: :desc).limit(10) : []
+    @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50) : []
 
     render :new, status: :unprocessable_entity
   end
@@ -37,7 +38,7 @@ class AiAnnotationsController < ApplicationController
     @ai_annotation = AiAnnotation.find_by(uuid: params[:uuid])
     return redirect_to root_path unless @ai_annotation
 
-    @history = AiAnnotation.order(created_at: :desc).limit(10)
+    @history = AiAnnotation.history_with_branches(limit: 50)
     fetch_llm_api_keys
   end
 
@@ -45,15 +46,16 @@ class AiAnnotationsController < ApplicationController
     @ai_annotation = AiAnnotation.find_by(uuid: params[:uuid])
     return redirect_to root_path unless @ai_annotation
 
-    @history = AiAnnotation.order(created_at: :desc).limit(10)
+    @history = AiAnnotation.history_with_branches(limit: 50)
     @ai_annotation.annotation = JSON.parse(ai_annotation_params[:content])
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
-    token = current_user.id_token
+    token = current_user.id_token if user_signed_in?
     selected_api_key_uuid = params[:api_key_uuid]
     selected_model = params[:model]
+    parent = AiAnnotation.find_by(uuid: ai_annotation_params[:branch_from_uuid]) if ai_annotation_params[:branch_from_uuid].present?
 
-    ai_annotation = @ai_annotation.annotate! token, selected_api_key_uuid, selected_model
+    ai_annotation = @ai_annotation.annotate! token, selected_api_key_uuid, selected_model, parent: parent
 
     redirect_to edit_ai_annotation_path(ai_annotation.uuid, api_key_uuid: selected_api_key_uuid, model: selected_model)
   rescue SimpleInlineTextAnnotation::RelationWithoutDenotationError => e
@@ -87,6 +89,6 @@ class AiAnnotationsController < ApplicationController
   end
 
   def ai_annotation_params
-    params.expect(ai_annotation: [ :text, :prompt, :content, :api_key_uuid, :model ])
+    params.expect(ai_annotation: [ :text, :prompt, :content, :api_key_uuid, :model, :branch_from_uuid ])
   end
 end
