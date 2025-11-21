@@ -7,8 +7,8 @@ class AiAnnotation < ApplicationRecord
   scope :old, -> { where("created_at < ?", 1.day.ago) }
   scope :recent, -> { order(created_at: :desc) }
 
-  belongs_to :parent, class_name: 'AiAnnotation', optional: true
-  has_many :children, class_name: 'AiAnnotation', foreign_key: 'parent_id'
+  belongs_to :parent, class_name: "AiAnnotation", optional: true
+  has_many :children, class_name: "AiAnnotation", foreign_key: "parent_id"
   belongs_to :user, optional: true
 
   validate :parent_chain_no_cycle
@@ -118,7 +118,7 @@ class AiAnnotation < ApplicationRecord
     ancestor = parent
     while ancestor
       if ancestor == self
-        errors.add(:parent, 'cannot create a cycle')
+        errors.add(:parent, "cannot create a cycle")
         break
       end
       ancestor = ancestor.parent
