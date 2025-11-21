@@ -42,8 +42,8 @@ RSpec.describe AiAnnotation, type: :model do
       a1 = AiAnnotation.create!(content: 'a1', prompt: 'p1')
       sleep 0.01 # Ensure different timestamps
       a2 = AiAnnotation.create!(content: 'a2', prompt: 'p2')
-      expect(AiAnnotation.recent.first).to eq(a2)
-      expect(AiAnnotation.recent.second).to eq(a1)
+      expect(AiAnnotation.latest.first).to eq(a2)
+      expect(AiAnnotation.latest.second).to eq(a1)
     end
   end
 

@@ -5,7 +5,7 @@ class AiAnnotation < ApplicationRecord
   before_create :set_uuid
 
   scope :old, -> { where("created_at < ?", 1.day.ago) }
-  scope :recent, -> { order(created_at: :desc) }
+  scope :latest, -> { order(created_at: :desc) }
 
   belongs_to :parent, class_name: "AiAnnotation", optional: true
   has_many :children, class_name: "AiAnnotation", foreign_key: "parent_id"
@@ -22,14 +22,14 @@ class AiAnnotation < ApplicationRecord
   end
 
   def self.history_with_branches(limit: 50, user: nil)
-    scope = recent.includes(:parent)
+    scope = latest.includes(:parent)
     scope = scope.where(user: user) if user
     scope.limit(limit)
   end
 
   def self.guest_history(uuids, limit: 50)
     return AiAnnotation.none if uuids.blank?
-    recent.where(uuid: uuids).limit(limit)
+    latest.where(uuid: uuids).limit(limit)
   end
 
   def annotate!(id_token, api_key_uuid, model_id, parent: nil)
