@@ -1,7 +1,4 @@
 module AiAnnotationHelper
-  def short_uuid(uuid)
-    uuid.to_s.split("-").first
-  end
 
   def render_history(ai_annotations, active_uuid: nil)
     content_tag(:div, class: "history-stack", data: { controller: "history" }) do
@@ -27,6 +24,12 @@ module AiAnnotationHelper
       end
       result.join.html_safe + content_tag(:svg, "", class: "history-arrows", data: { history_target: "svg" })
     end
+  end
+
+  private
+
+  def short_uuid(uuid)
+    uuid.to_s.split("-").first
   end
 end
 
