@@ -6,10 +6,8 @@ export default class extends Controller {
 
   connect() {
     this.drawArrows()
-    window.addEventListener(
-      "resize",
-      (this.drawArrowsBound = this.drawArrows.bind(this))
-    )
+    this.drawArrowsBound = this.drawArrows.bind(this)
+    window.addEventListener("resize", this.drawArrowsBound)
   }
 
   disconnect() {
@@ -25,7 +23,9 @@ export default class extends Controller {
 
     const cards = this.element.querySelectorAll(".history-card")
     const cardMap = new Map()
-    cards.forEach((c) => cardMap.set(c.dataset.uuid, c))
+    cards.forEach((c) => {
+      cardMap.set(c.dataset.uuid, c)
+    })
 
     const bbox = this.element.getBoundingClientRect()
     svg.setAttribute("width", bbox.width)
