@@ -4,7 +4,29 @@
 
 <h2>History</h2>
 <% if @history.present? %>
-  <%= render_history(@history, active_uuid: (@ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid))) %>
+  <% active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid) %>
+  <div class="history-stack" data-controller="history">
+    <% @history.each_with_index do |ann, idx| %>
+      <% parent_uuid = ann.parent&.uuid %>
+      <% classes = ["history-card"] %>
+      <% classes << "is-active" if ann.uuid == active_uuid %>
+
+      <div class="<%= classes.join(' ') %>" data-uuid="<%= ann.uuid %>" data-parent-uuid="<%= parent_uuid %>">
+        <%= link_to edit_ai_annotation_path(ann.uuid), class: "history-card-link" do %>
+          <div class="history-card-prompt"><%= truncate(ann.prompt.to_s, length: 50) %></div>
+          <div class="history-card-uuid"><%= ann.uuid.to_s.split('-').first %></div>
+        <% end %>
+      </div>
+
+      <% if idx < @history.length - 1 %>
+        <% next_ann = @history[idx + 1] %>
+        <% if next_ann && ann.parent&.uuid == next_ann.uuid %>
+          <div class="history-straight-arrow">↑</div>
+        <% end %>
+      <% end %>
+    <% end %>
+    <svg class="history-arrows" data-history-target="svg"></svg>
+  </div>
 <% else %>
   <p class="history-empty">No history yet</p>
 <% end %>
