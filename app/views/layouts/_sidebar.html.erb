@@ -1,3 +1,7 @@
+<% content_for :head do %>
+  <%= stylesheet_link_tag 'sidebar', media: 'all' %>
+<% end %>
+
 <h2>History</h2>
 <% if @history.present? %>
   <%= render_history(@history, active_uuid: (@ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid))) %>
