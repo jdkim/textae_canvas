@@ -53,11 +53,6 @@
   -webkit-box-orient: vertical;
 }
 
-.history-card-uuid {
-  font-size: 10px;
-  color: #999;
-}
-
 .history-arrows {
   position: absolute;
   top: 0;
