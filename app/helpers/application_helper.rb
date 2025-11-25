@@ -7,7 +7,6 @@ module ApplicationHelper
     content_tag(:div, class: 'history-stack', data: { controller: 'history' }) do
       result = []
       ai_annotations.each_with_index do |ann, idx|
-        number_label = "p#{ann.sequence_number}" # 保存された通し番号
         parent_uuid = ann.parent&.uuid
         classes = ['history-card']
         classes << 'is-active' if active_uuid.present? && ann.uuid == active_uuid
