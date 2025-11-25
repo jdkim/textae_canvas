@@ -4,12 +4,11 @@
 
 <h2>History</h2>
 <% if @history.present? %>
-  <% active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid) %>
   <div class="history-stack" data-controller="history">
     <% @history.each_with_index do |ann, idx| %>
       <% parent_uuid = ann.parent&.uuid %>
       <% classes = ["history-card"] %>
-      <% classes << "is-active" if ann.uuid == active_uuid %>
+      <% classes << "is-active" if ann.uuid == @active_uuid %>
 
       <div class="<%= classes.join(' ') %>" data-uuid="<%= ann.uuid %>" data-parent-uuid="<%= parent_uuid %>">
         <%= link_to edit_ai_annotation_path(ann.uuid), class: "history-card-link" do %>
