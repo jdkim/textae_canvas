@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ApplicationHelper, type: :helper do
+RSpec.describe AiAnnotationHelper, type: :helper do
   describe '#render_history' do
     let(:parent_annotation) { AiAnnotation.create!(content: 'parent content', prompt: 'Parent prompt') }
     let(:child_annotation) { AiAnnotation.create!(content: 'child content', prompt: 'Child prompt', parent: parent_annotation) }
