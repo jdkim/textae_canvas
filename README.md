@@ -51,13 +51,60 @@ bundle install
 rails db:setup
 ```
 
-### Set OpenAI API key to environment variable
-Create .env file and set the API key as below
-```
-OPENAI_API_KEY="Your api key here"
-```
+### Google OAuth2 Setup Instructions
 
-To obtain your api key, follow the OpenAI API key creation procedure below.
+To obtain the required Google OAuth2 credentials:
+
+1. **Create a Google Cloud Project** (if you don't have one):
+    - Go to [Google Cloud Console](https://console.cloud.google.com/)
+    - Create a new project or select an existing one
+
+2. **Enable Google+ API**:
+    - Navigate to "APIs & Services" > "Library"
+    - Search for "Google+ API" and enable it
+
+3. **Create OAuth 2.0 Credentials**:
+    - Go to "APIs & Services" > "Credentials"
+    - Click "Create Credentials" > "OAuth 2.0 Client IDs"
+    - Choose "Web application" as the application type
+
+4. **Configure Authorized Redirect URIs**:
+
+   Add the following redirect URIs to your OAuth client configuration:
+
+   **For Development (localhost):**
+   ```
+   http://localhost:3000/users/auth/google_oauth2/callback
+   ```
+
+   **For Production:**
+   ```
+   https://yourdomain.com/users/auth/google_oauth2/callback
+   ```
+
+   Replace `yourdomain.com` with your actual production domain.
+
+5. **Get Your Credentials**:
+    - After creating the OAuth client, copy the "Client ID" and "Client Secret"
+    - Use these values for `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
+
+**Important Security Notes:**
+- Never commit OAuth credentials to version control
+- Use different OAuth clients for development and production environments
+- Regularly rotate your client secrets for production applications
+
+### Set environment variables
+
+Create a `.env` file in the project root and configure the following environment variables:
+
+```bash
+# Google OAuth2 Credentials (required for authentication)
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+
+# LLM Service Base URL (required for AI annotation features)
+LLM_SERVICE_BASE_URL=http://localhost:3000
+```
 
 ### Start the server
 ```
@@ -65,24 +112,6 @@ rails server
 ```
 
 Now, you can access Annotation Canvas at http://localhost:3000.
-
-## OpenAI API key creation procedure
-### Step 1
-API keys can be obtained from the OpenAI platform. Must be logged in.
-```
-https://platform.openai.com/api-keys
-```
-
-### Step 2
-Click `+ Create new secret key` button on API keys page and generate secret key.   
-The API key will be displayed immediately after creation, so please copy and keep it. Once this screen is closed, it cannot be displayed again.
-
-### Step 3
-Creation can be done without registering payment information, but you will need to purchase API credits to use the API.   
-Move to billing page, set payment details and purchase credits.
-```
-https://platform.openai.com/settings/organization/billing/overview
-```
 
 ## Elasticsearch setup
 ### Install Elasticsearch
