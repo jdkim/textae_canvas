@@ -1,5 +1,4 @@
 module AiAnnotationHelper
-
   def render_history(ai_annotations, active_uuid: nil)
     content_tag(:div, class: "history-stack", data: { controller: "history" }) do
       result = []
@@ -32,4 +31,3 @@ module AiAnnotationHelper
     uuid.to_s.split("-").first
   end
 end
-
