@@ -17,8 +17,8 @@ module ApplicationHelper
                            data: { uuid: ann.uuid, parent_uuid: parent_uuid })
         result << card
 
-        # 現在のカードの親が直前のカード(降順なのでsequence_numberが1つ大きい)なら直線矢印を挿入
-        if idx > 0
+        # Insert a straight arrow if the next (older) element is the parent of the current element
+        if idx < ai_annotations.length - 1
           next_ann = ai_annotations[idx + 1]
           if next_ann && ann.parent&.uuid == next_ann.uuid
             result << content_tag(:div, '↑', class: 'history-straight-arrow')
