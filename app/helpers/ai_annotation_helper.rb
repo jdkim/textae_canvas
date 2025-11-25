@@ -5,7 +5,7 @@ module AiAnnotationHelper
       ai_annotations.each_with_index do |ann, idx|
         parent_uuid = ann.parent&.uuid
         classes = [ "history-card" ]
-        classes << "is-active" if active_uuid.present? && ann.uuid == active_uuid
+        classes << "is-active" if ann.uuid == active_uuid
         inner = content_tag(:div, truncate(ann.prompt.to_s, length: 50), class: "history-card-prompt") +
                 content_tag(:div, short_uuid(ann.uuid), class: "history-card-uuid")
         link = link_to(inner.html_safe, edit_ai_annotation_path(ann.uuid), class: "history-card-link")
