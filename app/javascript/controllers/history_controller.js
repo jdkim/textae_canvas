@@ -4,36 +4,43 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["svg"]
 
+  // Private fields
+  #drawArrowsBound
+  #markerId = "history-arrow-head"
+  #startX = 32
+  #curveOffset = 40
+
   connect() {
-    this.drawArrows()
-    this.drawArrowsBound = this.drawArrows.bind(this)
-    window.addEventListener("resize", this.drawArrowsBound)
+    this.#drawArrows()
+    this.#drawArrowsBound = this.#drawArrows.bind(this)
+    window.addEventListener("resize", this.#drawArrowsBound)
   }
 
   disconnect() {
-    window.removeEventListener("resize", this.drawArrowsBound)
+    window.removeEventListener("resize", this.#drawArrowsBound)
   }
 
-  drawArrows() {
+  // ================= Private methods =================
+  #drawArrows() {
     const svg = this.svgTarget
     if (!svg) return
 
-    this.clearSvg(svg)
-    const cardMap = this.buildCardMap()
-    const bbox = this.setupSvgDimensions(svg)
+    this.#clearSvg(svg)
+    const cardMap = this.#buildCardMap()
+    const bbox = this.#setupSvgDimensions(svg)
 
-    this.ensureArrowMarker(svg)
+    this.#ensureArrowMarker(svg)
 
     this.element.querySelectorAll(".history-card").forEach((card) => {
-      this.drawArrowForCard(card, cardMap, bbox, svg)
+      this.#drawArrowForCard(card, cardMap, bbox, svg)
     })
   }
 
-  clearSvg(svg) {
+  #clearSvg(svg) {
     while (svg.firstChild) svg.removeChild(svg.firstChild)
   }
 
-  buildCardMap() {
+  #buildCardMap() {
     const cards = this.element.querySelectorAll(".history-card")
     const cardMap = new Map()
     cards.forEach((c) => {
@@ -42,7 +49,7 @@ export default class extends Controller {
     return cardMap
   }
 
-  setupSvgDimensions(svg) {
+  #setupSvgDimensions(svg) {
     const bbox = this.element.getBoundingClientRect()
     svg.setAttribute("width", bbox.width)
     svg.setAttribute("height", bbox.height)
@@ -50,15 +57,14 @@ export default class extends Controller {
     return bbox
   }
 
-  ensureArrowMarker(svg) {
-    const markerId = "history-arrow-head"
-    if (svg.querySelector(`#${markerId}`)) return
+  #ensureArrowMarker(svg) {
+    if (svg.querySelector(`#${this.#markerId}`)) return
 
     const marker = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "marker"
     )
-    marker.setAttribute("id", markerId)
+    marker.setAttribute("id", this.#markerId)
     marker.setAttribute("markerWidth", "6")
     marker.setAttribute("markerHeight", "6")
     marker.setAttribute("refX", "5")
@@ -78,7 +84,7 @@ export default class extends Controller {
     svg.appendChild(defs)
   }
 
-  drawArrowForCard(card, cardMap, bbox, svg) {
+  #drawArrowForCard(card, cardMap, bbox, svg) {
     const parentUuid = card.dataset.parentUuid
     if (!parentUuid) return
 
@@ -95,13 +101,13 @@ export default class extends Controller {
     // Skip if cards are adjacent - straight arrow is rendered by helper
     if (verticalGap < 80) return
 
-    const path = this.createCurvedArrowPath(startY, endY)
+    const path = this.#createCurvedArrowPath(startY, endY)
     svg.appendChild(path)
   }
 
-  createCurvedArrowPath(startY, endY) {
-    const startX = 32 // left edge margin
-    const curveX = startX - 40 // curve outward to the left
+  #createCurvedArrowPath(startY, endY) {
+    const startX = this.#startX // left edge margin
+    const curveX = startX - this.#curveOffset // curve outward to the left
     const pathData = `M ${startX} ${startY} C ${curveX} ${startY}, ${curveX} ${endY}, ${startX} ${endY}`
 
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path")
@@ -109,7 +115,7 @@ export default class extends Controller {
     path.setAttribute("fill", "none")
     path.setAttribute("stroke", "#555")
     path.setAttribute("stroke-width", "1.2")
-    path.setAttribute("marker-end", "url(#history-arrow-head)")
+    path.setAttribute("marker-end", `url(#${this.#markerId})`)
 
     return path
   }
