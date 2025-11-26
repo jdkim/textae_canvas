@@ -22,8 +22,9 @@ export default class extends Controller {
 
   // ================= Private methods =================
   #drawArrows() {
+    // Skip if svg target is missing (template variant without arrow canvas)
+    if (!this.hasSvgTarget) return
     const svg = this.svgTarget
-    if (!svg) return
 
     this.#clearSvg(svg)
     const cardMap = this.#buildCardMap()
