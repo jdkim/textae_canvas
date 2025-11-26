@@ -6,7 +6,7 @@
 <% if @history.present? %>
   <div class="history-stack" data-controller="history">
     <% @history.each_with_index do |ann, idx| %>
-      <%= render 'layouts/history_card', locals: { ann: ann, idx: idx, history: @history, active_uuid: @active_uuid } %>
+      <%= render 'layouts/history_card', locals: { ann: ann, next_ann: @history[idx + 1], active_uuid: @active_uuid } %>
     <% end %>
     <svg class="history-arrows" data-history-target="svg"></svg>
   </div>
