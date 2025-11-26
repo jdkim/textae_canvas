@@ -5,7 +5,7 @@
   <div id="current-annotation"></div>
 </div>
 
-<%= form_with model: @ai_annotation, url: ai_annotation_path(@ai_annotation.uuid), class: "ai-annotation-form", data: { controller: "ai-annotation-form", action: "input->ai-annotation-form#updateSubmitButton", guest: !@user_signed_in } do |f| %>
+<%= form_with model: @ai_annotation, url: ai_annotation_path(@ai_annotation.uuid), class: "ai-annotation-form", data: { controller: "ai-annotation-form", action: "input->ai-annotation-form#updateSubmitButton", guest: @is_guest } do |f| %>
   <div class="prompt-field">
     <label>Prompt</label>
     <%= f.textarea :prompt, required: true, rows: 3, placeholder: "Order how to annotate the text", data: { ai_annotation_form_target: "prompt" } %>
