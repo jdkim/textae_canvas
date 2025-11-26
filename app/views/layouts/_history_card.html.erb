@@ -2,9 +2,8 @@
   ann = locals[:ann]
   next_ann = locals[:next_ann]
   is_active = locals[:is_active]
+  parent_uuid = ann.parent&.uuid
 %>
-
-<% parent_uuid = ann.parent&.uuid %>
 
 <div class="history-card<%= ' is-active' if is_active %>" data-uuid="<%= ann.uuid %>" data-parent-uuid="<%= parent_uuid %>">
   <%= link_to edit_ai_annotation_path(ann.uuid), class: "history-card-link" do %>
