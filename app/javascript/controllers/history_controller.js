@@ -18,81 +18,99 @@ export default class extends Controller {
     const svg = this.svgTarget
     if (!svg) return
 
-    // Reset
-    while (svg.firstChild) svg.removeChild(svg.firstChild)
+    this.clearSvg(svg)
+    const cardMap = this.buildCardMap()
+    const bbox = this.setupSvgDimensions(svg)
 
+    this.ensureArrowMarker(svg)
+
+    this.element.querySelectorAll(".history-card").forEach((card) => {
+      this.drawArrowForCard(card, cardMap, bbox, svg)
+    })
+  }
+
+  clearSvg(svg) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild)
+  }
+
+  buildCardMap() {
     const cards = this.element.querySelectorAll(".history-card")
     const cardMap = new Map()
     cards.forEach((c) => {
       cardMap.set(c.dataset.uuid, c)
     })
+    return cardMap
+  }
 
+  setupSvgDimensions(svg) {
     const bbox = this.element.getBoundingClientRect()
     svg.setAttribute("width", bbox.width)
     svg.setAttribute("height", bbox.height)
     svg.setAttribute("viewBox", `0 0 ${bbox.width} ${bbox.height}`)
+    return bbox
+  }
 
-    cards.forEach((card) => {
-      const parentUuid = card.dataset.parentUuid
-      if (!parentUuid) return
-      const parentCard = cardMap.get(parentUuid)
-      if (!parentCard) return
+  ensureArrowMarker(svg) {
+    const markerId = "history-arrow-head"
+    if (svg.querySelector(`#${markerId}`)) return
 
-      const childRect = card.getBoundingClientRect()
-      const parentRect = parentCard.getBoundingClientRect()
+    const marker = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "marker"
+    )
+    marker.setAttribute("id", markerId)
+    marker.setAttribute("markerWidth", "6")
+    marker.setAttribute("markerHeight", "6")
+    marker.setAttribute("refX", "5")
+    marker.setAttribute("refY", "3")
+    marker.setAttribute("orient", "auto")
 
-      // Compute relative positions inside the stack container
-      const startY = parentRect.top + parentRect.height / 2 - bbox.top
-      const endY = childRect.top + childRect.height / 2 - bbox.top
-      const verticalGap = Math.abs(endY - startY)
+    const arrowPath = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "path"
+    )
+    arrowPath.setAttribute("d", "M0,0 L6,3 L0,6 Z")
+    arrowPath.setAttribute("fill", "#555")
+    marker.appendChild(arrowPath)
 
-      // Skip if cards are adjacent - straight arrow is rendered by helper
-      if (verticalGap < 80) return
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs")
+    defs.appendChild(marker)
+    svg.appendChild(defs)
+  }
 
-      // Draw curved line to the left for non-adjacent cards
-      const startX = 32 // left edge margin
-      const curveX = startX - 40 // curve outward to the left
-      const pathData = `M ${startX} ${startY} C ${curveX} ${startY}, ${curveX} ${endY}, ${startX} ${endY}`
+  drawArrowForCard(card, cardMap, bbox, svg) {
+    const parentUuid = card.dataset.parentUuid
+    if (!parentUuid) return
 
-      const path = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "path"
-      )
-      path.setAttribute("d", pathData)
-      path.setAttribute("fill", "none")
-      path.setAttribute("stroke", "#555")
-      path.setAttribute("stroke-width", "1.2")
+    const parentCard = cardMap.get(parentUuid)
+    if (!parentCard) return
 
-      // Arrow head marker
-      const markerId = "history-arrow-head"
-      if (!svg.querySelector(`#${markerId}`)) {
-        const marker = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "marker"
-        )
-        marker.setAttribute("id", markerId)
-        marker.setAttribute("markerWidth", "6")
-        marker.setAttribute("markerHeight", "6")
-        marker.setAttribute("refX", "5")
-        marker.setAttribute("refY", "3")
-        marker.setAttribute("orient", "auto")
-        const arrowPath = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "path"
-        )
-        arrowPath.setAttribute("d", "M0,0 L6,3 L0,6 Z")
-        arrowPath.setAttribute("fill", "#555")
-        marker.appendChild(arrowPath)
-        const defs = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "defs"
-        )
-        defs.appendChild(marker)
-        svg.appendChild(defs)
-      }
-      path.setAttribute("marker-end", "url(#history-arrow-head)")
+    const childRect = card.getBoundingClientRect()
+    const parentRect = parentCard.getBoundingClientRect()
 
-      svg.appendChild(path)
-    })
+    const startY = parentRect.top + parentRect.height / 2 - bbox.top
+    const endY = childRect.top + childRect.height / 2 - bbox.top
+    const verticalGap = Math.abs(endY - startY)
+
+    // Skip if cards are adjacent - straight arrow is rendered by helper
+    if (verticalGap < 80) return
+
+    const path = this.createCurvedArrowPath(startY, endY)
+    svg.appendChild(path)
+  }
+
+  createCurvedArrowPath(startY, endY) {
+    const startX = 32 // left edge margin
+    const curveX = startX - 40 // curve outward to the left
+    const pathData = `M ${startX} ${startY} C ${curveX} ${startY}, ${curveX} ${endY}, ${startX} ${endY}`
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path")
+    path.setAttribute("d", pathData)
+    path.setAttribute("fill", "none")
+    path.setAttribute("stroke", "#555")
+    path.setAttribute("stroke-width", "1.2")
+    path.setAttribute("marker-end", "url(#history-arrow-head)")
+
+    return path
   }
 }
