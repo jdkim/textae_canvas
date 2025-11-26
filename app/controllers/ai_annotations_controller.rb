@@ -9,6 +9,7 @@ class AiAnnotationsController < ApplicationController
     @new_ai_annotation = AiAnnotation.new
     @history = AiAnnotation.history_with_branches(limit: 50)
     @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
+    @user_signed_in = user_signed_in?
     fetch_llm_api_keys
   end
 
@@ -41,6 +42,7 @@ class AiAnnotationsController < ApplicationController
 
     @history = AiAnnotation.history_with_branches(limit: 50)
     @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
+    @user_signed_in = user_signed_in?
     fetch_llm_api_keys
   end
 
