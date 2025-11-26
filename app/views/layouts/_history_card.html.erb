@@ -11,6 +11,7 @@
   <% end %>
 </div>
 
+<%# Check !next_ann.nil? to prevent the "↑" arrow from appearing below the bottom history entry, as parent_uuid would be nil in that case. %>
 <% if !next_ann.nil? && parent_uuid == next_ann.uuid %>
   <div class="history-straight-arrow">↑</div>
 <% end %>
