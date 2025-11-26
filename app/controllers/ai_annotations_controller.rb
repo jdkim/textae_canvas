@@ -8,6 +8,8 @@ class AiAnnotationsController < ApplicationController
   def new
     @new_ai_annotation = AiAnnotation.new
     @history = AiAnnotation.history_with_branches(limit: 50)
+    @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
+    @is_guest = !user_signed_in?
     fetch_llm_api_keys
   end
 
@@ -39,6 +41,8 @@ class AiAnnotationsController < ApplicationController
     return redirect_to root_path unless @ai_annotation
 
     @history = AiAnnotation.history_with_branches(limit: 50)
+    @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
+    @is_guest = !user_signed_in?
     fetch_llm_api_keys
   end
 
