@@ -14,7 +14,7 @@
     <% end %>
   </div>
 
-  <% if history.present? && idx.present? && ann != history.last %>
+  <% unless ann == history.last %>
     <% next_ann = history[idx + 1] %>
     <% if parent_uuid == next_ann&.uuid %>
       <div class="history-straight-arrow">↑</div>
