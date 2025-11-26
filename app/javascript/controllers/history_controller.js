@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // Draw arrows connecting child cards to their parent card vertically.
 export default class extends Controller {
-  static targets = ["svg"]
+  static targets = ["svg", "cards"]
 
   // Private fields
   #drawArrowsBound
@@ -32,7 +32,8 @@ export default class extends Controller {
 
     this.#ensureArrowMarker(svg)
 
-    for (const card of this.element.querySelectorAll(".history-card")) {
+    // Iterate over Stimulus targets instead of querySelectorAll
+    for (const card of this.cardsTargets) {
       this.#drawArrowForCard(card, cardMap, bbox, svg)
     }
   }
@@ -42,11 +43,10 @@ export default class extends Controller {
   }
 
   #buildCardMap() {
-    const cards = this.element.querySelectorAll(".history-card")
     const cardMap = new Map()
-    cards.forEach((c) => {
+    for (const c of this.cardsTargets) {
       cardMap.set(c.dataset.uuid, c)
-    })
+    }
     return cardMap
   }
 
