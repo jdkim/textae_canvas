@@ -7,10 +7,8 @@
 
 <% if ann.present? %>
   <% parent_uuid = ann.parent&.uuid %>
-  <% classes = ["history-card"] %>
-  <% classes << "is-active" if active_uuid.present? && ann.uuid == active_uuid %>
 
-  <div class="<%= classes.join(' ') %>" data-uuid="<%= ann.uuid %>" data-parent-uuid="<%= parent_uuid %>">
+  <div class="history-card <%= 'is-active' if ann.uuid == active_uuid %>" data-uuid="<%= ann.uuid %>" data-parent-uuid="<%= parent_uuid %>">
     <%= link_to edit_ai_annotation_path(ann.uuid), class: "history-card-link" do %>
       <div class="history-card-prompt"><%= truncate(ann.prompt.to_s, length: 50) %></div>
     <% end %>
