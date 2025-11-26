@@ -32,9 +32,9 @@ export default class extends Controller {
 
     this.#ensureArrowMarker(svg)
 
-    this.element.querySelectorAll(".history-card").forEach((card) => {
+    for (const card of this.element.querySelectorAll(".history-card")) {
       this.#drawArrowForCard(card, cardMap, bbox, svg)
-    })
+    }
   }
 
   #clearSvg(svg) {
