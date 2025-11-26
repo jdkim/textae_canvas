@@ -38,7 +38,7 @@ export default class extends Controller {
   }
 
   #clearSvg(svg) {
-    while (svg.firstChild) svg.removeChild(svg.firstChild)
+    svg.replaceChildren()
   }
 
   #buildCardMap() {
