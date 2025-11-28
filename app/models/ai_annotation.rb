@@ -58,9 +58,19 @@ class AiAnnotation < ApplicationRecord
 
   private
 
-  # Delete old annotations
+  # Delete old annotations (only orphaned records without children)
   def clean_old_annotations
-    AiAnnotation.old.destroy_all
+    # Delete only old records that are not referenced as a parent
+    old_ids = AiAnnotation.old.pluck(:id)
+    parent_ids = AiAnnotation.where(parent_id: old_ids).pluck(:parent_id).uniq
+
+    # Exclude the parent of the record currently being created from deletion targets
+    protected_ids = []
+    protected_ids << parent_id if parent_id.present?
+
+    deletable_ids = old_ids - parent_ids - protected_ids
+
+    AiAnnotation.where(id: deletable_ids).destroy_all if deletable_ids.any?
   end
 
   # Set a new UUID
