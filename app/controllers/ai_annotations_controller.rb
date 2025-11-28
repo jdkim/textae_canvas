@@ -68,10 +68,12 @@ class AiAnnotationsController < ApplicationController
 
     flash.now[:alert] = "Invalid response from AI. Please retry."
     @ai_annotation.reload
+    fetch_llm_api_keys
     render :edit, status: :unprocessable_entity
   rescue => e
     Rails.logger.error "Error: #{e.message}"
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
+    fetch_llm_api_keys
     render :edit, status: :unprocessable_entity
   end
 
