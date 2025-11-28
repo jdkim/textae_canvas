@@ -24,6 +24,13 @@ class LlmAnnotator
   def call(id_token, api_key_uuid, model_id, user_content)
     Rails.logger.info "Request to AI: \n===>\n#{user_content}\n===>" if Rails.env.development?
     response = request(api_key_uuid, id_token, model_id, user_content)
+
+    # HTTParty deprecation support: explicit nil/empty check
+    if response.body.nil? || response.body.empty?
+      Rails.logger.error "Empty response from AI" if Rails.env.development?
+      return ""
+    end
+
     response_body = response.parsed_response
     content = response_body.dig("response", "message") || ""
 
