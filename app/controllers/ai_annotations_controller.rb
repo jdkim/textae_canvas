@@ -59,6 +59,8 @@ class AiAnnotationsController < ApplicationController
     selected_model = params[:model]
     parent = AiAnnotation.find_by(uuid: ai_annotation_params[:branch_from_uuid]) if ai_annotation_params[:branch_from_uuid].present?
 
+    # annotate! creates a new record, so we need to ensure the user is set correctly
+    @ai_annotation.user = current_user if user_signed_in?
     ai_annotation = @ai_annotation.annotate! token, selected_api_key_uuid, selected_model, parent: parent
 
     redirect_to edit_ai_annotation_path(ai_annotation.uuid, api_key_uuid: selected_api_key_uuid, model: selected_model)
