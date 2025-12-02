@@ -5,6 +5,7 @@
                                     (@llm_api_keys || []).map { |key| [key['description'], key['uuid']] }),
                  { required: true,
                    data: {
+                     ai_annotation_form_target: "apiKey",
                      action: "change->ai-annotation-form#apiKeyChanged change->ai-annotation-form#updateSubmitButton",
                      models: (@llm_api_keys || []).map { |key| { value: key['uuid'], models: key['available_models'] } }.to_json
                    } } %>
