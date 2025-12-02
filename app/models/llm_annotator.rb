@@ -41,7 +41,8 @@ class LlmAnnotator
         "Content-Type" => "application/json",
         "Authorization" => "Bearer #{id_token}"
       },
-      body: { prompt: "#{FORMAT_SPECIFICATION}\n\n#{user_content}" }.to_json
+      body: { prompt: "#{FORMAT_SPECIFICATION}\n\n#{user_content}" }.to_json,
+      timeout: 300 # 5 minute timeout setting (both read and connect)
     )
   end
 
