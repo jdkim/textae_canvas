@@ -1,7 +1,6 @@
 class AiAnnotation < ApplicationRecord
   attr_accessor :annotation, :text
 
-  before_create :clean_old_annotations
   before_create :set_uuid
 
   scope :old, -> { where("created_at < ?", 1.day.ago) }
@@ -57,21 +56,6 @@ class AiAnnotation < ApplicationRecord
   end
 
   private
-
-  # Delete old annotations (only orphaned records without children)
-  def clean_old_annotations
-    # Delete only old records that are not referenced as a parent
-    old_ids = AiAnnotation.old.pluck(:id)
-    parent_ids = AiAnnotation.where(parent_id: old_ids).pluck(:parent_id).uniq
-
-    # Exclude the parent of the record currently being created from deletion targets
-    protected_ids = []
-    protected_ids << parent_id if parent_id.present?
-
-    deletable_ids = old_ids - parent_ids - protected_ids
-
-    AiAnnotation.where(id: deletable_ids).destroy_all if deletable_ids.any?
-  end
 
   # Set a new UUID
   def set_uuid
