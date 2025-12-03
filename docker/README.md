@@ -18,6 +18,9 @@ This directory contains Docker configuration files for setting up a development 
 2. **Add environment variables to your `.env` file:**
 
    - `OPENAI_API_KEY`: Your OpenAI API key
+   - `GOOGLE_CLIENT_ID`: Your Google OAuth2 client ID
+   - `GOOGLE_CLIENT_SECRET`: Your Google OAuth2 client secret
+   - `LLM_SERVICE_BASE_URL`: LLM service base URL (default: http://localhost:3000)
 
 3. **Run the post-create script to initialize the environment:**
    ```bash
@@ -77,6 +80,9 @@ The following environment variables are configured in `docker compose.yml`:
 Additional environment variables can be added to your `.env` file:
 
 - `OPENAI_API_KEY`: Your OpenAI API key (required for AI annotation features)
+- `GOOGLE_CLIENT_ID`: Your Google OAuth2 client ID (required for authentication)
+- `GOOGLE_CLIENT_SECRET`: Your Google OAuth2 client secret (required for authentication)
+- `LLM_SERVICE_BASE_URL`: LLM service base URL (default: http://localhost:3000)
 
 ### Volumes
 
