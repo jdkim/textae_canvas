@@ -10,7 +10,7 @@ class AiAnnotationsController < ApplicationController
     @history = AiAnnotation.history_with_branches(limit: 50)
     @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
     @is_guest = !user_signed_in?
-    fetch_llm_api_keys
+    fetch_llm_options
   end
 
   def create
@@ -32,7 +32,7 @@ class AiAnnotationsController < ApplicationController
 
     # Set required variables in case of error
     @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50) : []
-
+    fetch_llm_options
     render :new, status: :unprocessable_entity
   end
 
@@ -43,7 +43,7 @@ class AiAnnotationsController < ApplicationController
     @history = AiAnnotation.history_with_branches(limit: 50)
     @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
     @is_guest = !user_signed_in?
-    fetch_llm_api_keys
+    fetch_llm_options
   end
 
   def update
@@ -77,18 +77,23 @@ class AiAnnotationsController < ApplicationController
 
   private
 
-  def fetch_llm_api_keys
+  def fetch_llm_options
     if user_signed_in?
       begin
-        @llm_api_keys = LlmMetaServerResource.llm_api_keys current_user
+        @llm_options = LlmMetaServerResource.available_llm_options current_user
       rescue ArgumentError
         Rails.logger.error "User ID token is missing or invalid"
-        flash.now[:alert] = "Unable to fetch API keys due to missing or invalid user."
+        flash.now[:alert] = "Unable to fetch LLM options due to missing or invalid user."
+        @llm_options = []
+      rescue => e
+        Rails.logger.error "Failed to fetch LLM options: #{e.message}"
+        flash.now[:alert] = "Unable to fetch LLM options."
+        @llm_options = []
       end
     else
       Rails.logger.info "Login required for paid models"
       flash.now[:info] = "Login is required to use paid models."
-      @llm_api_keys = []
+      @llm_options = []
     end
   end
 
