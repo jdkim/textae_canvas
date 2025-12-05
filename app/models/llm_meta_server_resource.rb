@@ -1,9 +1,8 @@
 class LlmMetaServerResource
   # This is a non-persisted model for fetching external server resources
 
-  def self.llms(current_user)
+  def self.llms(jwt_token)
     api_url = ENV.fetch("LLMS_URL", "http://localhost:3000/api/llms")
-    jwt_token = current_user.id_token
     raise ArgumentError, "User ID token is missing or invalid" if jwt_token.blank?
 
     headers = { "Content-Type" => "application/json" }
@@ -39,7 +38,7 @@ class LlmMetaServerResource
 
   # Retrieve LLM options available for user selection (API Keys + Ollama)
   def self.available_llm_options(current_user)
-    llms = self.llms(current_user)
+    llms = self.llms current_user.id_token
     api_keys = self.llm_api_keys(current_user)
 
     options = []
