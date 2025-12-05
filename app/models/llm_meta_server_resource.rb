@@ -18,9 +18,8 @@ class LlmMetaServerResource
     end
   end
 
-  def self.llm_api_keys(current_user)
+  def self.llm_api_keys(jwt_token)
     api_url = ENV.fetch("LLM_API_KEYS_URL", "http://localhost:3000/api/llm_api_keys")
-    jwt_token = current_user.id_token
     raise ArgumentError, "User ID token is missing or invalid" if jwt_token.blank?
 
     headers = { "Content-Type" => "application/json" }
@@ -39,7 +38,7 @@ class LlmMetaServerResource
   # Retrieve LLM options available for user selection (API Keys + Ollama)
   def self.available_llm_options(current_user)
     llms = current_user.llms
-    api_keys = self.llm_api_keys(current_user)
+    api_keys = self.llm_api_keys current_user.jwt_token
 
     options = []
 
