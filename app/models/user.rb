@@ -33,6 +33,8 @@ class User < ApplicationRecord
 
   def llm_api_keys = LlmMetaServerResource.llm_api_keys jwt_token
 
+  def available_llm_options = LlmMetaServerResource.available_llm_options llms, llm_api_keys
+
   private
 
   # Check whether the ID token is valid

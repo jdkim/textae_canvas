@@ -80,7 +80,7 @@ class AiAnnotationsController < ApplicationController
   def fetch_llm_options
     if user_signed_in?
       begin
-        @llm_options = LlmMetaServerResource.available_llm_options current_user
+        @llm_options = current_user.available_llm_options
       rescue ArgumentError
         Rails.logger.error "User ID token is missing or invalid"
         flash.now[:alert] = "Unable to fetch LLM options due to missing or invalid user."
