@@ -29,13 +29,13 @@ class User < ApplicationRecord
     id_token if id_token.present? && token_valid?
   end
 
-  def llms = LlmMetaServerResource.llms jwt_token
-
-  def llm_api_keys = LlmMetaServerResource.llm_api_keys jwt_token
-
   def available_llm_options = LlmMetaServerResource.available_llm_options llms, llm_api_keys
 
   private
+
+  def llms = LlmMetaServerResource.llms jwt_token
+
+  def llm_api_keys = LlmMetaServerResource.llm_api_keys jwt_token
 
   # Check whether the ID token is valid
   def token_valid?
