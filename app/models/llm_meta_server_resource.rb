@@ -3,10 +3,29 @@ class LlmMetaServerResource
 
   class << self
     # Retrieve LLM options available for user selection (API Keys + Ollama)
+    # For guest users (no jwt_token), only Ollama is returned
     def available_llm_options(jwt_token)
+      options = []
+
+      # Guest user: return only Ollama
+      if jwt_token.blank?
+        llms = llms(nil)
+        ollama = llms.find { |llm| llm["llm_type"] == "ollama" }
+        if ollama
+          options << {
+            uuid: ollama["uuid"],
+            description: ollama["description"],
+            llm_type: "ollama",
+            available_models: ollama["available_models"],
+            type: "ollama"
+          }
+        end
+        return options
+      end
+
+      # Logged-in user: return API Keys + Ollama
       llms = llms(jwt_token)
       api_keys = llm_api_keys(jwt_token)
-      options = []
 
       # Add user's API Keys
       api_keys.each do |key|
@@ -41,7 +60,7 @@ class LlmMetaServerResource
       raise ArgumentError, "User ID token is missing or invalid" if jwt_token.blank?
 
       headers = { "Content-Type" => "application/json" }
-      headers["Authorization"] = "Bearer #{jwt_token}"
+      headers["Authorization"] = "Bearer #{jwt_token}" unless jwt_token.blank?
 
       response = HTTParty.get(api_url, headers: headers)
 
