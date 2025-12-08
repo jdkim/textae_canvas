@@ -1,5 +1,6 @@
 class AiAnnotationsController < ApplicationController
   before_action :authenticate_user!, except: [ :new ]
+  before_action :set_llm_options, only: [ :new, :create, :edit ]
 
   def index
     @ai_annotations = AiAnnotation.where(user: current_user)
@@ -10,7 +11,6 @@ class AiAnnotationsController < ApplicationController
     @history = AiAnnotation.history_with_branches(limit: 50)
     @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
     @is_guest = !user_signed_in?
-    set_llm_options
   end
 
   def create
@@ -32,7 +32,6 @@ class AiAnnotationsController < ApplicationController
 
     # Set required variables in case of error
     @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50) : []
-    set_llm_options
     render :new, status: :unprocessable_entity
   end
 
@@ -43,7 +42,6 @@ class AiAnnotationsController < ApplicationController
     @history = AiAnnotation.history_with_branches(limit: 50)
     @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
     @is_guest = !user_signed_in?
-    set_llm_options
   end
 
   def update
