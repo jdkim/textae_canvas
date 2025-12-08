@@ -3,7 +3,9 @@ class LlmMetaServerResource
 
   class << self
     # Retrieve LLM options available for user selection (API Keys + Ollama)
-    def available_llm_options(llms, api_keys)
+    def available_llm_options(jwt_token)
+      llms = llms(jwt_token)
+      api_keys = llm_api_keys(jwt_token)
       options = []
 
       # Add user's API Keys
