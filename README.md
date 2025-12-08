@@ -1,8 +1,20 @@
 # Annotation Canvas
+
+A web application for annotating text with AI assistance. This application provides an interactive canvas for creating and managing text annotations using OpenAI's language models, with support for multiple languages and Elasticsearch-powered search.
+
+## Features
+
+- AI-powered text annotation using OpenAI models
+- Full-text search with Elasticsearch
+- Multi-language support with automatic language detection
+- Google OAuth2 authentication
+- Interactive annotation interface
+- SQLite database for easy setup and portability
+
 ## Environment
 - Ruby 3.4.7
 - Rails 8.1.1
-- SQLite3 2.6.0
+- SQLite3 2.7.4
 - Elasticsearch 8
 
 ## Installation
@@ -98,12 +110,18 @@ To obtain the required Google OAuth2 credentials:
 Create a `.env` file in the project root and configure the following environment variables:
 
 ```bash
+# OpenAI API Key (required for AI annotation features)
+OPENAI_API_KEY=your_openai_api_key_here
+
 # Google OAuth2 Credentials (required for authentication)
 GOOGLE_CLIENT_ID=your_google_client_id_here
 GOOGLE_CLIENT_SECRET=your_google_client_secret_here
 
 # LLM Service Base URL (required for AI annotation features)
 LLM_SERVICE_BASE_URL=http://localhost:3000
+
+# Elasticsearch host (default: localhost:9200, set to es:9200 for Docker)
+# ELASTICSEARCH_HOST=localhost:9200
 ```
 
 ### Start the server

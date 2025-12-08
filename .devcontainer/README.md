@@ -18,14 +18,17 @@
 
 2. **環境変数を設定:**
    
-   `.env.example`をコピーして`.env`を作成し、OpenAI APIキーを設定します：
+   `.env.example`をコピーして`.env`を作成し、必要な環境変数を設定します：
    ```bash
    cp .env.example .env
    ```
    
-   `.env`ファイルを編集して、APIキーを設定：
+   `.env`ファイルを編集して、以下の変数を設定：
    ```
-   OPENAI_API_KEY="Your api key here"
+   OPENAI_API_KEY=your_openai_api_key_here
+   GOOGLE_CLIENT_ID=your_google_client_id_here
+   GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+   LLM_SERVICE_BASE_URL=http://localhost:3000
    ```
 
 3. **VS CodeでDevContainerを開く:**
@@ -65,8 +68,8 @@
 - Ruby 3.4.7
 - Node.js 20
 - Bundler
-- Rails 8.1.0
-- SQLite3
+- Rails 8.1.1
+- SQLite3 2.7.4
 - Elasticsearch 8
 
 ## 便利なコマンド
