@@ -29,8 +29,6 @@ class User < ApplicationRecord
     id_token if id_token.present? && token_valid?
   end
 
-  def available_llm_options = LlmMetaServerResource.available_llm_options jwt_token
-
   private
 
   # Check whether the ID token is valid
