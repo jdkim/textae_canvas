@@ -1,17 +1,16 @@
 class AiAnnotationsController < ApplicationController
-  before_action :authenticate_user!, except: [ :new ]
   before_action :set_llm_options, only: [ :new, :create, :edit ]
 
   rescue_from Exceptions::OllamaUnavailableError, with: :handle_ollama_unavailable
   rescue_from SimpleInlineTextAnnotation::RelationWithoutDenotationError, with: :handle_invalid_ai_response
 
   def index
-    @ai_annotations = AiAnnotation.where(user: current_user)
+    @ai_annotations = current_user ? AiAnnotation.where(user: current_user) : []
   end
 
   def new
     @new_ai_annotation = AiAnnotation.new
-    @history = AiAnnotation.history_with_branches(limit: 50)
+    @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50, user: current_user) : []
     @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
     @is_guest = !user_signed_in?
   end
@@ -19,9 +18,9 @@ class AiAnnotationsController < ApplicationController
   def create
     text = ai_annotation_params[:text]
     prompt = ai_annotation_params[:prompt]
-    @new_ai_annotation = AiAnnotation.prepare_with(text, prompt)
+    @new_ai_annotation = AiAnnotation.prepare_with(text, prompt, current_user)
 
-    token = current_user.id_token if user_signed_in?
+    token = current_user&.id_token
     selected_api_key_uuid = params[:api_key_uuid]
     selected_model = params[:model]
     parent = AiAnnotation.find_by(uuid: ai_annotation_params[:branch_from_uuid]) if ai_annotation_params[:branch_from_uuid].present?
@@ -34,7 +33,7 @@ class AiAnnotationsController < ApplicationController
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
 
     # Set required variables in case of error
-    @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50) : []
+    @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50, user: current_user) : []
     render :new, status: :unprocessable_entity
   end
 
@@ -42,7 +41,7 @@ class AiAnnotationsController < ApplicationController
     @ai_annotation = AiAnnotation.find_by(uuid: params[:uuid])
     return redirect_to root_path unless @ai_annotation
 
-    @history = AiAnnotation.history_with_branches(limit: 50)
+    @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50, user: current_user) : []
     @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
     @is_guest = !user_signed_in?
   end
@@ -51,11 +50,11 @@ class AiAnnotationsController < ApplicationController
     @ai_annotation = AiAnnotation.find_by(uuid: params[:uuid])
     return redirect_to root_path unless @ai_annotation
 
-    @history = AiAnnotation.history_with_branches(limit: 50)
+    @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50, user: current_user) : []
     @ai_annotation.annotation = JSON.parse(ai_annotation_params[:content])
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
-    token = current_user.id_token if user_signed_in?
+    token = current_user&.id_token
     selected_api_key_uuid = params[:api_key_uuid]
     selected_model = params[:model]
     parent = AiAnnotation.find_by(uuid: ai_annotation_params[:branch_from_uuid]) if ai_annotation_params[:branch_from_uuid].present?
@@ -66,6 +65,7 @@ class AiAnnotationsController < ApplicationController
   rescue => e
     Rails.logger.error "Error: #{e.message}"
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
+    @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50, user: current_user) : []
     render :edit, status: :unprocessable_entity
   end
 
