@@ -14,11 +14,12 @@ class AiAnnotation < ApplicationRecord
   validate :prevent_parent_loop
 
   def self.prepare_with(text, prompt, user = nil)
-    if user
+    annotation = if user
       user.ai_annotations.new(text: text, prompt: prompt)
     else
-      new(text: text, prompt: prompt)
+      new(text: text, prompt: prompt, user_id: nil)
     end
+    annotation
   end
 
   def self.history_with_branches(limit: 50, user: nil)
@@ -48,7 +49,14 @@ class AiAnnotation < ApplicationRecord
 
     result = JSON.generate(result)
 
-    AiAnnotation.create!(prompt: prompt, content: result, parent: parent, user: self.user)
+    # Create new annotation with validated parent
+    validated_parent = parent.is_a?(AiAnnotation) && parent.persisted? ? parent : nil
+    parent_id_value = validated_parent&.id
+    user_id_value = self.user_id
+
+    Rails.logger.info "Creating AiAnnotation: parent_id=#{parent_id_value.inspect}, user_id=#{user_id_value.inspect}, prompt=#{prompt.inspect}"
+
+    AiAnnotation.create!(prompt: prompt, content: result, parent_id: parent_id_value, user_id: user_id_value)
   end
 
   def text=(annotation)
@@ -58,9 +66,13 @@ class AiAnnotation < ApplicationRecord
 
   private
 
-  # Delete old annotations
+  # Delete old annotations that are not referenced as parents
   def clean_old_annotations
-    AiAnnotation.old.destroy_all
+    old_annotations = AiAnnotation.old
+    old_annotations.each do |annotation|
+      # Only delete if not referenced as parent
+      annotation.destroy if AiAnnotation.where(parent_id: annotation.id).count == 0
+    end
   end
 
   # Set a new UUID
