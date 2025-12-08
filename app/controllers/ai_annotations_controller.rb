@@ -10,7 +10,7 @@ class AiAnnotationsController < ApplicationController
     @history = AiAnnotation.history_with_branches(limit: 50)
     @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
     @is_guest = !user_signed_in?
-    fetch_llm_options
+    set_llm_options
   end
 
   def create
@@ -32,7 +32,7 @@ class AiAnnotationsController < ApplicationController
 
     # Set required variables in case of error
     @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50) : []
-    fetch_llm_options
+    set_llm_options
     render :new, status: :unprocessable_entity
   end
 
@@ -43,7 +43,7 @@ class AiAnnotationsController < ApplicationController
     @history = AiAnnotation.history_with_branches(limit: 50)
     @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
     @is_guest = !user_signed_in?
-    fetch_llm_options
+    set_llm_options
   end
 
   def update
@@ -77,7 +77,7 @@ class AiAnnotationsController < ApplicationController
 
   private
 
-  def fetch_llm_options
+  def set_llm_options
     if user_signed_in?
       begin
         @llm_options = current_user.available_llm_options
