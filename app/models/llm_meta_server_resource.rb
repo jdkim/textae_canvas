@@ -37,7 +37,7 @@ class LlmMetaServerResource
     private
 
     def llms(jwt_token)
-      api_url = "#{ENV.fetch('LLM_SERVICE_BASE_URL', 'http://localhost:3000')}/api/llms"
+      api_url = "#{Rails.configuration.llm_service_base_url}/api/llms"
       raise ArgumentError, "User ID token is missing or invalid" if jwt_token.blank?
 
       headers = { "Content-Type" => "application/json" }
@@ -54,7 +54,7 @@ class LlmMetaServerResource
     end
 
     def llm_api_keys(jwt_token)
-      api_url = "#{ENV.fetch('LLM_SERVICE_BASE_URL', 'http://localhost:3000')}/api/llms_api_keys"
+      api_url = "#{Rails.configuration.llm_service_base_url}/api/llms_api_keys"
       raise ArgumentError, "User ID token is missing or invalid" if jwt_token.blank?
 
       headers = { "Content-Type" => "application/json" }
