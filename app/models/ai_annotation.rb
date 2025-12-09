@@ -1,7 +1,6 @@
 class AiAnnotation < ApplicationRecord
   attr_accessor :annotation, :text
 
-  before_create :clean_old_annotations
   before_create :set_uuid
 
   scope :old, -> { where("created_at < ?", 1.day.ago) }
@@ -57,11 +56,6 @@ class AiAnnotation < ApplicationRecord
   end
 
   private
-
-  # Delete old annotations
-  def clean_old_annotations
-    AiAnnotation.old.destroy_all
-  end
 
   # Set a new UUID
   def set_uuid
