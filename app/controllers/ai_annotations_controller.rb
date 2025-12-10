@@ -28,7 +28,7 @@ class AiAnnotationsController < ApplicationController
 
     ai_annotation = @new_ai_annotation.annotate! token, selected_api_key_uuid, selected_model, parent: parent
 
-    # セッションにゲストのヒストリを保存
+    # Save guest history to session
     save_to_guest_history(ai_annotation.uuid) unless user_signed_in?
 
     redirect_to edit_ai_annotation_path(ai_annotation.uuid, api_key_uuid: selected_api_key_uuid, model: selected_model)
@@ -64,7 +64,7 @@ class AiAnnotationsController < ApplicationController
 
     ai_annotation = @ai_annotation.annotate! token, selected_api_key_uuid, selected_model, parent: parent
 
-    # セッションにゲストのヒストリを保存
+    # Save guest history to session
     save_to_guest_history(ai_annotation.uuid) unless user_signed_in?
 
     redirect_to edit_ai_annotation_path(ai_annotation.uuid, api_key_uuid: selected_api_key_uuid, model: selected_model)
@@ -109,7 +109,7 @@ class AiAnnotationsController < ApplicationController
     session[:guest_ai_annotation_history] ||= []
     session[:guest_ai_annotation_history].unshift(uuid)
     session[:guest_ai_annotation_history].uniq!
-    # 最新50件に制限
+    # Limit to latest 50 items
     session[:guest_ai_annotation_history] = session[:guest_ai_annotation_history].first(50)
   end
 
