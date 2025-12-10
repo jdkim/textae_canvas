@@ -1,5 +1,6 @@
 class AiAnnotationsController < ApplicationController
   before_action :set_llm_options, only: [ :new, :create, :edit ]
+  before_action :initialize_guest_history, unless: :user_signed_in?
 
   rescue_from Exceptions::OllamaUnavailableError, with: :handle_ollama_unavailable
   rescue_from SimpleInlineTextAnnotation::RelationWithoutDenotationError, with: :handle_invalid_ai_response
@@ -10,7 +11,7 @@ class AiAnnotationsController < ApplicationController
 
   def new
     @new_ai_annotation = AiAnnotation.new
-    @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50, user: current_user) : []
+    @history = get_history
     @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
     @is_guest = !user_signed_in?
   end
@@ -27,13 +28,16 @@ class AiAnnotationsController < ApplicationController
 
     ai_annotation = @new_ai_annotation.annotate! token, selected_api_key_uuid, selected_model, parent: parent
 
+    # セッションにゲストのヒストリを保存
+    save_to_guest_history(ai_annotation.uuid) unless user_signed_in?
+
     redirect_to edit_ai_annotation_path(ai_annotation.uuid, api_key_uuid: selected_api_key_uuid, model: selected_model)
   rescue => e
     Rails.logger.error "Error: #{e.message}"
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
 
     # Set required variables in case of error
-    @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50, user: current_user) : []
+    @history = get_history
     render :new, status: :unprocessable_entity
   end
 
@@ -41,7 +45,7 @@ class AiAnnotationsController < ApplicationController
     @ai_annotation = AiAnnotation.find_by(uuid: params[:uuid])
     return redirect_to root_path unless @ai_annotation
 
-    @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50, user: current_user) : []
+    @history = get_history
     @active_uuid = @ai_annotation&.uuid || params.dig(:ai_annotation, :branch_from_uuid)
     @is_guest = !user_signed_in?
   end
@@ -50,7 +54,6 @@ class AiAnnotationsController < ApplicationController
     @ai_annotation = AiAnnotation.find_by(uuid: params[:uuid])
     return redirect_to root_path unless @ai_annotation
 
-    @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50, user: current_user) : []
     @ai_annotation.annotation = JSON.parse(ai_annotation_params[:content])
     @ai_annotation.prompt = ai_annotation_params[:prompt]
 
@@ -61,11 +64,14 @@ class AiAnnotationsController < ApplicationController
 
     ai_annotation = @ai_annotation.annotate! token, selected_api_key_uuid, selected_model, parent: parent
 
+    # セッションにゲストのヒストリを保存
+    save_to_guest_history(ai_annotation.uuid) unless user_signed_in?
+
     redirect_to edit_ai_annotation_path(ai_annotation.uuid, api_key_uuid: selected_api_key_uuid, model: selected_model)
   rescue => e
     Rails.logger.error "Error: #{e.message}"
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
-    @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50, user: current_user) : []
+    @history = get_history
     render :edit, status: :unprocessable_entity
   end
 
@@ -92,6 +98,28 @@ class AiAnnotationsController < ApplicationController
     @ai_annotation&.reload
     @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50) : []
     render :edit, status: :unprocessable_entity
+　end
+
+  def initialize_guest_history
+    session[:guest_ai_annotation_history] ||= []
+  end
+
+  def save_to_guest_history(uuid)
+    return if uuid.blank?
+    session[:guest_ai_annotation_history] ||= []
+    session[:guest_ai_annotation_history].unshift(uuid)
+    session[:guest_ai_annotation_history].uniq!
+    # 最新50件に制限
+    session[:guest_ai_annotation_history] = session[:guest_ai_annotation_history].first(50)
+  end
+
+  def get_history
+    if user_signed_in?
+      AiAnnotation.history_with_branches(limit: 50, user: current_user)
+    else
+      guest_uuids = session[:guest_ai_annotation_history] || []
+      AiAnnotation.guest_history(guest_uuids, limit: 50)
+    end
   end
 
   def ai_annotation_params
