@@ -14,12 +14,11 @@ class AiAnnotation < ApplicationRecord
   validate :prevent_parent_loop
 
   def self.prepare_with(text, prompt, user = nil)
-    annotation = if user
+    if user
       user.ai_annotations.new(text: text, prompt: prompt)
     else
-      new(text: text, prompt: prompt, user_id: nil)
+      new(text: text, prompt: prompt)
     end
-    annotation
   end
 
   def self.history_with_branches(limit: 50, user: nil)
