@@ -4,7 +4,6 @@ class AiAnnotation < ApplicationRecord
   before_create :clean_old_annotations
   before_create :set_uuid
 
-  scope :old, -> { where("created_at < ?", 1.day.ago) }
   scope :latest, -> { order(created_at: :desc) }
 
   belongs_to :parent, class_name: "AiAnnotation", optional: true
@@ -12,6 +11,16 @@ class AiAnnotation < ApplicationRecord
   belongs_to :user, optional: true
 
   validate :prevent_parent_loop
+
+  # Filter old annotations that can be safely deleted
+  # (annotations with no descendants or all descendants are old)
+  def self.old_origins
+    old = where("created_at < ?", 1.day.ago)
+    old.select do |annotation|
+      # Return only origins (annotations without parents) that have no descendants or all descendants are old
+      annotation.parent.nil? && (annotation.children.empty? || annotation.all_descendants_old?)
+    end
+  end
 
   def self.prepare_with(text, prompt, user = nil)
     if user
@@ -67,17 +76,10 @@ class AiAnnotation < ApplicationRecord
 
   # Delete old annotations that are not referenced as parents
   def clean_old_annotations
-    old_annotations = AiAnnotation.old
     # Delete parent only if all descendants are old
     # Deleting parent will cascade delete children
-    old_annotations.each do |annotation|
-      # Delete if has no descendants
-      if annotation.children.empty?
-        annotation.destroy
-      # Delete if has descendants but all descendants are old
-      elsif all_descendants_old?(annotation)
-        annotation.destroy
-      end
+    AiAnnotation.old_origins.each do |annotation|
+      annotation.destroy
     end
   end
 
