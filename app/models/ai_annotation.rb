@@ -8,7 +8,7 @@ class AiAnnotation < ApplicationRecord
   scope :latest, -> { order(created_at: :desc) }
 
   belongs_to :parent, class_name: "AiAnnotation", optional: true
-  has_many :children, class_name: "AiAnnotation", foreign_key: "parent_id"
+  has_many :children, class_name: "AiAnnotation", foreign_key: "parent_id", dependent: :destroy
   belongs_to :user, optional: true
 
   validate :prevent_parent_loop
@@ -68,9 +68,23 @@ class AiAnnotation < ApplicationRecord
   # Delete old annotations that are not referenced as parents
   def clean_old_annotations
     old_annotations = AiAnnotation.old
+    # Delete parent only if all descendants are old
+    # Deleting parent will cascade delete children
     old_annotations.each do |annotation|
-      # Only delete if not referenced as parent
-      annotation.destroy if AiAnnotation.where(parent_id: annotation.id).count == 0
+      # Delete if has no descendants
+      if annotation.children.empty?
+        annotation.destroy
+      # Delete if has descendants but all descendants are old
+      elsif all_descendants_old?(annotation)
+        annotation.destroy
+      end
+    end
+  end
+
+  # Recursively check if all descendants are old
+  def all_descendants_old?(annotation)
+    annotation.children.all? do |child|
+      AiAnnotation.old.exists?(id: child.id) && (child.children.empty? || all_descendants_old?(child))
     end
   end
 
