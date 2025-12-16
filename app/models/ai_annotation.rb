@@ -70,7 +70,7 @@ class AiAnnotation < ApplicationRecord
   def self.old_origins
     old.select do |annotation|
       # Return only origins (annotations without parents) that have no descendants or all descendants are old
-      annotation.parent.nil? && (annotation.children.empty? || annotation.all_descendants_old?)
+      annotation.parent.nil? && (annotation.children.empty? || annotation.subtree_old?)
     end
   end
 
@@ -84,7 +84,7 @@ class AiAnnotation < ApplicationRecord
   # Recursively check if all descendants are old
   # This method uses a Set for O(1) lookup performance
   # @return [Boolean] true if all descendant annotations are older than 1 day
-  def all_descendants_old?
+  def subtree_old?
     # Fetch all old annotation IDs once and convert to Set for fast lookup
     old_ids = AiAnnotation.old.pluck(:id).to_set
     check_descendants_old(self, old_ids)
