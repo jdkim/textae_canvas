@@ -61,16 +61,24 @@ class AiAnnotation < ApplicationRecord
   # Filter old annotations that can be safely deleted
   # (annotations with no descendants or all descendants are old)
   def self.old_origins
-    # Get old annotations without parents
-    origins = old.where(parent_id: nil).includes(:children)
+    threshold = 1.day.ago
 
-    # Filter to only those where all descendants are old
-    deletable_ids = origins.select do |annotation|
-      annotation.children.empty? || annotation.subtree_old?
-    end.map(&:id)
+    # Build descendants(root_id, id, created_at)
+    anchor =
+      Annotation
+        .where.not(parent_id: nil)
+        .select("annotations.parent_id AS root_id, annotations.id, annotations.created_at")
+    recursive =
+      Annotation
+        .select("descendants.root_id, annotations.id, annotations.created_at")
+        .joins("JOIN descendants ON annotations.parent_id = descendants.id")
 
-    # Return as ActiveRecord Relation for destroy_all
-    where(id: deletable_ids)
+    Annotation
+      .where(parent_id: nil)
+      .with_recursive(descendants: [anchor, recursive])
+      .joins("LEFT JOIN descendants ON descendants.root_id = annotations.id")
+      .group("annotations.id")
+      .having("COUNT(descendants.id) = 0 OR MAX(descendants.created_at) < ?", threshold)
   end
 
   # Delete old annotations that are not referenced as parents
@@ -78,26 +86,6 @@ class AiAnnotation < ApplicationRecord
     # Delete parent only if all descendants are old
     # Deleting parent will cascade delete children
     AiAnnotation.old_origins.destroy_all
-  end
-
-  # Recursively check if all descendants are old
-  # This method uses a Set for O(1) lookup performance
-  # @return [Boolean] true if all descendant annotations are older than 1 day
-  def subtree_old?
-    # Fetch all old annotation IDs once and convert to Set for fast lookup
-    old_ids = AiAnnotation.old.pluck(:id).to_set
-    check_descendants_old(self, old_ids)
-  end
-
-  # Helper method to recursively check if all descendants are in the old_ids set
-  # @param annotation [AiAnnotation] the annotation to check
-  # @param old_ids [Set<Integer>] set of IDs of old annotations
-  # @return [Boolean] true if all descendants are old
-  def check_descendants_old(annotation, old_ids)
-    annotation.children.all? do |child|
-      # Child must be old AND either have no children or all its descendants are old
-      old_ids.include?(child.id) && (child.children.empty? || check_descendants_old(child, old_ids))
-    end
   end
 
   # Set a new UUID
