@@ -59,7 +59,7 @@ class LlmMetaServerResource
       api_url = "#{Rails.configuration.llm_service_base_url}/api/llms"
 
       headers = { "Content-Type" => "application/json" }
-      headers["Authorization"] = "Bearer #{jwt_token}" unless jwt_token.blank?
+      headers["Authorization"] = "Bearer #{jwt_token}" if jwt_token.present?
 
       response = HTTParty.get(api_url, headers: headers)
 
