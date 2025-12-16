@@ -65,19 +65,20 @@ class AiAnnotation < ApplicationRecord
 
     # Build descendants(root_id, id, created_at)
     anchor =
-      Annotation
+      AiAnnotation
         .where.not(parent_id: nil)
-        .select("annotations.parent_id AS root_id, annotations.id, annotations.created_at")
+        .select("ai_annotations.parent_id AS root_id, ai_annotations.id, ai_annotations.created_at")
     recursive =
-      Annotation
-        .select("descendants.root_id, annotations.id, annotations.created_at")
-        .joins("JOIN descendants ON annotations.parent_id = descendants.id")
+      AiAnnotation
+        .select("descendants.root_id, ai_annotations.id, ai_annotations.created_at")
+        .joins("JOIN descendants ON ai_annotations.parent_id = descendants.id")
 
-    Annotation
+    AiAnnotation
       .where(parent_id: nil)
+      .where("ai_annotations.created_at < ?", threshold) # Prevent newly created records from being accidentally deleted
       .with_recursive(descendants: [ anchor, recursive ])
-      .joins("LEFT JOIN descendants ON descendants.root_id = annotations.id")
-      .group("annotations.id")
+      .joins("LEFT JOIN descendants ON descendants.root_id = ai_annotations.id")
+      .group("ai_annotations.id")
       .having("COUNT(descendants.id) = 0 OR MAX(descendants.created_at) < ?", threshold)
   end
 
