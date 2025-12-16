@@ -13,15 +13,6 @@ class AiAnnotation < ApplicationRecord
 
   validate :prevent_parent_loop
 
-  # Filter old annotations that can be safely deleted
-  # (annotations with no descendants or all descendants are old)
-  def self.old_origins
-    old.select do |annotation|
-      # Return only origins (annotations without parents) that have no descendants or all descendants are old
-      annotation.parent.nil? && (annotation.children.empty? || annotation.all_descendants_old?)
-    end
-  end
-
   def self.prepare_with(text, prompt, user = nil)
     if user
       user.ai_annotations.new(text: text, prompt: prompt)
@@ -73,6 +64,15 @@ class AiAnnotation < ApplicationRecord
   end
 
   private
+
+  # Filter old annotations that can be safely deleted
+  # (annotations with no descendants or all descendants are old)
+  def self.old_origins
+    old.select do |annotation|
+      # Return only origins (annotations without parents) that have no descendants or all descendants are old
+      annotation.parent.nil? && (annotation.children.empty? || annotation.all_descendants_old?)
+    end
+  end
 
   # Delete old annotations that are not referenced as parents
   def clean_old_annotations
