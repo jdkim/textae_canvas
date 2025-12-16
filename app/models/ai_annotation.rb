@@ -75,7 +75,7 @@ class AiAnnotation < ApplicationRecord
 
     Annotation
       .where(parent_id: nil)
-      .with_recursive(descendants: [anchor, recursive])
+      .with_recursive(descendants: [ anchor, recursive ])
       .joins("LEFT JOIN descendants ON descendants.root_id = annotations.id")
       .group("annotations.id")
       .having("COUNT(descendants.id) = 0 OR MAX(descendants.created_at) < ?", threshold)
