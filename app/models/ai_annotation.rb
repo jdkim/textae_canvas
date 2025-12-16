@@ -61,10 +61,16 @@ class AiAnnotation < ApplicationRecord
   # Filter old annotations that can be safely deleted
   # (annotations with no descendants or all descendants are old)
   def self.old_origins
-    old.select do |annotation|
-      # Return only origins (annotations without parents) that have no descendants or all descendants are old
-      annotation.parent.nil? && (annotation.children.empty? || annotation.subtree_old?)
-    end
+    # Get old annotations without parents
+    origins = old.where(parent_id: nil).includes(:children)
+
+    # Filter to only those where all descendants are old
+    deletable_ids = origins.select do |annotation|
+      annotation.children.empty? || annotation.subtree_old?
+    end.map(&:id)
+
+    # Return as ActiveRecord Relation for destroy_all
+    where(id: deletable_ids)
   end
 
   # Delete old annotations that are not referenced as parents
