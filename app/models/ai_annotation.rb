@@ -82,9 +82,22 @@ class AiAnnotation < ApplicationRecord
   end
 
   # Recursively check if all descendants are old
-  def all_descendants_old?(annotation)
+  # This method uses a Set for O(1) lookup performance
+  # @return [Boolean] true if all descendant annotations are older than 1 day
+  def all_descendants_old?
+    # Fetch all old annotation IDs once and convert to Set for fast lookup
+    old_ids = AiAnnotation.old.pluck(:id).to_set
+    check_descendants_old(self, old_ids)
+  end
+
+  # Helper method to recursively check if all descendants are in the old_ids set
+  # @param annotation [AiAnnotation] the annotation to check
+  # @param old_ids [Set<Integer>] set of IDs of old annotations
+  # @return [Boolean] true if all descendants are old
+  def check_descendants_old(annotation, old_ids)
     annotation.children.all? do |child|
-      AiAnnotation.old.exists?(id: child.id) && (child.children.empty? || all_descendants_old?(child))
+      # Child must be old AND either have no children or all its descendants are old
+      old_ids.include?(child.id) && (child.children.empty? || check_descendants_old(child, old_ids))
     end
   end
 
