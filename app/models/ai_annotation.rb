@@ -78,9 +78,7 @@ class AiAnnotation < ApplicationRecord
   def clean_old_annotations
     # Delete parent only if all descendants are old
     # Deleting parent will cascade delete children
-    AiAnnotation.old_origins.each do |annotation|
-      annotation.destroy
-    end
+    AiAnnotation.old_origins.destroy_all
   end
 
   # Recursively check if all descendants are old
