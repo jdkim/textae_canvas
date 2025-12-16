@@ -4,7 +4,29 @@ class AiAnnotation < ApplicationRecord
   before_create :clean_old_annotations
   before_create :set_uuid
 
-  scope :old, -> { where("created_at < ?", 1.day.ago) }
+  # Filter old annotations that can be safely deleted
+  # (annotations with no descendants or all descendants are old)
+  scope :old_origins, -> {
+    threshold = 1.day.ago
+
+    # Build descendants(root_id, id, created_at)
+    anchor =
+      AiAnnotation
+        .where.not(parent_id: nil)
+        .select("ai_annotations.parent_id AS root_id, ai_annotations.id, ai_annotations.created_at")
+    recursive =
+      AiAnnotation
+        .select("descendants.root_id, ai_annotations.id, ai_annotations.created_at")
+        .joins("JOIN descendants ON ai_annotations.parent_id = descendants.id")
+
+    AiAnnotation
+      .where(parent_id: nil)
+      .where("ai_annotations.created_at < ?", threshold) # Prevent newly created records from being accidentally deleted
+      .with_recursive(descendants: [ anchor, recursive ])
+      .joins("LEFT JOIN descendants ON descendants.root_id = ai_annotations.id")
+      .group("ai_annotations.id")
+      .having("COUNT(descendants.id) = 0 OR MAX(descendants.created_at) < ?", threshold)
+  }
   scope :latest, -> { order(created_at: :desc) }
 
   belongs_to :parent, class_name: "AiAnnotation", optional: true
@@ -57,30 +79,6 @@ class AiAnnotation < ApplicationRecord
   end
 
   private
-
-  # Filter old annotations that can be safely deleted
-  # (annotations with no descendants or all descendants are old)
-  def self.old_origins
-    threshold = 1.day.ago
-
-    # Build descendants(root_id, id, created_at)
-    anchor =
-      AiAnnotation
-        .where.not(parent_id: nil)
-        .select("ai_annotations.parent_id AS root_id, ai_annotations.id, ai_annotations.created_at")
-    recursive =
-      AiAnnotation
-        .select("descendants.root_id, ai_annotations.id, ai_annotations.created_at")
-        .joins("JOIN descendants ON ai_annotations.parent_id = descendants.id")
-
-    AiAnnotation
-      .where(parent_id: nil)
-      .where("ai_annotations.created_at < ?", threshold) # Prevent newly created records from being accidentally deleted
-      .with_recursive(descendants: [ anchor, recursive ])
-      .joins("LEFT JOIN descendants ON descendants.root_id = ai_annotations.id")
-      .group("ai_annotations.id")
-      .having("COUNT(descendants.id) = 0 OR MAX(descendants.created_at) < ?", threshold)
-  end
 
   # Delete old annotations that are not referenced as parents
   def clean_old_annotations
