@@ -48,14 +48,7 @@ class AiAnnotation < ApplicationRecord
 
     result = JSON.generate(result)
 
-    # Create new annotation with validated parent
-    validated_parent = parent.is_a?(AiAnnotation) && parent.persisted? ? parent : nil
-    parent_id_value = validated_parent&.id
-    user_id_value = self.user_id
-
-    Rails.logger.info "Creating AiAnnotation: parent_id=#{parent_id_value.inspect}, user_id=#{user_id_value.inspect}, prompt=#{prompt.inspect}"
-
-    AiAnnotation.create!(prompt: prompt, content: result, parent_id: parent_id_value, user_id: user_id_value)
+    AiAnnotation.create!(prompt: prompt, content: result, parent: parent, user: self.user)
   end
 
   def text=(annotation)
