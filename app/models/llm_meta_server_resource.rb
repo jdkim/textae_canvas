@@ -11,7 +11,7 @@ class LlmMetaServerResource
       if jwt_token.blank?
         ollama = fetch_ollama
         return [ build_option_from(ollama, type: "ollama") ] if ollama
-        return options
+        return []
       end
 
       # Logged-in user: return API Keys + Ollama
