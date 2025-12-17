@@ -10,7 +10,7 @@ class LlmMetaServerResource
       # Guest user: return only Ollama
       if jwt_token.blank?
         ollama = fetch_ollama(nil)
-        return [build_option_from(ollama, type: "ollama")] if ollama
+        return [ build_option_from(ollama, type: "ollama") ] if ollama
         return options
       end
 
@@ -51,7 +51,6 @@ class LlmMetaServerResource
     end
 
     def llms(jwt_token)
-
       api_url = "#{Rails.configuration.llm_service_base_url}/api/llms"
 
       headers = { "Content-Type" => "application/json" }
