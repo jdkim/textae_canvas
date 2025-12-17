@@ -7,10 +7,12 @@ class LlmMetaServerResource
     def available_llm_options(jwt_token)
       options = []
 
-      # Guest user: return only Ollama
       if jwt_token.blank?
+        # For guest users
         ollama = fetch_ollama
-        return [ build_option_from(ollama, type: "ollama") ] if ollama
+        built_ollama = build_option_from(ollama, type: "ollama")
+        # return only Ollama
+        return [ built_ollama ] if built_ollama
         return []
       end
 
