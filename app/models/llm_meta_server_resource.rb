@@ -9,53 +9,49 @@ class LlmMetaServerResource
 
       # Guest user: return only Ollama
       if jwt_token.blank?
-        llms = llms(nil)
-        ollama = llms.find { |llm| llm["llm_type"] == "ollama" }
-        if ollama
-          options << {
-            uuid: ollama["uuid"],
-            description: ollama["description"],
-            llm_type: "ollama",
-            available_models: ollama["available_models"],
-            type: "ollama"
-          }
-        end
+        ollama = fetch_ollama(nil)
+        return [build_option_from(ollama, type: "ollama")] if ollama
         return options
       end
 
       # Logged-in user: return API Keys + Ollama
-      llms = llms(jwt_token)
       api_keys = llm_api_keys(jwt_token)
 
       # Add user's API Keys
       api_keys.each do |key|
-        options << {
-          uuid: key["uuid"],
-          description: key["description"],
-          llm_type: key["llm_type"],
-          available_models: key["available_models"],
-          type: "api_key"
-        }
+        built = build_option_from(key, type: "api_key")
+        options << built if built
       end
 
       # Add Ollama
-      ollama = llms.find { |llm| llm["llm_type"] == "ollama" }
-      if ollama
-        options << {
-          uuid: ollama["uuid"],
-          description: ollama["description"],
-          llm_type: "ollama",
-          available_models: ollama["available_models"],
-          type: "ollama"
-        }
-      end
+      ollama = fetch_ollama(jwt_token)
+      built_ollama = build_option_from(ollama, type: "ollama")
+      options << built_ollama if built_ollama
 
       options
     end
 
     private
 
+    def fetch_ollama(jwt_token)
+      llms = llms(jwt_token)
+      llms.find { |llm| llm["llm_type"] == "ollama" }
+    end
+
+    # Builds a normalized option hash from a resource by slicing common keys and merging type
+    # Returns nil if resource is nil
+    def build_option_from(resource, type:)
+      return nil if resource.nil?
+
+      common_keys = %w[uuid description llm_type available_models]
+      option = resource.slice(*common_keys)
+      # Ensure llm_type for ollama is set to "ollama" even if missing or different
+      option["llm_type"] = "ollama" if type == "ollama"
+      option.merge(type: type)
+    end
+
     def llms(jwt_token)
+
       api_url = "#{Rails.configuration.llm_service_base_url}/api/llms"
 
       headers = { "Content-Type" => "application/json" }
