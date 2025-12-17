@@ -9,7 +9,7 @@ class LlmMetaServerResource
 
       # Guest user: return only Ollama
       if jwt_token.blank?
-        ollama = fetch_ollama(nil)
+        ollama = fetch_ollama
         return [ build_option_from(ollama, type: "ollama") ] if ollama
         return options
       end
@@ -24,7 +24,7 @@ class LlmMetaServerResource
       end
 
       # Add Ollama
-      ollama = fetch_ollama(jwt_token)
+      ollama = fetch_ollama
       built_ollama = build_option_from(ollama, type: "ollama")
       options << built_ollama if built_ollama
 
@@ -33,8 +33,7 @@ class LlmMetaServerResource
 
     private
 
-    def fetch_ollama(jwt_token)
-      llms = llms(jwt_token)
+    def fetch_ollama
       llms.find { |llm| llm["llm_type"] == "ollama" }
     end
 
@@ -44,19 +43,16 @@ class LlmMetaServerResource
       return nil if resource.nil?
 
       common_keys = %w[uuid description llm_type available_models]
-      option = resource.slice(*common_keys)
       option = resource.slice(*common_keys).symbolize_keys
       # Ensure llm_type for ollama is set to "ollama" even if missing or different
-      option["llm_type"] = "ollama" if type == "ollama"
       option[:llm_type] = "ollama" if type == "ollama"
       option.merge(type: type)
     end
 
-    def llms(jwt_token)
+    def llms
       api_url = "#{Rails.configuration.llm_service_base_url}/api/llms"
 
       headers = { "Content-Type" => "application/json" }
-      headers["Authorization"] = "Bearer #{jwt_token}" if jwt_token.present?
 
       response = HTTParty.get(api_url, headers: headers)
 
