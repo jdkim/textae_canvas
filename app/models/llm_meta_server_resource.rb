@@ -45,8 +45,10 @@ class LlmMetaServerResource
 
       common_keys = %w[uuid description llm_type available_models]
       option = resource.slice(*common_keys)
+      option = resource.slice(*common_keys).symbolize_keys
       # Ensure llm_type for ollama is set to "ollama" even if missing or different
       option["llm_type"] = "ollama" if type == "ollama"
+      option[:llm_type] = "ollama" if type == "ollama"
       option.merge(type: type)
     end
 
