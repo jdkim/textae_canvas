@@ -18,10 +18,10 @@ class LlmMetaServerResource
       api_keys = llm_api_keys(jwt_token)
 
       # Add user's API Keys
-      api_keys.each do |key|
+      api_keys.map { |key|
         built = build_option_from(key, type: "api_key")
         options << built if built
-      end
+      }
 
       # Add Ollama
       ollama = fetch_ollama
