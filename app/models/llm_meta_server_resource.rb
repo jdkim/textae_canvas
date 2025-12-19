@@ -7,9 +7,9 @@ class LlmMetaServerResource
     def available_llm_options(jwt_token)
       if jwt_token.blank?
         # For guest users: Ollama is required
-        built_ollama = built_ollama_option
+        ollama_option = built_ollama_option
         # return only Ollama
-        return built_ollama ? [built_ollama] : []
+        return ollama_option ? [ollama_option] : []
       end
 
       # Logged-in user: return API Keys + Ollama (if available)
@@ -21,8 +21,8 @@ class LlmMetaServerResource
 
       # Try to add Ollama, but don't fail if unavailable
       begin
-        built_ollama = built_ollama_option
-        options << built_ollama if built_ollama
+        ollama_option = built_ollama_option
+        options << ollama_option if ollama_option
       rescue Exceptions::OllamaUnavailableError => e
         Rails.logger.warn "Ollama unavailable: #{e.message}"
         # Continue with API Keys only if at least one is available
