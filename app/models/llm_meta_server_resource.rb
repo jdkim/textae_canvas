@@ -5,8 +5,6 @@ class LlmMetaServerResource
     # Retrieve LLM options available for user selection (API Keys + Ollama)
     # For guest users (no jwt_token), only Ollama is returned
     def available_llm_options(jwt_token)
-      options = []
-
       if jwt_token.blank?
         # For guest users
         ollama = fetch_ollama
@@ -20,10 +18,8 @@ class LlmMetaServerResource
       api_keys = llm_api_keys(jwt_token)
 
       # Add user's API Keys
-      api_keys.map { |key|
-        built = build_option_from(key, type: "api_key")
-        options << built if built
-      }
+      options = api_keys.map { build_option_from(_1, type: "api_key") }
+                        .filter { |option| option.present? }
 
       # Add Ollama
       ollama = fetch_ollama
