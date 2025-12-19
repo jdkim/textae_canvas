@@ -9,7 +9,7 @@ class LlmMetaServerResource
         # For guest users: Ollama is required
         ollama_option = built_ollama_option
         # return only Ollama
-        return ollama_option ? [ollama_option] : []
+        return ollama_option ? [ ollama_option ] : []
       end
 
       # Logged-in user: return API Keys + Ollama (if available)
