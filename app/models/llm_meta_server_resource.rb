@@ -5,12 +5,9 @@ class LlmMetaServerResource
     # Retrieve LLM options available for user selection (API Keys + Ollama)
     # For guest users (no jwt_token), only Ollama is returned
     def available_llm_options(jwt_token)
-      if jwt_token.blank?
-        # For guest users: Ollama is required
-        ollama_option = built_ollama_option
-        # return only Ollama
-        return ollama_option
-      end
+      # For guest users: Ollama is required
+      # return only Ollama
+      return built_ollama_option if jwt_token.blank?
 
       # Logged-in user: return API Keys + Ollama (if available)
       api_keys = llm_api_keys(jwt_token)
