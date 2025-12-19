@@ -31,14 +31,13 @@ class LlmMetaServerResource
 
     def built_ollama_option
       ollama = llms.find { |llm| llm["llm_type"] == "ollama" }
+      return nil unless ollama
       build_option_from(ollama, type: "ollama")
     end
 
     # Builds a normalized option hash from a resource by slicing common keys and merging type
     # Returns nil if resource is nil
     def build_option_from(resource, type:)
-      return nil if resource.nil?
-
       common_keys = %w[uuid description llm_type available_models]
       option = resource.slice(*common_keys).symbolize_keys
       # Ensure llm_type for ollama is set to "ollama" even if missing or different
