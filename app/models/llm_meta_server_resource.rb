@@ -13,7 +13,7 @@ class LlmMetaServerResource
       api_keys = llm_api_keys(jwt_token)
 
       # Add user's API Keys
-      options = api_keys.map { build_option_from(_1, type: "api_key") }
+      options = api_keys.map { build_option_from(it, type: "api_key") }
                         .filter { |option| option.present? }
 
       # Try to add Ollama, but don't fail if unavailable
@@ -32,7 +32,7 @@ class LlmMetaServerResource
     private
 
     def built_ollama_option
-      ollama = llms.find { |llm| llm["llm_type"] == "ollama" }
+      ollama = llms.find { it["llm_type"] == "ollama" }
       raise Exceptions::OllamaUnavailableError unless ollama
       build_option_from(ollama, type: "ollama")
     end
