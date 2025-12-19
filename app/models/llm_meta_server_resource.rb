@@ -7,8 +7,7 @@ class LlmMetaServerResource
     def available_llm_options(jwt_token)
       if jwt_token.blank?
         # For guest users
-        ollama = fetch_ollama
-        built_ollama = build_option_from(ollama, type: "ollama")
+        built_ollama = built_ollama_option
         # return only Ollama
         return [ built_ollama ] if built_ollama
         return []
@@ -22,8 +21,7 @@ class LlmMetaServerResource
                         .filter { |option| option.present? }
 
       # Add Ollama
-      ollama = fetch_ollama
-      built_ollama = build_option_from(ollama, type: "ollama")
+      built_ollama = built_ollama_option
       options << built_ollama if built_ollama
 
       options
@@ -31,8 +29,9 @@ class LlmMetaServerResource
 
     private
 
-    def fetch_ollama
-      llms.find { |llm| llm["llm_type"] == "ollama" }
+    def built_ollama_option
+      ollama = llms.find { |llm| llm["llm_type"] == "ollama" }
+      build_option_from(ollama, type: "ollama")
     end
 
     # Builds a normalized option hash from a resource by slicing common keys and merging type
