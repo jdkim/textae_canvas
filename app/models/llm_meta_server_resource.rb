@@ -18,8 +18,7 @@ class LlmMetaServerResource
 
       # Try to add Ollama, but don't fail if unavailable
       begin
-        ollama_option = built_ollama_option
-        options << ollama_option
+        options << built_ollama_option
       rescue Exceptions::OllamaUnavailableError => e
         Rails.logger.warn "Ollama unavailable: #{e.message}"
         # Continue with API Keys only if at least one is available
