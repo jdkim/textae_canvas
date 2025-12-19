@@ -9,8 +9,7 @@ class LlmMetaServerResource
         # For guest users
         built_ollama = built_ollama_option
         # return only Ollama
-        return [ built_ollama ] if built_ollama
-        return []
+        return built_ollama ? [built_ollama] : []
       end
 
       # Logged-in user: return API Keys + Ollama
