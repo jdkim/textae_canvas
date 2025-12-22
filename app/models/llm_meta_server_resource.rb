@@ -13,7 +13,7 @@ class LlmMetaServerResource
       api_keys = llm_api_keys(jwt_token)
 
       # Add user's API Keys
-      options = api_keys.map { option_from(it, type: it["llm_type"]) }
+      options = api_keys.map { option_from(it) }
                         .compact
 
       # Try to add Ollama, but don't fail if unavailable
@@ -33,17 +33,14 @@ class LlmMetaServerResource
     def ollama_option
       ollama = llms.find { it["llm_type"] == "ollama" }
       raise Exceptions::OllamaUnavailableError unless ollama
-      option_from(ollama, type: "ollama")
+      option_from(ollama)
     end
 
     # Builds a normalized option hash from a resource by slicing common keys and merging type
     # Returns nil if resource is nil
-    def option_from(resource, type:)
+    def option_from(resource)
       common_keys = %w[uuid description llm_type available_models]
-      option = resource.slice(*common_keys).symbolize_keys
-      # Ensure llm_type for ollama is set to "ollama" even if missing or different
-      option[:llm_type] = type
-      option.merge(type: type)
+      resource.slice(*common_keys).symbolize_keys
     end
 
     def llms
