@@ -7,13 +7,10 @@ class LlmMetaServerResource
     def available_llm_options(jwt_token)
       # For guest users: Ollama is required
       # return only Ollama
-      return ollama_option if jwt_token.blank?
+      return [ option_from(ollama_option) ] if jwt_token.blank?
 
       # Logged-in user: return API Keys + Ollama (if available)
-      api_keys = llm_api_keys(jwt_token)
-
-      # Add user's API Keys
-      options = api_keys.map { option_from(it) }
+      options = llm_api_keys(jwt_token)
 
       # Try to add Ollama, but don't fail if unavailable
       begin
@@ -24,7 +21,7 @@ class LlmMetaServerResource
         raise e if options.empty?
       end
 
-      options
+      option_from options
     end
 
     private
@@ -32,14 +29,17 @@ class LlmMetaServerResource
     def ollama_option
       ollama = llms.find { it["llm_type"] == "ollama" }
       raise Exceptions::OllamaUnavailableError unless ollama
-      option_from(ollama)
+      ollama
     end
 
     # Builds a normalized option hash from a resource by slicing common keys and merging type
     # Returns nil if resource is nil
-    def option_from(resource)
+    def option_from(resources)
       common_keys = %w[uuid description llm_type available_models]
-      resource.slice(*common_keys).symbolize_keys
+      return resources.slice(*common_keys).symbolize_keys if resources.is_a? Hash
+      resources.map { it.slice(*common_keys).symbolize_keys }
+    rescue ArgumentError => e
+      Rails.logger.error "Error building option from resource: #{e.message}"
     end
 
     def llms
