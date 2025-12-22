@@ -14,7 +14,7 @@ class LlmMetaServerResource
 
       # Add user's API Keys
       options = api_keys.map { option_from(it, type: "api_key") }
-                        .filter { |option| option.present? }
+                        .compact
 
       # Try to add Ollama, but don't fail if unavailable
       begin
