@@ -37,9 +37,6 @@ class LlmMetaServerResource
     def format(resources)
       common_keys = %w[uuid description llm_type available_models]
       resources.map { it.slice(*common_keys).symbolize_keys }
-    rescue ArgumentError => e
-      Rails.logger.error "Error building option from resource: #{e.message}"
-      []
     end
 
     def llms
