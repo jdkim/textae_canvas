@@ -7,7 +7,7 @@ class LlmMetaServerResource
     def available_llm_options(jwt_token)
       # For guest users: Ollama is required
       # return only Ollama
-      return option_from(ollama_options) if jwt_token.blank?
+      return format(ollama_options) if jwt_token.blank?
 
       # Logged-in user: return API Keys + Ollama (if available)
       options = llm_api_keys(jwt_token)
@@ -21,7 +21,7 @@ class LlmMetaServerResource
         raise e if options.empty?
       end
 
-      option_from options
+      format options
     end
 
     private
@@ -34,7 +34,7 @@ class LlmMetaServerResource
 
     # Builds normalized option hashes from an array of resources by slicing common keys
     # Accepts only arrays
-    def option_from(resources)
+    def format(resources)
       common_keys = %w[uuid description llm_type available_models]
       resources.map { it.slice(*common_keys).symbolize_keys }
     rescue ArgumentError => e
