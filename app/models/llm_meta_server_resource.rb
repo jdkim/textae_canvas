@@ -7,14 +7,14 @@ class LlmMetaServerResource
     def available_llm_options(jwt_token)
       # For guest users: Ollama is required
       # return only Ollama
-      return format(ollama_options) if jwt_token.blank?
+      return format ollama_options if jwt_token.blank?
 
       # Logged-in user: return API Keys + Ollama (if available)
-      options = llm_api_keys(jwt_token)
+      options = llm_api_keys jwt_token
 
       # Try to add Ollama, but don't fail if unavailable
       begin
-        options.concat(ollama_options)
+        options.concat ollama_options
       rescue Exceptions::OllamaUnavailableError => e
         Rails.logger.warn "Ollama unavailable: #{e.message}"
         # Continue with API Keys only if at least one is available
@@ -44,7 +44,7 @@ class LlmMetaServerResource
 
       headers = { "Content-Type" => "application/json" }
 
-      response = HTTParty.get(api_url, headers: headers)
+      response = HTTParty.get api_url, headers: headers
 
       if response.success?
         response.parsed_response["llms"] || []
@@ -60,7 +60,7 @@ class LlmMetaServerResource
       headers = { "Content-Type" => "application/json" }
       headers["Authorization"] = "Bearer #{jwt_token}"
 
-      response = HTTParty.get(api_url, headers: headers)
+      response = HTTParty.get api_url, headers: headers
 
       if response.success?
         response.parsed_response["llm_api_keys"] || []
