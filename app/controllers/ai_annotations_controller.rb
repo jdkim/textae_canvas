@@ -77,8 +77,7 @@ class AiAnnotationsController < ApplicationController
 
   def set_llm_options
     begin
-      jwt_token = current_user&.jwt_token
-      @llm_options = LlmMetaServerResource.available_llm_options(jwt_token)
+      @llm_options = LlmMetaServerResource.available_llm_options current_user&.jwt_token
     rescue => e
       Rails.logger.error "Failed to fetch LLM options: #{e.message}"
       flash.now[:alert] = "Unable to fetch LLM options."
