@@ -79,8 +79,8 @@ class AiAnnotationsController < ApplicationController
     begin
       @llm_options = LlmMetaServerResource.available_llm_options current_user&.jwt_token
     rescue Exceptions::OllamaUnavailableError => e
-      Rails.logger.error "Failed to fetch LLM options: #{e.message}"
-      flash.now[:alert] = "Unable to fetch LLM options."
+      Rails.logger.error "#{e.class}: #{e.message}"
+      flash.now[:alert] = e.message
       @llm_options = []
     end
   end
