@@ -55,8 +55,7 @@ class LlmMetaServerResource
 
     def llm_api_keys(jwt_token)
       api_url = "#{Rails.configuration.llm_service_base_url}/api/llm_api_keys"
-      headers = { "Content-Type" => "application/json" }
-      headers["Authorization"] = "Bearer #{jwt_token}"
+      headers = { "Content-Type" => "application/json", "Authorization" => "Bearer #{jwt_token}" }
 
       response = HTTParty.get api_url, headers: headers
 
