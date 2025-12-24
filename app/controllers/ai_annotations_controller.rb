@@ -82,7 +82,7 @@ class AiAnnotationsController < ApplicationController
     # Execute the appropriate action based on the request
     if action_name.in?(%w[new create edit])
       @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50) : []
-      render action_name == 'create' ? :new : action_name, status: :unprocessable_entity
+      render action_name == "create" ? :new : action_name, status: :unprocessable_entity
     end
   end
 
