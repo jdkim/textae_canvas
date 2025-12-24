@@ -2,6 +2,9 @@ class AiAnnotationsController < ApplicationController
   before_action :authenticate_user!, except: [ :new ]
   before_action :set_llm_options, only: [ :new, :create, :edit ]
 
+  rescue_from Exceptions::OllamaUnavailableError, with: :handle_ollama_unavailable
+  rescue_from SimpleInlineTextAnnotation::RelationWithoutDenotationError, with: :handle_invalid_ai_response
+
   def index
     @ai_annotations = AiAnnotation.where(user: current_user)
   end
@@ -60,13 +63,6 @@ class AiAnnotationsController < ApplicationController
     ai_annotation = @ai_annotation.annotate! token, selected_api_key_uuid, selected_model, parent: parent
 
     redirect_to edit_ai_annotation_path(ai_annotation.uuid, api_key_uuid: selected_api_key_uuid, model: selected_model)
-  rescue SimpleInlineTextAnnotation::RelationWithoutDenotationError => e
-    # Error that may occur in SimpleInlineTextAnnotation when the LLM response is invalid
-    Rails.logger.error "#{e.class}: #{e.message}"
-
-    flash.now[:alert] = "Invalid response from AI. Please retry."
-    @ai_annotation.reload
-    render :edit, status: :unprocessable_entity
   rescue => e
     Rails.logger.error "Error: #{e.message}"
     flash.now[:alert] = "Unexpected error occurred while generating AI annotation."
@@ -76,13 +72,26 @@ class AiAnnotationsController < ApplicationController
   private
 
   def set_llm_options
-    begin
-      @llm_options = LlmMetaServerResource.available_llm_options current_user&.jwt_token
-    rescue Exceptions::OllamaUnavailableError => e
-      Rails.logger.error "#{e.class}: #{e.message}"
-      flash.now[:alert] = e.message
-      @llm_options = []
+    @llm_options = LlmMetaServerResource.available_llm_options current_user&.jwt_token
+  end
+
+  def handle_ollama_unavailable(exception)
+    Rails.logger.error "#{exception.class}: #{exception.message}"
+    flash.now[:alert] = exception.message
+    @llm_options = []
+    # Execute the appropriate action based on the request
+    if action_name.in?(%w[new create edit])
+      @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50) : []
+      render action_name == 'create' ? :new : action_name, status: :unprocessable_entity
     end
+  end
+
+  def handle_invalid_ai_response(exception)
+    Rails.logger.error "#{exception.class}: #{exception.message}"
+    flash.now[:alert] = "Invalid response from AI. Please retry."
+    @ai_annotation&.reload
+    @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50) : []
+    render :edit, status: :unprocessable_entity
   end
 
   def ai_annotation_params
