@@ -3,47 +3,47 @@ class LlmMetaServerResource
 
   class << self
     # Retrieve LLM options available for user selection (API Keys + Ollama)
+    # For guest users (no jwt_token), only Ollama is returned
     def available_llm_options(jwt_token)
-      llms = llms(jwt_token)
-      api_keys = llm_api_keys(jwt_token)
-      options = []
+      # For guest users: Ollama is required
+      # return only Ollama
+      return format ollama_options if jwt_token.blank?
 
-      # Add user's API Keys
-      api_keys.each do |key|
-        options << {
-          uuid: key["uuid"],
-          description: key["description"],
-          llm_type: key["llm_type"],
-          available_models: key["available_models"],
-          type: "api_key"
-        }
+      # Logged-in user: return API Keys + Ollama (if available)
+      options = llm_api_keys jwt_token
+
+      # Try to add Ollama, but don't fail if unavailable
+      begin
+        options.concat ollama_options
+      rescue Exceptions::OllamaUnavailableError => e
+        Rails.logger.warn "Ollama unavailable: #{e.message}"
+        # Continue with API Keys only if at least one is available
+        raise e if options.empty?
       end
 
-      # Add Ollama
-      ollama = llms.find { |llm| llm["llm_type"] == "ollama" }
-      if ollama
-        options << {
-          uuid: ollama["uuid"],
-          description: ollama["description"],
-          llm_type: "ollama",
-          available_models: ollama["available_models"],
-          type: "ollama"
-        }
-      end
-
-      options
+      format options
     end
 
     private
 
-    def llms(jwt_token)
+    def ollama_options
+      ollama_list = llms.filter { it["llm_type"] == "ollama" }
+      raise Exceptions::OllamaUnavailableError if ollama_list.empty?
+      ollama_list
+    end
+
+    # Builds normalized option hashes from an array of resources by slicing common keys
+    # Accepts only arrays
+    def format(resources)
+      common_keys = %w[uuid description llm_type available_models]
+      resources.map { it.slice(*common_keys).symbolize_keys }
+    end
+
+    def llms
       api_url = "#{Rails.configuration.llm_service_base_url}/api/llms"
-      raise ArgumentError, "User ID token is missing or invalid" if jwt_token.blank?
-
       headers = { "Content-Type" => "application/json" }
-      headers["Authorization"] = "Bearer #{jwt_token}"
 
-      response = HTTParty.get(api_url, headers: headers)
+      response = HTTParty.get api_url, headers: headers
 
       if response.success?
         response.parsed_response["llms"] || []
@@ -54,13 +54,10 @@ class LlmMetaServerResource
     end
 
     def llm_api_keys(jwt_token)
-      api_url = "#{Rails.configuration.llm_service_base_url}/api/llms_api_keys"
-      raise ArgumentError, "User ID token is missing or invalid" if jwt_token.blank?
+      api_url = "#{Rails.configuration.llm_service_base_url}/api/llm_api_keys"
+      headers = { "Content-Type" => "application/json", "Authorization" => "Bearer #{jwt_token}" }
 
-      headers = { "Content-Type" => "application/json" }
-      headers["Authorization"] = "Bearer #{jwt_token}"
-
-      response = HTTParty.get(api_url, headers: headers)
+      response = HTTParty.get api_url, headers: headers
 
       if response.success?
         response.parsed_response["llm_api_keys"] || []
