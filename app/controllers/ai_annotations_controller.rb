@@ -98,7 +98,7 @@ class AiAnnotationsController < ApplicationController
     @ai_annotation&.reload
     @history = user_signed_in? ? AiAnnotation.history_with_branches(limit: 50) : []
     render :edit, status: :unprocessable_entity
-　end
+  end
 
   def initialize_guest_history
     session[:guest_ai_annotation_history] ||= []
