@@ -76,21 +76,12 @@ class AiAnnotationsController < ApplicationController
   private
 
   def set_llm_options
-    if user_signed_in?
-      begin
-        @llm_options = current_user.available_llm_options
-      rescue ArgumentError
-        Rails.logger.error "User ID token is missing or invalid"
-        flash.now[:alert] = "Unable to fetch LLM options due to missing or invalid user."
-        @llm_options = []
-      rescue => e
-        Rails.logger.error "Failed to fetch LLM options: #{e.message}"
-        flash.now[:alert] = "Unable to fetch LLM options."
-        @llm_options = []
-      end
-    else
-      Rails.logger.info "Login required for paid models"
-      flash.now[:info] = "Login is required to use paid models."
+    begin
+      jwt_token = current_user&.jwt_token
+      @llm_options = LlmMetaServerResource.available_llm_options(jwt_token)
+    rescue => e
+      Rails.logger.error "Failed to fetch LLM options: #{e.message}"
+      flash.now[:alert] = "Unable to fetch LLM options."
       @llm_options = []
     end
   end
