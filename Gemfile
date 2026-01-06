@@ -76,3 +76,5 @@ group :development do
 end
 
 gem "solid_cache", "~> 1.0"
+
+gem "llm_mcp_meta_client", path: "llm_mcp_meta_client"

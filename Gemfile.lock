@@ -1,3 +1,9 @@
+PATH
+  remote: llm_mcp_meta_client
+  specs:
+    llm_mcp_meta_client (0.1.0)
+      rails (>= 8.1.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -462,6 +468,7 @@ DEPENDENCIES
   httparty
   importmap-rails
   jwt
+  llm_mcp_meta_client!
   omniauth
   omniauth-google-oauth2
   omniauth-rails_csrf_protection
