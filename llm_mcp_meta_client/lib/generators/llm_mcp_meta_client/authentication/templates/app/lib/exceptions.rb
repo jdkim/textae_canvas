@@ -5,10 +5,6 @@ module Exceptions
     end
   end
 
-  class RelationOutOfRangeError < StandardError; end
-
-  class DenotationFragmentedError < StandardError; end
-
   class OllamaUnavailableError < StandardError
     def initialize(msg = "Ollama is not available in LLM service. Please contact the administrator.")
       super(msg)
