@@ -3,7 +3,15 @@
 module LlmMcpMetaClient
   module Generators
     class AuthenticationGenerator < Rails::Generators::Base
+      include Rails::Generators::Migration
+
       source_root File.expand_path("templates", __dir__)
+
+
+      def self.next_migration_number(dirname)
+        next_migration_number = current_migration_number(dirname) + 1
+        ActiveRecord::Migration.next_migration_number(next_migration_number)
+      end
 
       def create_authentication_file
         template "app/models/llm_meta_server_resource.rb"
@@ -34,7 +42,7 @@ module LlmMcpMetaClient
       end
 
       def add_migrations
-        migration_template "db/migrate/create_users.rb", "db/migrate/#{Time.now.utc.strftime('%Y%m%d%H%M%S')}_create_users.rb"
+        migration_template "db/migrate/create_users.rb", "db/migrate/create_users.rb"
       end
     end
   end
