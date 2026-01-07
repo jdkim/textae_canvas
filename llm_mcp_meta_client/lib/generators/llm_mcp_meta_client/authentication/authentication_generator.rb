@@ -34,7 +34,7 @@ module LlmMcpMetaClient
       end
 
       def add_migrations
-        generate "migration", "CreateUsers email:string:not_null google_id:string id_token:text created_at:datetime:not_null updated_at:datetime:not_null"
+        migration_template "db/migrate/create_users.rb", "db/migrate/#{Time.now.utc.strftime('%Y%m%d%H%M%S')}_create_users.rb"
       end
     end
   end
