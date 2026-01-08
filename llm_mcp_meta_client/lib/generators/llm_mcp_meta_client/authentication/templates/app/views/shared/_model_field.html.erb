@@ -1,10 +1,10 @@
 <%
-  stimulus_controller = locals[:stimulus_controller]
+  stimulus_controller = locals[:stimulus_controller].gsub('-', '_')
 %>
 
 <div class="model-field">
   <label>LLM model</label>
   <%%= select_tag :model, options_for_select([["Please select API key first", ""]]),
       { required: true, disabled: true,
-        data: { "#{stimulus_controller.gsub('-', '_')}_target": "model", action: "change->#{stimulus_controller.gsub('-', '_')}_target#updateSubmitButton" } } %>
+        data: { "#{stimulus_controller}_target": "model", action: "change->#{stimulus_controller}_target#updateSubmitButton" } } %>
 </div>
