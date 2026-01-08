@@ -1,9 +1,14 @@
+<%
+  llm_options = locals[:llm_options]
+  stimulus_controller = locals[:stimulus_controller]
+%>
+
 <div class="submit-row">
-  <%%= render 'api_key_field' %>
-  <%%= render 'model_field' %>
+  <%%= render 'api_key_field', llm_options: llm_options, stimulus_controller: stimulus_controller %>
+  <%%= render 'model_field', stimulus_controller: stimulus_controller %>
 
   <div class="submit-field">
-    <%%= f.submit "Annotate", disabled: true, class: "button", data: { ai_annotation_form_target: "submit" } %>
+    <%%= f.submit "Annotate", disabled: true, class: "button", data: { "#{stimulus_controller.gsub('-', '_')}_target": "submit" } %>
   </div>
 </div>
 

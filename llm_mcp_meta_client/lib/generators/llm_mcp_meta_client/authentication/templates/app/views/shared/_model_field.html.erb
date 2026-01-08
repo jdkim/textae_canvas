@@ -1,6 +1,10 @@
+<%
+  stimulus_controller = locals[:stimulus_controller]
+%>
+
 <div class="model-field">
   <label>LLM model</label>
   <%%= select_tag :model, options_for_select([["Please select API key first", ""]]),
       { required: true, disabled: true,
-        data: { ai_annotation_form_target: "model", action: "change->ai-annotation-form#updateSubmitButton" } } %>
+        data: { "#{stimulus_controller.gsub('-', '_')}_target": "model", action: "change->#{stimulus_controller.gsub('-', '_')}_target#updateSubmitButton" } } %>
 </div>
