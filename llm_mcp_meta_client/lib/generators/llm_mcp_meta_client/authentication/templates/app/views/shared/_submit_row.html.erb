@@ -4,8 +4,8 @@
 %>
 
 <div class="submit-row">
-  <%%= render 'api_key_field', llm_options: llm_options, stimulus_controller: stimulus_controller %>
-  <%%= render 'model_field', stimulus_controller: stimulus_controller %>
+  <%%= render 'api_key_field', locals: { llm_options: llm_options, stimulus_controller: stimulus_controller } %>
+  <%%= render 'model_field', locals: { stimulus_controller: stimulus_controller } %>
 
   <div class="submit-field">
     <%%= f.submit "Annotate", disabled: true, class: "button", data: { "#{stimulus_controller.gsub('-', '_')}_target": "submit" } %>
